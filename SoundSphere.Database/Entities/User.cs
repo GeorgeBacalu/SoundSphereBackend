@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SoundSphere.Database.Entities
 {
@@ -14,8 +15,8 @@ namespace SoundSphere.Database.Entities
         public string Avatar { get; set; } = null!;
         public Role Role { get; set; } = null!; // ManyToOne with Role
         public IList<Authority> Authorities { get; set; } = null!; // ManyToMany with Authority
-        public IList<UserSong> UserSongs { get; set; } = null!; // ManyToMany with Song
-        public IList<UserArtist> UserArtists { get; set; } = null!; // ManyToMany with Artist
+        [JsonIgnore] public IList<UserSong>? UserSongs { get; set; } // ManyToMany with Song
+        [JsonIgnore] public IList<UserArtist>? UserArtists { get; set; } // ManyToMany with Artist
         public bool IsActive { get; set; } = true;
     }
 }

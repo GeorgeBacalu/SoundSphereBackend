@@ -1,4 +1,6 @@
-﻿namespace SoundSphere.Database.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace SoundSphere.Database.Entities
 {
     public class Song
     {
@@ -10,7 +12,7 @@
         public int DurationSeconds { get; set; } = 0;
         public Album Album { get; set; } = null!; // ManyToOne with Album
         public IList<Artist> Artists { get; set; } = null!; // ManyToMany with Artist
-        public IList<Playlist> Playlists { get; set; } = null!; // ManyToMany with Playlist
+        [JsonIgnore] public IList<Playlist>? Playlists { get; set; } // ManyToMany with Playlist
         public IList<SongLink> SimilarSongs { get; set; } = null!; // OneToMany self-referential
         public bool IsActive { get; set; } = true;
     }
