@@ -16,6 +16,25 @@ namespace SoundSphere.Database.Repositories
 
         public Artist Save(Artist artist)
         {
+            artist.SimilarArtists = artist.SimilarArtists
+                .Select(similarArtist => _context.Artists.Find(similarArtist.SimilarArtistId))
+                .Where(similarArtist => similarArtist != null)
+                .Select(similarArtist => new ArtistLink
+                {
+                    Artist = artist,
+                    SimilarArtist = similarArtist
+                })
+                .ToList();
+
+            _context.AddRange(_context.Users
+                .Select(user => new UserArtist 
+                { 
+                    User = user, 
+                    Artist = artist, 
+                    IsFollowing = false 
+                })
+                .ToList());
+
             _context.Artists.Add(artist);
             _context.SaveChanges();
             return artist;

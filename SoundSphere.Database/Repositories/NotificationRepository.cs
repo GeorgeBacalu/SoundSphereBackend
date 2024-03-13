@@ -1,4 +1,5 @@
-﻿using SoundSphere.Database.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -16,6 +17,13 @@ namespace SoundSphere.Database.Repositories
 
         public Notification Save(Notification notification)
         {
+            User existingUser = _context.Users.Find(notification.User.Id);
+            if (existingUser != null)
+            {
+                _context.Entry(existingUser).State = EntityState.Unchanged;
+                notification.User = existingUser;
+            }
+
             _context.Notifications.Add(notification);
             _context.SaveChanges();
             return notification;
@@ -24,7 +32,9 @@ namespace SoundSphere.Database.Repositories
         public Notification UpdateById(Notification notification, Guid id)
         {
             Notification notificationToUpdate = FindById(id);
+            DateTime SentAt = notificationToUpdate.SentAt;
             _context.Entry(notificationToUpdate).CurrentValues.SetValues(notification);
+            notificationToUpdate.SentAt = SentAt;
             _context.SaveChanges();
             return notificationToUpdate;
         }

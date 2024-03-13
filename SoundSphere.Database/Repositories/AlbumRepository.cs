@@ -16,6 +16,17 @@ namespace SoundSphere.Database.Repositories
 
         public Album Save(Album album)
         {
+
+            album.SimilarAlbums = album.SimilarAlbums
+                .Select(similarAlbum => _context.Albums.Find(similarAlbum.SimilarAlbumId))
+                .Where(similarAlbum => similarAlbum != null)
+                .Select(similarAlbum => new AlbumLink
+                {
+                    Album = album,
+                    SimilarAlbum = similarAlbum
+                })
+                .ToList();
+
             _context.Albums.Add(album);
             _context.SaveChanges();
             return album;
