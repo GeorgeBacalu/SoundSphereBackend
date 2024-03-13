@@ -16,9 +16,6 @@ namespace SoundSphere.Database.Repositories
 
         public User Save(User user)
         {
-            if (user == null) throw new Exception("Can't persist null user to DB!");
-            if (user.Id == Guid.Empty) user.Id = Guid.NewGuid();
-            user.IsActive = true;
             _context.Users.Add(user);
             _context.SaveChanges();
             return user;
@@ -26,7 +23,6 @@ namespace SoundSphere.Database.Repositories
 
         public User UpdateById(User user, Guid id)
         {
-            if (user == null) throw new Exception("Can't persist null user to DB!");
             User userToUpdate = FindById(id);
             _context.Entry(userToUpdate).CurrentValues.SetValues(user);
             _context.SaveChanges();

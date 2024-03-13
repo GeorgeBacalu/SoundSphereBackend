@@ -16,8 +16,6 @@ namespace SoundSphere.Database.Repositories
 
         public Role Save(Role role)
         {
-            if (role == null) throw new Exception($"Can't persist null role to DB!");
-            if (role.Id == Guid.Empty) role.Id = Guid.NewGuid();
             _context.Roles.Add(role);
             _context.SaveChanges();
             return role;

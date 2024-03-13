@@ -16,9 +16,6 @@ namespace SoundSphere.Database.Repositories
 
         public Feedback Save(Feedback feedback)
         {
-            if (feedback == null) throw new Exception("Can't persist null feedback to DB!");
-            if (feedback.Id == Guid.Empty) feedback.Id = Guid.NewGuid();
-            feedback.SentAt = DateTime.Now;
             _context.Feedbacks.Add(feedback);
             _context.SaveChanges();
             return feedback;
@@ -26,7 +23,6 @@ namespace SoundSphere.Database.Repositories
 
         public Feedback UpdateById(Feedback feedback, Guid id)
         {
-            if (feedback == null) throw new Exception("Can't persist null feedback to DB!");
             Feedback feedbackToUpdate = FindById(id);
             _context.Entry(feedbackToUpdate).CurrentValues.SetValues(feedback);
             _context.SaveChanges();

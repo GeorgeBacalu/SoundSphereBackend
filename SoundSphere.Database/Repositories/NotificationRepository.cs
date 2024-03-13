@@ -16,10 +16,6 @@ namespace SoundSphere.Database.Repositories
 
         public Notification Save(Notification notification)
         {
-            if (notification == null) throw new Exception("Can't persist null notification to DB!");
-            if (notification.Id == Guid.Empty) notification.Id = Guid.NewGuid();
-            notification.SentAt = DateTime.Now;
-            notification.IsRead = false;
             _context.Notifications.Add(notification);
             _context.SaveChanges();
             return notification;
@@ -27,7 +23,6 @@ namespace SoundSphere.Database.Repositories
 
         public Notification UpdateById(Notification notification, Guid id)
         {
-            if (notification == null) throw new Exception("Can't persist null notification to DB!");
             Notification notificationToUpdate = FindById(id);
             _context.Entry(notificationToUpdate).CurrentValues.SetValues(notification);
             _context.SaveChanges();

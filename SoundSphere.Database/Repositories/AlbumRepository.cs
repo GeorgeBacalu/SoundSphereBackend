@@ -16,9 +16,6 @@ namespace SoundSphere.Database.Repositories
 
         public Album Save(Album album)
         {
-            if (album == null) throw new Exception("Can't persist null album to DB!");
-            if (album.Id == Guid.Empty) album.Id = Guid.NewGuid();
-            album.IsActive = true;
             _context.Albums.Add(album);
             _context.SaveChanges();
             return album;
@@ -26,7 +23,6 @@ namespace SoundSphere.Database.Repositories
 
         public Album UpdateById(Album album, Guid id)
         {
-            if (album == null) throw new Exception("Can't persist null album to DB!");
             Album albumToUpdate = FindById(id);
             _context.Entry(albumToUpdate).CurrentValues.SetValues(album);
             _context.SaveChanges();

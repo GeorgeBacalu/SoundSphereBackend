@@ -14,6 +14,11 @@ namespace SoundSphere.Database.Repositories
 
         public Role FindById(Guid id) => _roleRepository.FindById(id);
 
-        public Role Save(Role role) => _roleRepository.Save(role);
+        public Role Save(Role role)
+        {
+            if (role == null) throw new Exception($"Can't persist null role to DB!");
+            if (role.Id == Guid.Empty) role.Id = Guid.NewGuid();
+            return _roleRepository.Save(role);
+        }
     }
 }

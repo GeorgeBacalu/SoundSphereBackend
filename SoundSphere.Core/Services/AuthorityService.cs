@@ -14,6 +14,11 @@ namespace SoundSphere.Database.Repositories
 
         public Authority FindById(Guid id) => _authorityRepository.FindById(id);
 
-        public Authority Save(Authority authority) => _authorityRepository.Save(authority);
+        public Authority Save(Authority authority)
+        {
+            if (authority == null) throw new Exception("Can't persist null authority to DB!");
+            if (authority.Id == Guid.Empty) authority.Id = Guid.NewGuid();
+            return _authorityRepository.Save(authority);
+        }
     }
 }

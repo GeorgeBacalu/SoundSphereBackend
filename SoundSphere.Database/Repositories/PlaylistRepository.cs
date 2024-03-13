@@ -16,10 +16,6 @@ namespace SoundSphere.Database.Repositories
 
         public Playlist Save(Playlist playlist)
         {
-            if (playlist == null) throw new Exception("Can't persist null playlist to DB!");
-            if (playlist.Id == Guid.Empty) playlist.Id = Guid.NewGuid();
-            playlist.IsActive = true;
-            playlist.CreatedAt = DateTime.Now;
             _context.Playlists.Add(playlist);
             _context.SaveChanges();
             return playlist;
@@ -27,7 +23,6 @@ namespace SoundSphere.Database.Repositories
 
         public Playlist UpdateById(Playlist playlist, Guid id)
         {
-            if (playlist == null) throw new Exception("Can't persist null playlist to DB!");
             Playlist playlistToUpdate = FindById(id);
             _context.Entry(playlistToUpdate).CurrentValues.SetValues(playlist);
             _context.SaveChanges();

@@ -14,9 +14,19 @@ namespace SoundSphere.Database.Repositories
 
         public Artist FindById(Guid id) => _artistRepository.FindById(id);
 
-        public Artist Save(Artist artist) => _artistRepository.Save(artist);
+        public Artist Save(Artist artist)
+        {
+            if (artist == null) throw new Exception("Can't persist null artist to DB!");
+            if (artist.Id == Guid.Empty) artist.Id = Guid.NewGuid();
+            artist.IsActive = true;
+            return _artistRepository.Save(artist);
+        }
 
-        public Artist UpdateById(Artist artist, Guid id) => _artistRepository.UpdateById(artist, id);
+        public Artist UpdateById(Artist artist, Guid id)
+        {
+            if (artist == null) throw new Exception("Can't persist null artist to DB!");
+            return _artistRepository.UpdateById(artist, id);
+        }
 
         public Artist DisableById(Guid id) => _artistRepository.DisableById(id);
     }

@@ -16,8 +16,6 @@ namespace SoundSphere.Database.Repositories
 
         public Authority Save(Authority authority)
         {
-            if (authority == null) throw new Exception("Can't persist null authority to DB!");
-            if (authority.Id == Guid.Empty) authority.Id = Guid.NewGuid();
             _context.Authorities.Add(authority);
             _context.SaveChanges();
             return authority;
