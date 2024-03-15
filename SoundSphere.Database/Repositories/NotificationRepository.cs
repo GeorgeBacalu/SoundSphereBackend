@@ -17,13 +17,6 @@ namespace SoundSphere.Database.Repositories
 
         public Notification Save(Notification notification)
         {
-            User existingUser = _context.Users.Find(notification.User.Id);
-            if (existingUser != null)
-            {
-                _context.Entry(existingUser).State = EntityState.Unchanged;
-                notification.User = existingUser;
-            }
-
             _context.Notifications.Add(notification);
             _context.SaveChanges();
             return notification;
@@ -44,6 +37,15 @@ namespace SoundSphere.Database.Repositories
             Notification notificationToDelete = FindById(id);
             _context.Notifications.Remove(notificationToDelete);
             _context.SaveChanges();
+        }
+        public void LinkNotificationToUser(Notification notification)
+        {
+            User existingUser = _context.Users.Find(notification.User.Id);
+            if (existingUser != null)
+            {
+                _context.Entry(existingUser).State = EntityState.Unchanged;
+                notification.User = existingUser;
+            }
         }
     }
 }

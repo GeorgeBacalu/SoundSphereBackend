@@ -17,42 +17,6 @@ namespace SoundSphere.Database.Repositories
 
         public User Save(User user)
         {
-            Role existingRole = _context.Roles.Find(user.Role.Id);
-
-            if (existingRole != null)
-            {
-                _context.Entry(existingRole).State = EntityState.Unchanged;
-                user.Role = existingRole;
-            }
-
-            user.Authorities = user.Authorities
-                .Select(authority => _context.Authorities.Find(authority.Id))
-                .Where(authority => authority != null)
-                .ToList();
-
-            foreach (Authority authority in user.Authorities)
-            {
-                _context.Entry(authority).State = EntityState.Unchanged;
-            }
-
-            _context.AddRange(_context.Songs
-                .Select(song => new UserSong
-                {
-                    User = user,
-                    Song = song,
-                    PlayCount = 0
-                })
-                .ToList());
-
-            _context.AddRange(_context.Artists
-                .Select(artist => new UserArtist
-                {
-                    User = user,
-                    Artist = artist,
-                    IsFollowing = false
-                })
-                .ToList());
-
             _context.Users.Add(user);
             _context.SaveChanges();
             return user;
@@ -72,6 +36,54 @@ namespace SoundSphere.Database.Repositories
             userToDisable.IsActive = false;
             _context.SaveChanges();
             return userToDisable;
+        }
+
+
+        public void LinkUserToRole(User user)
+        {
+            Role existingRole = _context.Roles.Find(user.Role.Id);
+            if (existingRole != null)
+            {
+                _context.Entry(existingRole).State = EntityState.Unchanged;
+                user.Role = existingRole;
+            }
+        }
+
+        public void LinkUserToAuthorities(User user)
+        {
+            user.Authorities = user.Authorities
+                            .Select(authority => _context.Authorities.Find(authority.Id))
+                            .Where(authority => authority != null)
+                            .ToList();
+
+            foreach (Authority authority in user.Authorities)
+            {
+                _context.Entry(authority).State = EntityState.Unchanged;
+            }
+        }
+
+        public void AddUserSong(User user)
+        {
+            _context.AddRange(_context.Songs
+                            .Select(song => new UserSong
+                            {
+                                User = user,
+                                Song = song,
+                                PlayCount = 0
+                            })
+                            .ToList());
+        }
+
+        public void AddUserArtist(User user)
+        {
+            _context.AddRange(_context.Artists
+                            .Select(artist => new UserArtist
+                            {
+                                User = user,
+                                Artist = artist,
+                                IsFollowing = false
+                            })
+                            .ToList());
         }
     }
 }

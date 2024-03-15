@@ -13,5 +13,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
         Playlist UpdateById(Playlist playlist, Guid id);
 
         Playlist DisableById(Guid id);
+
+        void LinkPlaylistToUser(Playlist playlist);
     }
 }

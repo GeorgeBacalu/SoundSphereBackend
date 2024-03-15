@@ -20,6 +20,9 @@ namespace SoundSphere.Database.Repositories
             if (notification.Id == Guid.Empty) notification.Id = Guid.NewGuid();
             notification.SentAt = DateTime.Now;
             notification.IsRead = false;
+
+            _notificationRepository.LinkNotificationToUser(notification);
+
             return _notificationRepository.Save(notification);
         }
 

@@ -17,13 +17,6 @@ namespace SoundSphere.Database.Repositories
 
         public Playlist Save(Playlist playlist)
         {
-            User existingUser = _context.Users.Find(playlist.User.Id);
-            if (existingUser != null)
-            {
-                _context.Entry(existingUser).State = EntityState.Unchanged;
-                playlist.User = existingUser;
-            }
-
             _context.Playlists.Add(playlist);
             _context.SaveChanges();
             return playlist;
@@ -45,6 +38,15 @@ namespace SoundSphere.Database.Repositories
             playlistToDisable.IsActive = false;
             _context.SaveChanges();
             return playlistToDisable;
+        }
+        public void LinkPlaylistToUser(Playlist playlist)
+        {
+            User existingUser = _context.Users.Find(playlist.User.Id);
+            if (existingUser != null)
+            {
+                _context.Entry(existingUser).State = EntityState.Unchanged;
+                playlist.User = existingUser;
+            }
         }
     }
 }

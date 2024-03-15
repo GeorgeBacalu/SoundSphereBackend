@@ -13,5 +13,13 @@ namespace SoundSphere.Database.Repositories.Interfaces
         User UpdateById(User user, Guid id);
 
         User DisableById(Guid id);
+
+        void LinkUserToRole(User user);
+
+        void LinkUserToAuthorities(User user);
+
+        void AddUserSong(User user);
+
+        void AddUserArtist(User user);
     }
 }

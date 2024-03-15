@@ -17,13 +17,6 @@ namespace SoundSphere.Database.Repositories
 
         public Feedback Save(Feedback feedback)
         {
-            User existingUser = _context.Users.Find(feedback.User.Id);
-            if (existingUser != null)
-            {
-                _context.Entry(existingUser).State = EntityState.Unchanged;
-                feedback.User = existingUser;
-            }
-
             _context.Feedbacks.Add(feedback);
             _context.SaveChanges();
             return feedback;
@@ -44,6 +37,16 @@ namespace SoundSphere.Database.Repositories
             Feedback feedbackToDelete = FindById(id);
             _context.Feedbacks.Remove(feedbackToDelete);
             _context.SaveChanges();
+        }
+
+        public void LinkFeedbackToUser(Feedback feedback)
+        {
+            User existingUser = _context.Users.Find(feedback.User.Id);
+            if (existingUser != null)
+            {
+                _context.Entry(existingUser).State = EntityState.Unchanged;
+                feedback.User = existingUser;
+            }
         }
     }
 }

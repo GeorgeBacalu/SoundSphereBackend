@@ -13,5 +13,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
         Album UpdateById(Album album, Guid id);
 
         Album DisableById(Guid id);
+
+        void AddAlbumLink(Album album);
     }
 }

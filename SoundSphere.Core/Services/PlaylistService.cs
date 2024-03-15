@@ -20,6 +20,9 @@ namespace SoundSphere.Database.Repositories
             if (playlist.Id == Guid.Empty) playlist.Id = Guid.NewGuid();
             playlist.IsActive = true;
             playlist.CreatedAt = DateTime.Now;
+
+            _playlistRepository.LinkPlaylistToUser(playlist);
+
             return _playlistRepository.Save(playlist);
         }
 

@@ -13,5 +13,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
         Feedback UpdateById(Feedback feedback, Guid id);
 
         void DeleteById(Guid id);
+
+        void LinkFeedbackToUser(Feedback feedback);
     }
 }

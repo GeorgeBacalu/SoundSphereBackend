@@ -13,5 +13,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
         Notification UpdateById(Notification notification, Guid id);
 
         void DeleteById(Guid id);
+
+        void LinkNotificationToUser(Notification notification);
     }
 }

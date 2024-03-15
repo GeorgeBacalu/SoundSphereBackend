@@ -19,6 +19,9 @@ namespace SoundSphere.Database.Repositories
             if (album == null) throw new Exception("Can't persist null album to DB!");
             if (album.Id == Guid.Empty) album.Id = Guid.NewGuid();
             album.IsActive = true;
+
+            _albumRepository.AddAlbumLink(album);
+
             return _albumRepository.Save(album);
         }
 

@@ -19,6 +19,12 @@ namespace SoundSphere.Database.Repositories
             if (song == null) throw new Exception("Can't persist null song to DB!");
             if (song.Id == Guid.Empty) song.Id = Guid.NewGuid();
             song.IsActive = true;
+
+            _songRepository.LinkSongToAlbum(song);
+            _songRepository.LinkSongToArtist(song);
+            _songRepository.AddSongLinks(song);
+            _songRepository.AddUserSong(song);
+
             return _songRepository.Save(song);
         }
 

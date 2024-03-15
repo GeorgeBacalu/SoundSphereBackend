@@ -16,43 +16,7 @@ namespace SoundSphere.Database.Repositories
         public Song FindById(Guid id) => _context.Songs.Find(id) ?? throw new Exception($"Song with id {id} not found!");
 
         public Song Save(Song song)
-        {
-            Album existingAlbum = _context.Albums.Find(song.Album.Id);
-            if (existingAlbum != null)
-            {
-                _context.Entry(existingAlbum).State = EntityState.Unchanged;
-                song.Album = existingAlbum;
-            }
-
-            song.Artists = song.Artists
-                .Select(artist => _context.Artists.Find(artist.Id))
-                .Where(artist => artist != null)
-                .ToList();
-
-            foreach (Artist artist in song.Artists)
-            {
-                _context.Entry(artist).State = EntityState.Unchanged;
-            }
-
-            song.SimilarSongs = song.SimilarSongs
-                .Select(similarSong => _context.Songs.Find(similarSong.SimilarSongId))
-                .Where(similarSong => similarSong != null)
-                .Select(similarSong => new SongLink 
-                { 
-                    Song = song, 
-                    SimilarSong = similarSong 
-                })
-                .ToList();
-
-            _context.AddRange(_context.Users
-                .Select(user => new UserSong 
-                { 
-                    User = user, 
-                    Song = song, 
-                    PlayCount = 0 
-                })
-                .ToList());
-
+        { 
             _context.Songs.Add(song);
             _context.SaveChanges();
             return song;
@@ -72,6 +36,53 @@ namespace SoundSphere.Database.Repositories
             songToDisable.IsActive = false;
             _context.SaveChanges();
             return songToDisable;
+        }
+        public void LinkSongToAlbum(Song song)
+        {
+            Album existingAlbum = _context.Albums.Find(song.Album.Id);
+            if (existingAlbum != null)
+            {
+                _context.Entry(existingAlbum).State = EntityState.Unchanged;
+                song.Album = existingAlbum;
+            }
+        }
+
+        public void LinkSongToArtist(Song song)
+        {
+            song.Artists = song.Artists
+                .Select(artist => _context.Artists.Find(artist.Id))
+                .Where(artist => artist != null)
+                .ToList();
+
+            foreach (Artist artist in song.Artists)
+            {
+                _context.Entry(artist).State = EntityState.Unchanged;
+            }
+        }
+
+        public void AddSongLinks(Song song)
+        {
+            song.SimilarSongs = song.SimilarSongs
+                .Select(similarSong => _context.Songs.Find(similarSong.SimilarSongId))
+                .Where(similarSong => similarSong != null)
+                .Select(similarSong => new SongLink
+                {
+                    Song = song,
+                    SimilarSong = similarSong
+                })
+                .ToList();
+        }
+
+        public void AddUserSong(Song song)
+        {
+            _context.AddRange(_context.Users
+                .Select(user => new UserSong
+                {
+                    User = user,
+                    Song = song,
+                    PlayCount = 0
+                })
+                .ToList());
         }
     }
 }

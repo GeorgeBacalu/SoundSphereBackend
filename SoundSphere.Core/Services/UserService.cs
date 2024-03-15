@@ -19,6 +19,12 @@ namespace SoundSphere.Database.Repositories
             if (user == null) throw new Exception("Can't persist null user to DB!");
             if (user.Id == Guid.Empty) user.Id = Guid.NewGuid();
             user.IsActive = true;
+
+            _userRepository.LinkUserToAuthorities(user);
+            _userRepository.LinkUserToRole(user);
+            _userRepository.AddUserSong(user);
+            _userRepository.AddUserArtist(user);
+
             return _userRepository.Save(user);
         }
 
