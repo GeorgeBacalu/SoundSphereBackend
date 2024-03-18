@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -8,8 +9,13 @@ namespace SoundSphere.Database.Repositories
     public class AuthorityService : IAuthorityService
     {
         private readonly IAuthorityRepository _authorityRepository;
+        private readonly IMapper _mapper;
 
-        public AuthorityService(IAuthorityRepository authorityRepository) => _authorityRepository = authorityRepository;
+        public AuthorityService(IAuthorityRepository authorityRepository, IMapper mapper)
+        {
+            _authorityRepository = authorityRepository;
+            _mapper = mapper;
+        }
 
         public IList<AuthorityDto> FindAll() => ConvertToDtos(_authorityRepository.FindAll());
 
@@ -26,16 +32,8 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Authority> ConvertToEntities(IList<AuthorityDto> authorityDtos) => authorityDtos.Select(ConvertToEntity).ToList();
 
-        public AuthorityDto ConvertToDto(Authority authority) => new AuthorityDto
-        {
-            Id = authority.Id,
-            Type = authority.Type
-        };
+        public AuthorityDto ConvertToDto(Authority authority) => _mapper.Map<AuthorityDto>(authority);
 
-        public Authority ConvertToEntity(AuthorityDto authorityDto) => new Authority
-        {
-            Id = authorityDto.Id,
-            Type = authorityDto.Type
-        };
+        public Authority ConvertToEntity(AuthorityDto authorityDto) => _mapper.Map<Authority>(authorityDto);
     }
 }

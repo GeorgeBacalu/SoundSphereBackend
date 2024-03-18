@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -10,12 +11,14 @@ namespace SoundSphere.Database.Repositories
         private readonly ISongRepository _songRepository;
         private readonly IAlbumRepository _albumRepository;
         private readonly IArtistRepository _artistRepository;
+        private readonly IMapper _mapper;
 
-        public SongService(ISongRepository songRepository, IAlbumRepository albumRepository, IArtistRepository artistRepository)
+        public SongService(ISongRepository songRepository, IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper)
         {
             _songRepository = songRepository;
             _albumRepository = albumRepository;
             _artistRepository = artistRepository;
+            _mapper = mapper;
         }
 
         public IList<SongDto> FindAll() => ConvertToDtos(_songRepository.FindAll());
@@ -42,44 +45,34 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Song> ConvertToEntities(IList<SongDto> songDtos) => songDtos.Select(ConvertToEntity).ToList();
 
-        public SongDto ConvertToDto(Song song) => new SongDto
+        public SongDto ConvertToDto(Song song)
         {
-            Id = song.Id,
-            Title = song.Title,
-            ImageUrl = song.ImageUrl,
-            Genre = song.Genre,
-            ReleaseDate = song.ReleaseDate,
-            DurationSeconds = song.DurationSeconds,
-            AlbumId = song.Album.Id,
-            ArtistsIds = song.Artists
+            SongDto songDto = _mapper.Map<SongDto>(song);
+            songDto.AlbumId = song.Album.Id;
+            songDto.ArtistsIds = song.Artists
                 .Select(artist => artist.Id)
-                .ToList(),
-            SimilarSongsIds = song.SimilarSongs
-                .Select(song => song.SimilarSongId)
-                .ToList(),
-            IsActive = song.IsActive
-        };
+                .ToList();
+            songDto.SimilarSongsIds = song.SimilarSongs
+                .Select(songLink => songLink.SimilarSongId)
+                .ToList();
+            return songDto;
+        }
 
-        public Song ConvertToEntity(SongDto songDto) => new Song
+        public Song ConvertToEntity(SongDto songDto)
         {
-            Id = songDto.Id,
-            Title = songDto.Title,
-            ImageUrl = songDto.ImageUrl,
-            Genre = songDto.Genre,
-            ReleaseDate = songDto.ReleaseDate,
-            DurationSeconds = songDto.DurationSeconds,
-            Album = _albumRepository.FindById(songDto.AlbumId),
-            Artists = songDto.ArtistsIds
+            Song song = _mapper.Map<Song>(songDto);
+            song.Album = _albumRepository.FindById(songDto.AlbumId);
+            song.Artists = songDto.ArtistsIds
                 .Select(_artistRepository.FindById)
-                .ToList(),
-            SimilarSongs = songDto.SimilarSongsIds
+                .ToList();
+            song.SimilarSongs = songDto.SimilarSongsIds
                 .Select(id => new SongLink
                 {
                     SongId = songDto.Id,
                     SimilarSongId = id
                 })
-                .ToList(),
-            IsActive = songDto.IsActive
-        };
+                .ToList();
+            return song;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -9,11 +10,13 @@ namespace SoundSphere.Database.Repositories
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository)
+        public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IMapper mapper)
         {
             _notificationRepository = notificationRepository;
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public IList<NotificationDto> FindAll() => ConvertToDtos(_notificationRepository.FindAll());
@@ -38,24 +41,18 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Notification> ConvertToEntities(IList<NotificationDto> notificationDtos) => notificationDtos.Select(ConvertToEntity).ToList();
 
-        public NotificationDto ConvertToDto(Notification notification) => new NotificationDto
+        public NotificationDto ConvertToDto(Notification notification)
         {
-            Id = notification.Id,
-            UserId = notification.User.Id,
-            Type = notification.Type,
-            Message = notification.Message,
-            SentAt = notification.SentAt,
-            IsRead = notification.IsRead
-        };
+            NotificationDto notificationDto = _mapper.Map<NotificationDto>(notification);
+            notificationDto.UserId = notification.User.Id;
+            return notificationDto;
+        }
 
-        public Notification ConvertToEntity(NotificationDto notificationDto) => new Notification
+        public Notification ConvertToEntity(NotificationDto notificationDto)
         {
-            Id = notificationDto.Id,
-            User = _userRepository.FindById(notificationDto.UserId),
-            Type = notificationDto.Type,
-            Message = notificationDto.Message,
-            SentAt = notificationDto.SentAt,
-            IsRead = notificationDto.IsRead
-        };
+            Notification notification = _mapper.Map<Notification>(notificationDto);
+            notification.User = _userRepository.FindById(notificationDto.UserId);
+            return notification;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -9,11 +10,13 @@ namespace SoundSphere.Database.Repositories
     {
         private readonly IFeedbackRepository _feedbackRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public FeedbackService(IFeedbackRepository feedbackRepository, IUserRepository userRepository)
+        public FeedbackService(IFeedbackRepository feedbackRepository, IUserRepository userRepository, IMapper mapper)
         {
             _feedbackRepository = feedbackRepository;
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public IList<FeedbackDto> FindAll() => ConvertToDtos(_feedbackRepository.FindAll());
@@ -37,22 +40,18 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Feedback> ConvertToEntities(IList<FeedbackDto> feedbackDtos) => feedbackDtos.Select(ConvertToEntity).ToList();
 
-        public FeedbackDto ConvertToDto(Feedback feedback) => new FeedbackDto
+        public FeedbackDto ConvertToDto(Feedback feedback)
         {
-            Id = feedback.Id,
-            UserId = feedback.User.Id,
-            Type = feedback.Type,
-            Message = feedback.Message,
-            SentAt = feedback.SentAt
-        };
+            FeedbackDto feedbackDto = _mapper.Map<FeedbackDto>(feedback);
+            feedbackDto.UserId = feedback.User.Id;
+            return feedbackDto;
+        }
 
-        public Feedback ConvertToEntity(FeedbackDto feedbackDto) => new Feedback
+        public Feedback ConvertToEntity(FeedbackDto feedbackDto)
         {
-            Id = feedbackDto.Id,
-            User = _userRepository.FindById(feedbackDto.UserId),
-            Type = feedbackDto.Type,
-            Message = feedbackDto.Message,
-            SentAt = feedbackDto.SentAt
-        };
+            Feedback feedback = _mapper.Map<Feedback>(feedbackDto);
+            feedback.User = _userRepository.FindById(feedbackDto.UserId);
+            return feedback;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -10,12 +11,14 @@ namespace SoundSphere.Database.Repositories
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IUserRepository _userRepository;
         private readonly ISongRepository _songRepository;
+        private readonly IMapper _mapper;
 
-        public PlaylistService(IPlaylistRepository playlistRepository, IUserRepository userRepository, ISongRepository songRepository)
+        public PlaylistService(IPlaylistRepository playlistRepository, IUserRepository userRepository, ISongRepository songRepository, IMapper mapper)
         {
             _playlistRepository = playlistRepository;
             _userRepository = userRepository;
             _songRepository = songRepository;
+            _mapper = mapper;
         }
 
         public IList<PlaylistDto> FindAll() => ConvertToDtos(_playlistRepository.FindAll());
@@ -40,28 +43,24 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Playlist> ConvertToEntities(IList<PlaylistDto> playlistDtos) => playlistDtos.Select(ConvertToEntity).ToList();
 
-        public PlaylistDto ConvertToDto(Playlist playlist) => new PlaylistDto
+        public PlaylistDto ConvertToDto(Playlist playlist)
         {
-            Id = playlist.Id,
-            Title = playlist.Title,
-            UserId = playlist.User.Id,
-            SongsIds = playlist.Songs
-                    .Select(song => song.Id)
-                    .ToList(),
-            CreatedAt = playlist.CreatedAt,
-            IsActive = playlist.IsActive
-        };
+            PlaylistDto playlistDto = _mapper.Map<PlaylistDto>(playlist);
+            playlistDto.UserId = playlist.User.Id;
+            playlistDto.SongsIds = playlist.Songs
+                .Select(song => song.Id)
+                .ToList();
+            return playlistDto;
+        }
 
-        public Playlist ConvertToEntity(PlaylistDto playlistDto) => new Playlist
+        public Playlist ConvertToEntity(PlaylistDto playlistDto)
         {
-            Id = playlistDto.Id,
-            Title = playlistDto.Title,
-            User = _userRepository.FindById(playlistDto.UserId),
-            Songs = playlistDto.SongsIds
-                    .Select(_songRepository.FindById)
-                    .ToList(),
-            CreatedAt = playlistDto.CreatedAt,
-            IsActive = playlistDto.IsActive
-        };
+            Playlist playlist = _mapper.Map<Playlist>(playlistDto);
+            playlist.User = _userRepository.FindById(playlistDto.UserId);
+            playlist.Songs = playlistDto.SongsIds
+                .Select(id => _songRepository.FindById(id))
+                .ToList();
+            return playlist;
+        }
     }
 }

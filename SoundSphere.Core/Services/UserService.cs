@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -10,12 +11,14 @@ namespace SoundSphere.Database.Repositories
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IAuthorityRepository _authorityRepository;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository)
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _authorityRepository = authorityRepository;
+            _mapper = mapper;
         }
 
         public IList<UserDto> FindAll() => ConvertToDtos(_userRepository.FindAll());
@@ -43,36 +46,24 @@ namespace SoundSphere.Database.Repositories
 
         public IList<User> ConvertToEntities(IList<UserDto> userDtos) => userDtos.Select(ConvertToEntity).ToList();
 
-        public UserDto ConvertToDto(User user) => new UserDto
+        public UserDto ConvertToDto(User user)
         {
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email,
-            Mobile = user.Mobile,
-            Address = user.Address,
-            Birthday = user.Birthday,
-            Avatar = user.Avatar,
-            RoleId = user.Role.Id,
-            AuthoritiesIds = user.Authorities
+            UserDto userDto = _mapper.Map<UserDto>(user);
+            userDto.RoleId = user.Role.Id;
+            userDto.AuthoritiesIds = user.Authorities
                 .Select(authority => authority.Id)
-                .ToList(),
-            IsActive = user.IsActive
-        };
+                .ToList();
+            return userDto;
+        }
 
-        public User ConvertToEntity(UserDto userDto) => new User
+        public User ConvertToEntity(UserDto userDto)
         {
-            Id = userDto.Id,
-            Name = userDto.Name,
-            Email = userDto.Email,
-            Mobile = userDto.Mobile,
-            Address = userDto.Address,
-            Birthday = userDto.Birthday,
-            Avatar = userDto.Avatar,
-            Role = _roleRepository.FindById(userDto.RoleId),
-            Authorities = userDto.AuthoritiesIds
+            User user = _mapper.Map<User>(userDto);
+            user.Role = _roleRepository.FindById(userDto.RoleId);
+            user.Authorities = userDto.AuthoritiesIds
                 .Select(_authorityRepository.FindById)
-                .ToList(),
-            IsActive = userDto.IsActive
-        };
+                .ToList();
+            return user;
+        }
     }
 }

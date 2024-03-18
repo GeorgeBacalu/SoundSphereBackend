@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -8,8 +9,13 @@ namespace SoundSphere.Database.Repositories
     public class AlbumService : IAlbumService
     {
         private readonly IAlbumRepository _albumRepository;
+        private readonly IMapper _mapper;
 
-        public AlbumService(IAlbumRepository albumRepository) => _albumRepository = albumRepository;
+        public AlbumService(IAlbumRepository albumRepository, IMapper mapper)
+        {
+            _albumRepository = albumRepository;
+            _mapper = mapper;
+        }
 
         public IList<AlbumDto> FindAll() => ConvertToDtos(_albumRepository.FindAll());
 
@@ -32,32 +38,26 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Album> ConvertToEntities(IList<AlbumDto> albumDtos) => albumDtos.Select(ConvertToEntity).ToList();
 
-        public AlbumDto ConvertToDto(Album album) => new AlbumDto
+        public AlbumDto ConvertToDto(Album album)
         {
-            Id = album.Id,
-            Title = album.Title,
-            ImageUrl = album.ImageUrl,
-            ReleaseDate = album.ReleaseDate,
-            SimilarAlbumsIds = album.SimilarAlbums
+            AlbumDto albumDto = _mapper.Map<AlbumDto>(album);
+            albumDto.SimilarAlbumsIds = album.SimilarAlbums
                 .Select(albumLink => albumLink.SimilarAlbumId)
-                .ToList(),
-            IsActive = album.IsActive
-        };
+                .ToList();
+            return albumDto;
+        }
 
-        public Album ConvertToEntity(AlbumDto albumDto) => new Album
+        public Album ConvertToEntity(AlbumDto albumDto)
         {
-            Id = albumDto.Id,
-            Title = albumDto.Title,
-            ImageUrl = albumDto.ImageUrl,
-            ReleaseDate = albumDto.ReleaseDate,
-            SimilarAlbums = albumDto.SimilarAlbumsIds
+            Album album = _mapper.Map<Album>(albumDto);
+            album.SimilarAlbums = albumDto.SimilarAlbumsIds
                 .Select(id => new AlbumLink
                 {
                     AlbumId = albumDto.Id,
                     SimilarAlbumId = id
                 })
-                .ToList(),
-            IsActive = albumDto.IsActive
-        };
+                .ToList();
+            return album;
+        }
     }
 }

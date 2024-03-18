@@ -1,4 +1,5 @@
-﻿using SoundSphere.Core.Services.Interfaces;
+﻿using AutoMapper;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -8,8 +9,13 @@ namespace SoundSphere.Database.Repositories
     public class ArtistService : IArtistService
     {
         private readonly IArtistRepository _artistRepository;
+        private readonly IMapper _mapper;
 
-        public ArtistService(IArtistRepository artistRepository) => _artistRepository = artistRepository;
+        public ArtistService(IArtistRepository artistRepository, IMapper mapper)
+        {
+            _artistRepository = artistRepository;
+            _mapper = mapper;
+        }
 
         public IList<ArtistDto> FindAll() => ConvertToDtos(_artistRepository.FindAll());
 
@@ -33,32 +39,26 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Artist> ConvertToEntities(IList<ArtistDto> artistDtos) => artistDtos.Select(ConvertToEntity).ToList();
 
-        public ArtistDto ConvertToDto(Artist artist) => new ArtistDto
+        public ArtistDto ConvertToDto(Artist artist)
         {
-            Id = artist.Id,
-            Name = artist.Name,
-            ImageUrl = artist.ImageUrl,
-            Bio = artist.Bio,
-            SimilarArtistsIds = artist.SimilarArtists
-                .Select(artist => artist.SimilarArtistId)
-                .ToList(),
-            IsActive = artist.IsActive
-        };
+            ArtistDto artistDto = _mapper.Map<ArtistDto>(artist);
+            artistDto.SimilarArtistsIds = artist.SimilarArtists
+                .Select(artistLink => artistLink.SimilarArtistId)
+                .ToList();
+            return artistDto;
+        }
 
-        public Artist ConvertToEntity(ArtistDto artistDto) => new Artist
+        public Artist ConvertToEntity(ArtistDto artistDto)
         {
-            Id = artistDto.Id,
-            Name = artistDto.Name,
-            ImageUrl = artistDto.ImageUrl,
-            Bio = artistDto.Bio,
-            SimilarArtists = artistDto.SimilarArtistsIds
+            Artist artist = _mapper.Map<Artist>(artistDto);
+            artist.SimilarArtists = artistDto.SimilarArtistsIds
                 .Select(id => new ArtistLink
                 {
                     ArtistId = artistDto.Id,
                     SimilarArtistId = id
                 })
-                .ToList(),
-            IsActive = artistDto.IsActive
-        };
+                .ToList();
+            return artist;
+        }
     }
 }
