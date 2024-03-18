@@ -10,9 +10,9 @@ namespace SoundSphere.Database.Dtos
         public GenreType Genre { get; set; }
         public DateOnly ReleaseDate { get; set; }
         public int DurationSeconds { get; set; } = 0;
-        public Guid AlbumId { get; set; } // ManyToOne with Album
-        public IList<Guid> ArtistsIds { get; set; } = new List<Guid>(); // ManyToMany with Artist
-        public IList<Guid> SimilarSongsIds { get; set; } = new List<Guid>(); // OneToMany self-referential
+        public Guid AlbumId { get; set; }
+        public IList<Guid> ArtistsIds { get; set; } = new List<Guid>();
+        public IList<Guid> SimilarSongsIds { get; set; } = new List<Guid>();
         public bool IsActive { get; set; } = true;
     }
 }

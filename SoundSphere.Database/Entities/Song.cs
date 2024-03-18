@@ -10,10 +10,10 @@ namespace SoundSphere.Database.Entities
         public GenreType Genre { get; set; }
         public DateOnly ReleaseDate { get; set; }
         public int DurationSeconds { get; set; } = 0;
-        public Album Album { get; set; } = null!; // ManyToOne with Album
-        public IList<Artist> Artists { get; set; } = null!; // ManyToMany with Artist
-        [JsonIgnore] public IList<Playlist>? Playlists { get; set; } // ManyToMany with Playlist
-        public IList<SongLink> SimilarSongs { get; set; } = null!; // OneToMany self-referential
+        public Album Album { get; set; } = null!;
+        public IList<Artist> Artists { get; set; } = null!;
+        [JsonIgnore] public IList<Playlist>? Playlists { get; set; }
+        public IList<SongLink> SimilarSongs { get; set; } = null!;
         public bool IsActive { get; set; } = true;
     }
 

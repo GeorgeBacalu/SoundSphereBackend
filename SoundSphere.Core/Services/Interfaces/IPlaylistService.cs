@@ -1,17 +1,26 @@
-﻿using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IPlaylistService
     {
-        IList<Playlist> FindAll();
+        IList<PlaylistDto> FindAll();
 
-        Playlist FindById(Guid id);
+        PlaylistDto FindById(Guid id);
 
-        Playlist Save(Playlist playlist);
+        PlaylistDto Save(PlaylistDto playlistDto);
 
-        Playlist UpdateById(Playlist playlist, Guid id);
+        PlaylistDto UpdateById(PlaylistDto playlistDto, Guid id);
 
-        Playlist DisableById(Guid id);
+        PlaylistDto DisableById(Guid id);
+
+        IList<PlaylistDto> ConvertToDtos(IList<Playlist> playlists);
+
+        IList<Playlist> ConvertToEntities(IList<PlaylistDto> playlistDtos);
+
+        PlaylistDto ConvertToDto(Playlist playlist);
+
+        Playlist ConvertToEntity(PlaylistDto playlistDto);
     }
 }

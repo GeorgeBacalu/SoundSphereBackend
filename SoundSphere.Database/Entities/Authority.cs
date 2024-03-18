@@ -6,7 +6,7 @@ namespace SoundSphere.Database.Entities
     {
         public Guid Id { get; set; }
         public AuthorityType Type { get; set; }
-        [JsonIgnore] public IList<User>? Users { get; set; } // ManyToMany with User
+        [JsonIgnore] public IList<User>? Users { get; set; }
     }
 
     public enum AuthorityType { Create, Read, Update, Delete }

@@ -1,17 +1,26 @@
-﻿using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
     public interface INotificationService
     {
-        IList<Notification> FindAll();
+        IList<NotificationDto> FindAll();
 
-        Notification FindById(Guid id);
+        NotificationDto FindById(Guid id);
 
-        Notification Save(Notification notification);
+        NotificationDto Save(NotificationDto notificationDto);
 
-        Notification UpdateById(Notification notification, Guid id);
+        NotificationDto UpdateById(NotificationDto notificationDto, Guid id);
 
         void DeleteById(Guid id);
+
+        IList<NotificationDto> ConvertToDtos(IList<Notification> notifications);
+
+        IList<Notification> ConvertToEntities(IList<NotificationDto> notificationDtos);
+
+        NotificationDto ConvertToDto(Notification notification);
+
+        Notification ConvertToEntity(NotificationDto notificationDto);
     }
 }

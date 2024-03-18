@@ -11,8 +11,8 @@ namespace SoundSphere.Database.Dtos
         public string Address { get; set; } = null!;
         public DateOnly Birthday { get; set; }
         public string Avatar { get; set; } = null!;
-        public Guid RoleId { get; set; } // ManyToOne with Role
-        public IList<Guid> AuthoritiesIds { get; set; } = new List<Guid>(); // ManyToMany with Authority
+        public Guid RoleId { get; set; }
+        public IList<Guid> AuthoritiesIds { get; set; } = new List<Guid>();
         public bool IsActive { get; set; } = true;
     }
 }

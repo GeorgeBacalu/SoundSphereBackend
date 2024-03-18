@@ -51,15 +51,15 @@ namespace SoundSphere.Database.Context
 
             modelBuilder.Entity<SongLink>(entity =>
             {
-                entity.HasKey(song => new { song.SongId, song.SimilarSongId }); // Composite primary key
+                entity.HasKey(song => new { song.SongId, song.SimilarSongId });
                 entity.HasOne(song => song.Song)
                     .WithMany(song => song.SimilarSongs)
                     .HasForeignKey(song => song.SongId)
-                    .OnDelete(DeleteBehavior.Restrict); // Restrict cascade deletion for self-referential properties
+                    .OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(song => song.SimilarSong)
                     .WithMany()
                     .HasForeignKey(song => song.SimilarSongId)
-                    .OnDelete(DeleteBehavior.Restrict); // No need for navigation property on the other side
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<ArtistLink>(entity =>

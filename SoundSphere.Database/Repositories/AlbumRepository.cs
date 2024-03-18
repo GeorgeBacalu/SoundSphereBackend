@@ -1,4 +1,5 @@
-﻿using SoundSphere.Database.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -10,9 +11,14 @@ namespace SoundSphere.Database.Repositories
 
         public AlbumRepository(SoundSphereContext context) => _context = context;
 
-        public IList<Album> FindAll() => _context.Albums.ToList();
+        public IList<Album> FindAll() => _context.Albums
+            .Include(album => album.SimilarAlbums)
+            .ToList();
 
-        public Album FindById(Guid id) => _context.Albums.Find(id) ?? throw new Exception($"Album with id {id} not found!");
+        public Album FindById(Guid id) => _context.Albums
+            .Include(album => album.SimilarAlbums)
+            .FirstOrDefault(album => album.Id == id)
+            ?? throw new Exception($"Album with id {id} not found!");
 
         public Album Save(Album album)
         {
@@ -37,17 +43,15 @@ namespace SoundSphere.Database.Repositories
             return albumToDisable;
         }
 
-        public void AddAlbumLink(Album album)
-        {
+        public void AddAlbumLink(Album album) =>
             album.SimilarAlbums = album.SimilarAlbums
-                .Select(similarAlbum => _context.Albums.Find(similarAlbum.SimilarAlbumId))
-                .Where(similarAlbum => similarAlbum != null)
-                .Select(similarAlbum => new AlbumLink
-                {
-                    Album = album,
-                    SimilarAlbum = similarAlbum
-                })
-                .ToList();
-        }
+                            .Select(similarAlbum => _context.Albums.Find(similarAlbum.SimilarAlbumId))
+                            .Where(similarAlbum => similarAlbum != null)
+                            .Select(similarAlbum => new AlbumLink
+                            {
+                                Album = album,
+                                SimilarAlbum = similarAlbum
+                            })
+                            .ToList();
     }
 }

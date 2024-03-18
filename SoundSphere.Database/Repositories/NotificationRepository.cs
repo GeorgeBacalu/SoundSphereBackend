@@ -11,9 +11,14 @@ namespace SoundSphere.Database.Repositories
 
         public NotificationRepository(SoundSphereContext context) => _context = context;
 
-        public IList<Notification> FindAll() => _context.Notifications.ToList();
+        public IList<Notification> FindAll() => _context.Notifications
+            .Include(notification => notification.User)
+            .ToList();
 
-        public Notification FindById(Guid id) => _context.Notifications.Find(id) ?? throw new Exception($"Notification with id {id} not found!");
+        public Notification FindById(Guid id) => _context.Notifications
+            .Include(notification => notification.User)
+            .FirstOrDefault(notification => notification.Id == id)
+            ?? throw new Exception($"Notification with id {id} not found!");
 
         public Notification Save(Notification notification)
         {
@@ -38,6 +43,7 @@ namespace SoundSphere.Database.Repositories
             _context.Notifications.Remove(notificationToDelete);
             _context.SaveChanges();
         }
+
         public void LinkNotificationToUser(Notification notification)
         {
             User existingUser = _context.Users.Find(notification.User.Id);

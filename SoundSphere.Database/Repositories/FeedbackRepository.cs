@@ -11,9 +11,14 @@ namespace SoundSphere.Database.Repositories
 
         public FeedbackRepository(SoundSphereContext context) => _context = context;
 
-        public IList<Feedback> FindAll() => _context.Feedbacks.ToList();
+        public IList<Feedback> FindAll() => _context.Feedbacks
+            .Include(feedback => feedback.User)
+            .ToList();
 
-        public Feedback FindById(Guid id) => _context.Feedbacks.Find(id) ?? throw new Exception($"Feedback with id {id} not found!");
+        public Feedback FindById(Guid id) => _context.Feedbacks
+            .Include(feedback => feedback.User)
+            .FirstOrDefault(feedback => feedback.Id == id)
+            ?? throw new Exception($"Feedback with id {id} not found!");
 
         public Feedback Save(Feedback feedback)
         {

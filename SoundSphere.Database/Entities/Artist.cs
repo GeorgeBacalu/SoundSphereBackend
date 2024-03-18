@@ -8,8 +8,8 @@ namespace SoundSphere.Database.Entities
         public string Name { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
         public string Bio { get; set; } = null!;
-        [JsonIgnore] public IList<Song>? Songs { get; set; } // ManyToMany with Song
-        public IList<ArtistLink> SimilarArtists { get; set; } = null!; // OneToMany self-referential
+        [JsonIgnore] public IList<Song>? Songs { get; set; }
+        public IList<ArtistLink> SimilarArtists { get; set; } = null!;
         public bool IsActive { get; set; } = true;
     }
 }

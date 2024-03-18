@@ -16,9 +16,9 @@ namespace SoundSphere.Database.Repositories.Interfaces
 
         void LinkSongToAlbum(Song song);
 
-        void LinkSongToArtist(Song song);
+        void LinkSongToArtists(Song song);
 
-        void AddSongLinks(Song song);
+        void AddSongLink(Song song);
 
         void AddUserSong(Song song);
     }

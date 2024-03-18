@@ -1,4 +1,5 @@
-﻿using SoundSphere.Database.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -10,9 +11,14 @@ namespace SoundSphere.Database.Repositories
 
         public ArtistRepository(SoundSphereContext context) => _context = context;
 
-        public IList<Artist> FindAll() => _context.Artists.ToList();
+        public IList<Artist> FindAll() => _context.Artists
+            .Include(artist => artist.SimilarArtists)
+            .ToList();
 
-        public Artist FindById(Guid id) => _context.Artists.Find(id) ?? throw new Exception($"Artist with id {id} not found!");
+        public Artist FindById(Guid id) => _context.Artists
+            .Include(artist => artist.SimilarArtists)
+            .FirstOrDefault(artist => artist.Id == id)
+            ?? throw new Exception($"Artist with id {id} not found!");
 
         public Artist Save(Artist artist)
         {
@@ -37,29 +43,25 @@ namespace SoundSphere.Database.Repositories
             return artistToDisable;
         }
 
-        public void AddArtistLink(Artist artist)
-        {
+        public void AddArtistLink(Artist artist) =>
             artist.SimilarArtists = artist.SimilarArtists
-                .Select(similarArtist => _context.Artists.Find(similarArtist.SimilarArtistId))
-                .Where(similarArtist => similarArtist != null)
-                .Select(similarArtist => new ArtistLink
-                {
-                    Artist = artist,
-                    SimilarArtist = similarArtist
-                })
-                .ToList();
-        }
+                            .Select(similarArtist => _context.Artists.Find(similarArtist.SimilarArtistId))
+                            .Where(similarArtist => similarArtist != null)
+                            .Select(similarArtist => new ArtistLink
+                            {
+                                Artist = artist,
+                                SimilarArtist = similarArtist
+                            })
+                            .ToList();
 
-        public void LinkArtistToUser(Artist artist)
-        {
+        public void AddUserArtist(Artist artist) =>
             _context.AddRange(_context.Users
-                .Select(user => new UserArtist
-                {
-                    User = user,
-                    Artist = artist,
-                    IsFollowing = false
-                })
-                .ToList());
-        }
+                            .Select(user => new UserArtist
+                            {
+                                User = user,
+                                Artist = artist,
+                                IsFollowing = false
+                            })
+                            .ToList());
     }
 }

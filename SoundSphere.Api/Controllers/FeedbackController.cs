@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Entities;
+using SoundSphere.Database.Dtos;
 
 namespace SoundSphereV2.Controllers
 {
@@ -16,15 +16,16 @@ namespace SoundSphereV2.Controllers
 
         [HttpGet("{id}")] public IActionResult FindById(Guid id) => Ok(_feedbackService.FindById(id));
 
-        [HttpPost] public IActionResult Save(Feedback feedback)
+        [HttpPost] public IActionResult Save(FeedbackDto feedbackDto)
         {
-            Feedback savedFeedback = _feedbackService.Save(feedback);
-            return CreatedAtAction(nameof(FindById), new { id = savedFeedback.Id }, savedFeedback);
+            FeedbackDto savedFeedbackDto = _feedbackService.Save(feedbackDto);
+            return CreatedAtAction(nameof(FindById), new { id = savedFeedbackDto.Id }, savedFeedbackDto);
         }
 
-        [HttpPut("{id}")] public IActionResult UpdateById(Feedback feedback, Guid id) => Ok(_feedbackService.UpdateById(feedback, id));
+        [HttpPut("{id}")] public IActionResult UpdateById(FeedbackDto feedbackDto, Guid id) => Ok(_feedbackService.UpdateById(feedbackDto, id));
 
-        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
+        [HttpDelete("{id}")]
+        public IActionResult DeleteById(Guid id)
         {
             _feedbackService.DeleteById(id);
             return NoContent();

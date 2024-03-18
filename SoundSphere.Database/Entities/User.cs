@@ -13,10 +13,10 @@ namespace SoundSphere.Database.Entities
         public string Address { get; set; } = null!;
         public DateOnly Birthday { get; set; }
         public string Avatar { get; set; } = null!;
-        public Role Role { get; set; } = null!; // ManyToOne with Role
-        public IList<Authority> Authorities { get; set; } = null!; // ManyToMany with Authority
-        [JsonIgnore] public IList<UserSong>? UserSongs { get; set; } // ManyToMany with Song
-        [JsonIgnore] public IList<UserArtist>? UserArtists { get; set; } // ManyToMany with Artist
+        public Role Role { get; set; } = null!;
+        public IList<Authority> Authorities { get; set; } = null!;
+        [JsonIgnore] public IList<UserSong>? UserSongs { get; set; }
+        [JsonIgnore] public IList<UserArtist>? UserArtists { get; set; }
         public bool IsActive { get; set; } = true;
     }
 }

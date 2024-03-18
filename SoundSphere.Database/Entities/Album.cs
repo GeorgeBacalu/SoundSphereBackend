@@ -6,7 +6,7 @@
         public string Title { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
         public DateOnly ReleaseDate { get; set; }
-        public IList<AlbumLink> SimilarAlbums { get; set; } = null!; // OneToMany self-referential
+        public IList<AlbumLink> SimilarAlbums { get; set; } = null!;
         public bool IsActive { get; set; } = true;
     }
 }

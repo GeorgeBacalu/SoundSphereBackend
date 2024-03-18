@@ -11,9 +11,14 @@ namespace SoundSphere.Database.Repositories
 
         public PlaylistRepository(SoundSphereContext context) => _context = context;
 
-        public IList<Playlist> FindAll() => _context.Playlists.ToList();
+        public IList<Playlist> FindAll() => _context.Playlists
+            .Include(playlist => playlist.User)
+            .ToList();
 
-        public Playlist FindById(Guid id) => _context.Playlists.Find(id) ?? throw new Exception($"Playlist with id {id} not found!");
+        public Playlist FindById(Guid id) => _context.Playlists
+            .Include(playlist => playlist.User)
+            .FirstOrDefault(playlist => playlist.Id == id)
+            ?? throw new Exception($"Playlist with id {id} not found!");
 
         public Playlist Save(Playlist playlist)
         {
@@ -39,6 +44,7 @@ namespace SoundSphere.Database.Repositories
             _context.SaveChanges();
             return playlistToDisable;
         }
+
         public void LinkPlaylistToUser(Playlist playlist)
         {
             User existingUser = _context.Users.Find(playlist.User.Id);

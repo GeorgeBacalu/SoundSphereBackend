@@ -11,9 +11,16 @@ namespace SoundSphere.Database.Repositories
 
         public UserRepository(SoundSphereContext context) => _context = context;
 
-        public IList<User> FindAll() => _context.Users.ToList();
+        public IList<User> FindAll() => _context.Users
+            .Include(user => user.Role)
+            .Include(user => user.Authorities)
+            .ToList();
 
-        public User FindById(Guid id) => _context.Users.Find(id) ?? throw new Exception($"User with id {id} not found!");
+        public User FindById(Guid id) => _context.Users
+            .Include(user => user.Role)
+            .Include(user => user.Authorities)
+            .FirstOrDefault(user => user.Id == id)
+            ?? throw new Exception($"User with id {id} not found!");
 
         public User Save(User user)
         {
@@ -38,7 +45,6 @@ namespace SoundSphere.Database.Repositories
             return userToDisable;
         }
 
-
         public void LinkUserToRole(User user)
         {
             Role existingRole = _context.Roles.Find(user.Role.Id);
@@ -62,8 +68,7 @@ namespace SoundSphere.Database.Repositories
             }
         }
 
-        public void AddUserSong(User user)
-        {
+        public void AddUserSong(User user) =>
             _context.AddRange(_context.Songs
                             .Select(song => new UserSong
                             {
@@ -72,10 +77,8 @@ namespace SoundSphere.Database.Repositories
                                 PlayCount = 0
                             })
                             .ToList());
-        }
 
-        public void AddUserArtist(User user)
-        {
+        public void AddUserArtist(User user) =>
             _context.AddRange(_context.Artists
                             .Select(artist => new UserArtist
                             {
@@ -84,6 +87,5 @@ namespace SoundSphere.Database.Repositories
                                 IsFollowing = false
                             })
                             .ToList());
-        }
     }
 }

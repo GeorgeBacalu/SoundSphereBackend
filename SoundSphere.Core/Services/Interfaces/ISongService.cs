@@ -1,17 +1,26 @@
-﻿using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
     public interface ISongService
     {
-        IList<Song> FindAll();
+        IList<SongDto> FindAll();
 
-        Song FindById(Guid id);
+        SongDto FindById(Guid id);
 
-        Song Save(Song song);
+        SongDto Save(SongDto songDto);
 
-        Song UpdateById(Song song, Guid id);
+        SongDto UpdateById(SongDto songDto, Guid id);
 
-        Song DisableById(Guid id);
+        SongDto DisableById(Guid id);
+
+        IList<SongDto> ConvertToDtos(IList<Song> songs);
+
+        IList<Song> ConvertToEntities(IList<SongDto> songDtos);
+
+        SongDto ConvertToDto(Song song);
+
+        Song ConvertToEntity(SongDto songDto);
     }
 }

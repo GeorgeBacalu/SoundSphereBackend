@@ -16,6 +16,6 @@ namespace SoundSphere.Database.Repositories.Interfaces
 
         void AddArtistLink(Artist artist);
 
-        void LinkArtistToUser(Artist artist);
+        void AddUserArtist(Artist artist);
     }
 }

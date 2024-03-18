@@ -3,7 +3,7 @@
     public class Feedback
     {
         public Guid Id { get; set; }
-        public User User { get; set; } = null!; // ManyToOne with User
+        public User User { get; set; } = null!;
         public FeedbackType Type { get; set; }
         public string Message { get; set; } = null!;
         public DateTime SentAt { get; set; }

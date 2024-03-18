@@ -11,12 +11,21 @@ namespace SoundSphere.Database.Repositories
 
         public SongRepository(SoundSphereContext context) => _context = context;
 
-        public IList<Song> FindAll() => _context.Songs.ToList();
+        public IList<Song> FindAll() => _context.Songs
+            .Include(song => song.Album)
+            .Include(song => song.Artists)
+            .Include(song => song.SimilarSongs)
+            .ToList();
 
-        public Song FindById(Guid id) => _context.Songs.Find(id) ?? throw new Exception($"Song with id {id} not found!");
+        public Song FindById(Guid id) => _context.Songs
+            .Include(song => song.Album)
+            .Include(song => song.Artists)
+            .Include(song => song.SimilarSongs)
+            .FirstOrDefault(song => song.Id == id)
+            ?? throw new Exception($"Song with id {id} not found!");
 
         public Song Save(Song song)
-        { 
+        {
             _context.Songs.Add(song);
             _context.SaveChanges();
             return song;
@@ -37,6 +46,7 @@ namespace SoundSphere.Database.Repositories
             _context.SaveChanges();
             return songToDisable;
         }
+
         public void LinkSongToAlbum(Song song)
         {
             Album existingAlbum = _context.Albums.Find(song.Album.Id);
@@ -47,12 +57,12 @@ namespace SoundSphere.Database.Repositories
             }
         }
 
-        public void LinkSongToArtist(Song song)
+        public void LinkSongToArtists(Song song)
         {
             song.Artists = song.Artists
-                .Select(artist => _context.Artists.Find(artist.Id))
-                .Where(artist => artist != null)
-                .ToList();
+                            .Select(artist => _context.Artists.Find(artist.Id))
+                            .Where(artist => artist != null)
+                            .ToList();
 
             foreach (Artist artist in song.Artists)
             {
@@ -60,29 +70,25 @@ namespace SoundSphere.Database.Repositories
             }
         }
 
-        public void AddSongLinks(Song song)
-        {
+        public void AddSongLink(Song song) =>
             song.SimilarSongs = song.SimilarSongs
-                .Select(similarSong => _context.Songs.Find(similarSong.SimilarSongId))
-                .Where(similarSong => similarSong != null)
-                .Select(similarSong => new SongLink
-                {
-                    Song = song,
-                    SimilarSong = similarSong
-                })
-                .ToList();
-        }
+                            .Select(similarSong => _context.Songs.Find(similarSong.SimilarSongId))
+                            .Where(similarSong => similarSong != null)
+                            .Select(similarSong => new SongLink
+                            {
+                                Song = song,
+                                SimilarSong = similarSong
+                            })
+                            .ToList();
 
-        public void AddUserSong(Song song)
-        {
+        public void AddUserSong(Song song) =>
             _context.AddRange(_context.Users
-                .Select(user => new UserSong
-                {
-                    User = user,
-                    Song = song,
-                    PlayCount = 0
-                })
-                .ToList());
-        }
+                            .Select(user => new UserSong
+                            {
+                                User = user,
+                                Song = song,
+                                PlayCount = 0
+                            })
+                            .ToList());
     }
 }

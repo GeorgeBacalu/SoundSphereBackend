@@ -1,13 +1,22 @@
-﻿using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IAuthorityService
     {
-        IList<Authority> FindAll();
+        IList<AuthorityDto> FindAll();
 
-        Authority FindById(Guid id);
+        AuthorityDto FindById(Guid id);
 
-        Authority Save(Authority authority);
+        AuthorityDto Save(AuthorityDto authorityDto);
+
+        IList<AuthorityDto> ConvertToDtos(IList<Authority> authorities);
+
+        IList<Authority> ConvertToEntities(IList<AuthorityDto> authorityDtos);
+
+        AuthorityDto ConvertToDto(Authority authority);
+
+        Authority ConvertToEntity(AuthorityDto authorityDto);
     }
 }

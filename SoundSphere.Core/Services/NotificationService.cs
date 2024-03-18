@@ -1,4 +1,5 @@
 ﻿using SoundSphere.Core.Services.Interfaces;
+using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -7,31 +8,54 @@ namespace SoundSphere.Database.Repositories
     public class NotificationService : INotificationService
     {
         private readonly INotificationRepository _notificationRepository;
+        private readonly IUserRepository _userRepository;
 
-        public NotificationService(INotificationRepository notificationRepository) => _notificationRepository = notificationRepository;
-
-        public IList<Notification> FindAll() => _notificationRepository.FindAll();
-
-        public Notification FindById(Guid id) => _notificationRepository.FindById(id);
-
-        public Notification Save(Notification notification)
+        public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository)
         {
-            if (notification == null) throw new Exception("Can't persist null notification to DB!");
+            _notificationRepository = notificationRepository;
+            _userRepository = userRepository;
+        }
+
+        public IList<NotificationDto> FindAll() => ConvertToDtos(_notificationRepository.FindAll());
+
+        public NotificationDto FindById(Guid id) => ConvertToDto(_notificationRepository.FindById(id));
+
+        public NotificationDto Save(NotificationDto notificationDto)
+        {
+            Notification notification = ConvertToEntity(notificationDto);
             if (notification.Id == Guid.Empty) notification.Id = Guid.NewGuid();
             notification.SentAt = DateTime.Now;
             notification.IsRead = false;
-
             _notificationRepository.LinkNotificationToUser(notification);
-
-            return _notificationRepository.Save(notification);
+            return ConvertToDto(_notificationRepository.Save(notification));
         }
 
-        public Notification UpdateById(Notification notification, Guid id)
-        {
-            if (notification == null) throw new Exception("Can't persist null notification to DB!");
-            return _notificationRepository.UpdateById(notification, id);
-        }
+        public NotificationDto UpdateById(NotificationDto notificationDto, Guid id) => ConvertToDto(_notificationRepository.UpdateById(ConvertToEntity(notificationDto), id));
 
         public void DeleteById(Guid id) => _notificationRepository.DeleteById(id);
+
+        public IList<NotificationDto> ConvertToDtos(IList<Notification> notifications) => notifications.Select(ConvertToDto).ToList();
+
+        public IList<Notification> ConvertToEntities(IList<NotificationDto> notificationDtos) => notificationDtos.Select(ConvertToEntity).ToList();
+
+        public NotificationDto ConvertToDto(Notification notification) => new NotificationDto
+        {
+            Id = notification.Id,
+            UserId = notification.User.Id,
+            Type = notification.Type,
+            Message = notification.Message,
+            SentAt = notification.SentAt,
+            IsRead = notification.IsRead
+        };
+
+        public Notification ConvertToEntity(NotificationDto notificationDto) => new Notification
+        {
+            Id = notificationDto.Id,
+            User = _userRepository.FindById(notificationDto.UserId),
+            Type = notificationDto.Type,
+            Message = notificationDto.Message,
+            SentAt = notificationDto.SentAt,
+            IsRead = notificationDto.IsRead
+        };
     }
 }

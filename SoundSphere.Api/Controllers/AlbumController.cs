@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Entities;
+using SoundSphere.Database.Dtos;
 
 namespace SoundSphere.Api.Controllers
 {
@@ -16,13 +16,13 @@ namespace SoundSphere.Api.Controllers
 
         [HttpGet("{id}")] public IActionResult FindById(Guid id) => Ok(_albumService.FindById(id));
 
-        [HttpPost] public IActionResult Save(Album album)
+        [HttpPost] public IActionResult Save(AlbumDto albumDto)
         {
-            Album savedAlbum = _albumService.Save(album);
-            return CreatedAtAction(nameof(FindById), new { id = savedAlbum.Id }, savedAlbum);
+            AlbumDto savedAlbumDto = _albumService.Save(albumDto);
+            return CreatedAtAction(nameof(FindById), new { id = savedAlbumDto.Id }, savedAlbumDto);
         }
 
-        [HttpPut("{id}")] public IActionResult UpdateById(Album album, Guid id) => Ok(_albumService.UpdateById(album, id));
+        [HttpPut("{id}")] public IActionResult UpdateById(AlbumDto albumDto, Guid id) => Ok(_albumService.UpdateById(albumDto, id));
 
         [HttpDelete("{id}")] public IActionResult DisableById(Guid id) => Ok(_albumService.DisableById(id));
     }

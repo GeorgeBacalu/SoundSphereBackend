@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Entities;
+using SoundSphere.Database.Dtos;
 
 namespace SoundSphereV2.Controllers
 {
@@ -16,10 +16,10 @@ namespace SoundSphereV2.Controllers
 
         [HttpGet("{id}")] public IActionResult FindById(Guid id) => Ok(_roleService.FindById(id));
 
-        [HttpPost] public IActionResult Save(Role role)
+        [HttpPost] public IActionResult Save(RoleDto roleDto)
         {
-            Role savedRole = _roleService.Save(role);
-            return CreatedAtAction(nameof(FindById), new { id = savedRole.Id }, savedRole);
+            RoleDto savedRoleDto = _roleService.Save(roleDto);
+            return CreatedAtAction(nameof(FindById), new { id = savedRoleDto.Id }, savedRoleDto);
         }
     }
 }

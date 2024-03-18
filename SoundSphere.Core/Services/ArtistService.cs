@@ -1,4 +1,5 @@
 ﻿using SoundSphere.Core.Services.Interfaces;
+using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -10,28 +11,54 @@ namespace SoundSphere.Database.Repositories
 
         public ArtistService(IArtistRepository artistRepository) => _artistRepository = artistRepository;
 
-        public IList<Artist> FindAll() => _artistRepository.FindAll();
+        public IList<ArtistDto> FindAll() => ConvertToDtos(_artistRepository.FindAll());
 
-        public Artist FindById(Guid id) => _artistRepository.FindById(id);
+        public ArtistDto FindById(Guid id) => ConvertToDto(_artistRepository.FindById(id));
 
-        public Artist Save(Artist artist)
+        public ArtistDto Save(ArtistDto artistDto)
         {
-            if (artist == null) throw new Exception("Can't persist null artist to DB!");
+            Artist artist = ConvertToEntity(artistDto);
             if (artist.Id == Guid.Empty) artist.Id = Guid.NewGuid();
             artist.IsActive = true;
-
             _artistRepository.AddArtistLink(artist);
-            _artistRepository.LinkArtistToUser(artist);
-
-            return _artistRepository.Save(artist);
+            _artistRepository.AddUserArtist(artist);
+            return ConvertToDto(_artistRepository.Save(artist));
         }
 
-        public Artist UpdateById(Artist artist, Guid id)
+        public ArtistDto UpdateById(ArtistDto artistDto, Guid id) => ConvertToDto(_artistRepository.UpdateById(ConvertToEntity(artistDto), id));
+
+        public ArtistDto DisableById(Guid id) => ConvertToDto(_artistRepository.DisableById(id));
+
+        public IList<ArtistDto> ConvertToDtos(IList<Artist> artists) => artists.Select(ConvertToDto).ToList();
+
+        public IList<Artist> ConvertToEntities(IList<ArtistDto> artistDtos) => artistDtos.Select(ConvertToEntity).ToList();
+
+        public ArtistDto ConvertToDto(Artist artist) => new ArtistDto
         {
-            if (artist == null) throw new Exception("Can't persist null artist to DB!");
-            return _artistRepository.UpdateById(artist, id);
-        }
+            Id = artist.Id,
+            Name = artist.Name,
+            ImageUrl = artist.ImageUrl,
+            Bio = artist.Bio,
+            SimilarArtistsIds = artist.SimilarArtists
+                .Select(artist => artist.SimilarArtistId)
+                .ToList(),
+            IsActive = artist.IsActive
+        };
 
-        public Artist DisableById(Guid id) => _artistRepository.DisableById(id);
+        public Artist ConvertToEntity(ArtistDto artistDto) => new Artist
+        {
+            Id = artistDto.Id,
+            Name = artistDto.Name,
+            ImageUrl = artistDto.ImageUrl,
+            Bio = artistDto.Bio,
+            SimilarArtists = artistDto.SimilarArtistsIds
+                .Select(id => new ArtistLink
+                {
+                    ArtistId = artistDto.Id,
+                    SimilarArtistId = id
+                })
+                .ToList(),
+            IsActive = artistDto.IsActive
+        };
     }
 }

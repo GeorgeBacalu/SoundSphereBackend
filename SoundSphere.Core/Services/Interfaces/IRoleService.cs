@@ -1,13 +1,22 @@
-﻿using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IRoleService
     {
-        IList<Role> FindAll();
+        IList<RoleDto> FindAll();
 
-        Role FindById(Guid id);
+        RoleDto FindById(Guid id);
 
-        Role Save(Role role);
+        RoleDto Save(RoleDto roleDto);
+
+        IList<RoleDto> ConvertToDtos(IList<Role> roles);
+
+        IList<Role> ConvertToEntities(IList<RoleDto> roleDtos);
+
+        RoleDto ConvertToDto(Role role);
+
+        Role ConvertToEntity(RoleDto roleDto);
     }
 }

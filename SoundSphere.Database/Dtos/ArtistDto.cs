@@ -1,6 +1,4 @@
-﻿
-
-namespace SoundSphere.Database.Dtos
+﻿namespace SoundSphere.Database.Dtos
 {
     public class ArtistDto
     {
@@ -8,10 +6,8 @@ namespace SoundSphere.Database.Dtos
         public string Name { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
         public string Bio { get; set; } = null!;
-
-        public IList<Guid> SongsIds { get; set; } = new List<Guid>(); // ManyToMany with Song
-
-        public IList<Guid> SimilarArtistsIds { get; set; } = new List<Guid>(); // OneToMany self-referential
+        // public IList<Guid> SongsIds { get; set; } = new List<Guid>();
+        public IList<Guid> SimilarArtistsIds { get; set; } = new List<Guid>();
         public bool IsActive { get; set; } = true;
     }
 }
