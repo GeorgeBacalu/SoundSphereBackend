@@ -2,6 +2,7 @@
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
+using SoundSphere.Infrastructure.Exceptions;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -18,7 +19,7 @@ namespace SoundSphere.Database.Repositories
         public Notification FindById(Guid id) => _context.Notifications
             .Include(notification => notification.User)
             .FirstOrDefault(notification => notification.Id == id)
-            ?? throw new Exception($"Notification with id {id} not found!");
+            ?? throw new ResourceNotFoundException($"Notification with id {id} not found!");
 
         public Notification Save(Notification notification)
         {

@@ -2,6 +2,7 @@
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
+using SoundSphere.Infrastructure.Exceptions;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -18,7 +19,7 @@ namespace SoundSphere.Database.Repositories
         public Album FindById(Guid id) => _context.Albums
             .Include(album => album.SimilarAlbums)
             .FirstOrDefault(album => album.Id == id)
-            ?? throw new Exception($"Album with id {id} not found!");
+            ?? throw new ResourceNotFoundException($"Album with id {id} not found!");
 
         public Album Save(Album album)
         {

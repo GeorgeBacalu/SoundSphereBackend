@@ -1,6 +1,7 @@
 ﻿using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
+using SoundSphere.Infrastructure.Exceptions;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -12,7 +13,7 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Authority> FindAll() => _context.Authorities.ToList();
 
-        public Authority FindById(Guid id) => _context.Authorities.Find(id) ?? throw new Exception($"Authority with id {id} not found!");
+        public Authority FindById(Guid id) => _context.Authorities.Find(id) ?? throw new ResourceNotFoundException($"Authority with id {id} not found!");
 
         public Authority Save(Authority authority)
         {

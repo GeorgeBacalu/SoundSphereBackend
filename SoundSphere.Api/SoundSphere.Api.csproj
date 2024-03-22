@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SoundSphere.Core\SoundSphere.Core.csproj" />
+    <ProjectReference Include="..\SoundSphere.Infrastructure\SoundSphere.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

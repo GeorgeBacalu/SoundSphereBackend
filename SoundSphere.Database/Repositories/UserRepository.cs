@@ -2,6 +2,7 @@
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
+using SoundSphere.Infrastructure.Exceptions;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -20,7 +21,7 @@ namespace SoundSphere.Database.Repositories
             .Include(user => user.Role)
             .Include(user => user.Authorities)
             .FirstOrDefault(user => user.Id == id)
-            ?? throw new Exception($"User with id {id} not found!");
+            ?? throw new ResourceNotFoundException($"User with id {id} not found!");
 
         public User Save(User user)
         {
