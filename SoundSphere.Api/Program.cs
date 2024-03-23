@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +36,11 @@ builder.Services.AddScoped<ISongService, SongService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "SoundSphere API", Description = "This is a sample REST API documentation for a music streaming service.", Version = "1.0" });
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+});
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
