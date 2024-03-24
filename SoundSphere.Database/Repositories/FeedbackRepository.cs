@@ -31,9 +31,8 @@ namespace SoundSphere.Database.Repositories
         public Feedback UpdateById(Feedback feedback, Guid id)
         {
             Feedback feedbackToUpdate = FindById(id);
-            DateTime SentAt = feedbackToUpdate.SentAt;
-            _context.Entry(feedbackToUpdate).CurrentValues.SetValues(feedback);
-            feedbackToUpdate.SentAt = SentAt;
+            feedbackToUpdate.Type = feedback.Type;
+            feedbackToUpdate.Message = feedback.Message;
             _context.SaveChanges();
             return feedbackToUpdate;
         }

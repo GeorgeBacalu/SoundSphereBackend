@@ -35,7 +35,14 @@ namespace SoundSphere.Database.Repositories
         public Song UpdateById(Song song, Guid id)
         {
             Song songToUpdate = FindById(id);
-            _context.Entry(songToUpdate).CurrentValues.SetValues(song);
+            songToUpdate.Title = song.Title;
+            songToUpdate.ImageUrl = song.ImageUrl;
+            songToUpdate.Genre = song.Genre;
+            songToUpdate.ReleaseDate = song.ReleaseDate;
+            songToUpdate.DurationSeconds = song.DurationSeconds;
+            songToUpdate.Album = song.Album;
+            songToUpdate.Artists = song.Artists;
+            songToUpdate.SimilarSongs = song.SimilarSongs;
             _context.SaveChanges();
             return songToUpdate;
         }

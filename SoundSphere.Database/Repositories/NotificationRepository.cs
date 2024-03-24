@@ -31,9 +31,9 @@ namespace SoundSphere.Database.Repositories
         public Notification UpdateById(Notification notification, Guid id)
         {
             Notification notificationToUpdate = FindById(id);
-            DateTime SentAt = notificationToUpdate.SentAt;
-            _context.Entry(notificationToUpdate).CurrentValues.SetValues(notification);
-            notificationToUpdate.SentAt = SentAt;
+            notificationToUpdate.Type = notification.Type;
+            notificationToUpdate.Message = notification.Message;
+            notificationToUpdate.IsRead = notification.IsRead;
             _context.SaveChanges();
             return notificationToUpdate;
         }

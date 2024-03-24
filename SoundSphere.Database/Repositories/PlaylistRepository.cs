@@ -31,9 +31,7 @@ namespace SoundSphere.Database.Repositories
         public Playlist UpdateById(Playlist playlist, Guid id)
         {
             Playlist playlistToUpdate = FindById(id);
-            DateTime CreatedAt = playlistToUpdate.CreatedAt;
-            _context.Entry(playlistToUpdate).CurrentValues.SetValues(playlist);
-            playlistToUpdate.CreatedAt = CreatedAt;
+            playlistToUpdate.Title = playlist.Title;
             _context.SaveChanges();
             return playlistToUpdate;
         }

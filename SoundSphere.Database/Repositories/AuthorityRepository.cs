@@ -13,7 +13,9 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Authority> FindAll() => _context.Authorities.ToList();
 
-        public Authority FindById(Guid id) => _context.Authorities.Find(id) ?? throw new ResourceNotFoundException($"Authority with id {id} not found!");
+        public Authority FindById(Guid id) => _context.Authorities
+            .FirstOrDefault(authority => authority.Id == id) 
+            ?? throw new ResourceNotFoundException($"Authority with id {id} not found!");
 
         public Authority Save(Authority authority)
         {

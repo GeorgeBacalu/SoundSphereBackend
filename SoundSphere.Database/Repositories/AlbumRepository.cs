@@ -31,7 +31,10 @@ namespace SoundSphere.Database.Repositories
         public Album UpdateById(Album album, Guid id)
         {
             Album albumToUpdate = FindById(id);
-            _context.Entry(albumToUpdate).CurrentValues.SetValues(album);
+            albumToUpdate.Title = album.Title;
+            albumToUpdate.ImageUrl = album.ImageUrl;
+            albumToUpdate.ReleaseDate = album.ReleaseDate;
+            albumToUpdate.SimilarAlbums = album.SimilarAlbums;
             _context.SaveChanges();
             return albumToUpdate;
         }

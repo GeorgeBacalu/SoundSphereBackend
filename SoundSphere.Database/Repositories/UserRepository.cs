@@ -33,7 +33,15 @@ namespace SoundSphere.Database.Repositories
         public User UpdateById(User user, Guid id)
         {
             User userToUpdate = FindById(id);
-            _context.Entry(userToUpdate).CurrentValues.SetValues(user);
+            userToUpdate.Name = user.Name;
+            userToUpdate.Email = user.Email;
+            userToUpdate.Password = user.Password;
+            userToUpdate.Mobile = user.Mobile;
+            userToUpdate.Address = user.Address;
+            userToUpdate.Birthday = user.Birthday;
+            userToUpdate.Avatar = user.Avatar;
+            userToUpdate.Role = user.Role;
+            userToUpdate.Authorities = user.Authorities;
             _context.SaveChanges();
             return userToUpdate;
         }
