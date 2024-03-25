@@ -36,5 +36,33 @@ namespace SoundSphere.Database.Dtos
         public IList<Guid> SimilarSongsIds { get; set; } = new List<Guid>();
         
         public bool IsActive { get; set; } = true;
+
+        public override bool Equals(object? obj) => obj is SongDto songDto &&
+            Id.Equals(songDto.Id) &&
+            Title == songDto.Title &&
+            ImageUrl == songDto.ImageUrl &&
+            Genre == songDto.Genre &&
+            ReleaseDate.Equals(songDto.ReleaseDate) &&
+            DurationSeconds == songDto.DurationSeconds &&
+            AlbumId.Equals(songDto.AlbumId) &&
+            ArtistsIds.SequenceEqual(songDto.ArtistsIds) &&
+            SimilarSongsIds.SequenceEqual(songDto.SimilarSongsIds) &&
+            IsActive == songDto.IsActive;
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Id);
+            hash.Add(Title);
+            hash.Add(ImageUrl);
+            hash.Add(Genre);
+            hash.Add(ReleaseDate);
+            hash.Add(DurationSeconds);
+            hash.Add(AlbumId);
+            hash.Add(ArtistsIds);
+            hash.Add(SimilarSongsIds);
+            hash.Add(IsActive);
+            return hash.ToHashCode();
+        }
     }
 }

@@ -23,5 +23,15 @@ namespace SoundSphere.Database.Dtos
         public IList<Guid> SimilarAlbumsIds { get; set; } = new List<Guid>();
         
         public bool IsActive { get; set; } = true;
+
+        public override bool Equals(object? obj) => obj is AlbumDto albumDto &&
+            Id.Equals(albumDto.Id) &&
+            Title == albumDto.Title &&
+            ImageUrl == albumDto.ImageUrl &&
+            ReleaseDate.Equals(albumDto.ReleaseDate) &&
+            SimilarAlbumsIds.SequenceEqual(albumDto.SimilarAlbumsIds) &&
+            IsActive == albumDto.IsActive;
+
+        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, ReleaseDate, SimilarAlbumsIds, IsActive);
     }
 }

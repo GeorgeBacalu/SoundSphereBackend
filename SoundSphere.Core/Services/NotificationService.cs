@@ -4,7 +4,7 @@ using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
-namespace SoundSphere.Database.Repositories
+namespace SoundSphere.Core.Services
 {
     public class NotificationService : INotificationService
     {

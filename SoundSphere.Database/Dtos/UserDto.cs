@@ -38,5 +38,33 @@ namespace SoundSphere.Database.Dtos
         public IList<Guid> AuthoritiesIds { get; set; } = new List<Guid>();
         
         public bool IsActive { get; set; } = true;
+
+        public override bool Equals(object? obj) => obj is UserDto userDto &&
+            Id.Equals(userDto.Id) &&
+            Name == userDto.Name &&
+            Email == userDto.Email &&
+            Mobile == userDto.Mobile &&
+            Address == userDto.Address &&
+            Birthday.Equals(userDto.Birthday) &&
+            Avatar == userDto.Avatar &&
+            RoleId.Equals(userDto.RoleId) &&
+            AuthoritiesIds.SequenceEqual(userDto.AuthoritiesIds) &&
+            IsActive == userDto.IsActive;
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Id);
+            hash.Add(Name);
+            hash.Add(Email);
+            hash.Add(Mobile);
+            hash.Add(Address);
+            hash.Add(Birthday);
+            hash.Add(Avatar);
+            hash.Add(RoleId);
+            hash.Add(AuthoritiesIds);
+            hash.Add(IsActive);
+            return hash.ToHashCode();
+        }
     }
 }

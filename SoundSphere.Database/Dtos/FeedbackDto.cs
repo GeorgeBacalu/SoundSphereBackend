@@ -18,5 +18,14 @@ namespace SoundSphere.Database.Dtos
         public string Message { get; set; } = null!;
         
         public DateTime SentAt { get; set; }
+
+        public override bool Equals(object? obj) => obj is FeedbackDto feedbackDto &&
+            Id.Equals(feedbackDto.Id) &&
+            UserId.Equals(feedbackDto.UserId) &&
+            Type == feedbackDto.Type &&
+            Message == feedbackDto.Message &&
+            SentAt == feedbackDto.SentAt;
+
+        public override int GetHashCode() => HashCode.Combine(Id, UserId, Type, Message, SentAt);
     }
 }

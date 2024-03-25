@@ -20,5 +20,15 @@ namespace SoundSphere.Database.Dtos
         public DateTime SentAt { get; set; }
         
         public bool IsRead { get; set; } = false;
+
+        public override bool Equals(object? obj) => obj is NotificationDto notificationDto &&
+            Id.Equals(notificationDto.Id) &&
+            UserId.Equals(notificationDto.UserId) &&
+            Type == notificationDto.Type &&
+            Message == notificationDto.Message &&
+            SentAt == notificationDto.SentAt &&
+            IsRead == notificationDto.IsRead;
+
+        public override int GetHashCode() => HashCode.Combine(Id, UserId, Type, Message, SentAt, IsRead);
     }
 }

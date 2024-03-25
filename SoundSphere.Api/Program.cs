@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Repositories;

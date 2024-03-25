@@ -19,5 +19,15 @@ namespace SoundSphere.Database.Dtos
         public DateTime CreatedAt { get; set; }
         
         public bool IsActive { get; set; } = true;
+
+        public override bool Equals(object? obj) => obj is PlaylistDto playlistDto &&
+            Id.Equals(playlistDto.Id) &&
+            Title == playlistDto.Title &&
+            UserId.Equals(playlistDto.UserId) &&
+            SongsIds.SequenceEqual(playlistDto.SongsIds) &&
+            CreatedAt == playlistDto.CreatedAt &&
+            IsActive == playlistDto.IsActive;
+
+        public override int GetHashCode() => HashCode.Combine(Id, Title, UserId, SongsIds, CreatedAt, IsActive);
     }
 }
