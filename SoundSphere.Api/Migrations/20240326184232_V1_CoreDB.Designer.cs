@@ -12,7 +12,7 @@ using SoundSphere.Database.Context;
 namespace SoundSphere.Api.Migrations
 {
     [DbContext(typeof(SoundSphereContext))]
-    [Migration("20240312184012_V1_CoreDB")]
+    [Migration("20240326184232_V1_CoreDB")]
     partial class V1_CoreDB
     {
         /// <inheritdoc />
@@ -117,7 +117,6 @@ namespace SoundSphere.Api.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Bio")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")

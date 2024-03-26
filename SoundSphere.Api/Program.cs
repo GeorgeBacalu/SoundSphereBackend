@@ -48,9 +48,18 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    ExecuteSql(app.Services, Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.sql"));
 }
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+void ExecuteSql(IServiceProvider services, string path)
+{
+    var dbContext = services.CreateScope().ServiceProvider.GetRequiredService<SoundSphereContext>();
+    if (!File.Exists(path)) throw new FileNotFoundException("SQL script file not found!", path);
+    var script = File.ReadAllText(path);
+    dbContext.Database.ExecuteSqlRaw(script);
+}
