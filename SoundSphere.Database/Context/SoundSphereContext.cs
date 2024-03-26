@@ -6,22 +6,24 @@ namespace SoundSphere.Database.Context
 {
     public class SoundSphereContext : DbContext
     {
+        public SoundSphereContext() { }
+
         public SoundSphereContext(DbContextOptions<SoundSphereContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; } = null!;
-        public DbSet<Role> Roles { get; set; } = null!;
-        public DbSet<Authority> Authorities { get; set; } = null!;
-        public DbSet<Feedback> Feedbacks { get; set; } = null!;
-        public DbSet<Notification> Notifications { get; set; } = null!;
-        public DbSet<Song> Songs { get; set; } = null!;
-        public DbSet<Artist> Artists { get; set; } = null!;
-        public DbSet<Album> Albums { get; set; } = null!;
-        public DbSet<Playlist> Playlists { get; set; } = null!;
-        public DbSet<SongLink> SongLinks { get; set; } = null!;
-        public DbSet<ArtistLink> ArtistLinks { get; set; } = null!;
-        public DbSet<AlbumLink> AlbumLinks { get; set; } = null!;
-        public DbSet<UserSong> UserSongs { get; set; } = null!;
-        public DbSet<UserArtist> UserArtists { get; set; } = null!;
+        public virtual DbSet<User> Users { get; set; } = null!;
+        public virtual DbSet<Role> Roles { get; set; } = null!;
+        public virtual DbSet<Authority> Authorities { get; set; } = null!;
+        public virtual DbSet<Feedback> Feedbacks { get; set; } = null!;
+        public virtual DbSet<Notification> Notifications { get; set; } = null!;
+        public virtual DbSet<Song> Songs { get; set; } = null!;
+        public virtual DbSet<Artist> Artists { get; set; } = null!;
+        public virtual DbSet<Album> Albums { get; set; } = null!;
+        public virtual DbSet<Playlist> Playlists { get; set; } = null!;
+        public virtual DbSet<SongLink> SongLinks { get; set; } = null!;
+        public virtual DbSet<ArtistLink> ArtistLinks { get; set; } = null!;
+        public virtual DbSet<AlbumLink> AlbumLinks { get; set; } = null!;
+        public virtual DbSet<UserSong> UserSongs { get; set; } = null!;
+        public virtual DbSet<UserArtist> UserArtists { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -58,7 +58,7 @@ namespace SoundSphere.Core.Services
             Playlist playlist = _mapper.Map<Playlist>(playlistDto);
             playlist.User = _userRepository.FindById(playlistDto.UserId);
             playlist.Songs = playlistDto.SongsIds
-                .Select(id => _songRepository.FindById(id))
+                .Select(_songRepository.FindById)
                 .ToList();
             return playlist;
         }

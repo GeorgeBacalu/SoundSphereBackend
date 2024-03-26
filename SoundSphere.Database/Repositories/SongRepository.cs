@@ -71,11 +71,7 @@ namespace SoundSphere.Database.Repositories
                             .Select(artist => _context.Artists.Find(artist.Id))
                             .Where(artist => artist != null)
                             .ToList();
-
-            foreach (Artist artist in song.Artists)
-            {
-                _context.Entry(artist).State = EntityState.Unchanged;
-            }
+            song.Artists.ToList().ForEach(artist => _context.Entry(artist).State = EntityState.Unchanged);
         }
 
         public void AddSongLink(Song song) =>

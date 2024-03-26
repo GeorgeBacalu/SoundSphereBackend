@@ -70,11 +70,7 @@ namespace SoundSphere.Database.Repositories
                             .Select(authority => _context.Authorities.Find(authority.Id))
                             .Where(authority => authority != null)
                             .ToList();
-
-            foreach (Authority authority in user.Authorities)
-            {
-                _context.Entry(authority).State = EntityState.Unchanged;
-            }
+            user.Authorities.ToList().ForEach(authority => _context.Entry(authority).State = EntityState.Unchanged);
         }
 
         public void AddUserSong(User user) =>
