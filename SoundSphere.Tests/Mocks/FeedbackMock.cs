@@ -17,7 +17,7 @@ namespace SoundSphere.Tests.Mocks
             User = UserMock.GetMockedUser1(),
             Type = FeedbackType.Issue,
             Message = "feedback_message1",
-            SentAt = new DateTime(2024, 1, 1),
+            SentAt = new DateTime(2024, 1, 1)
         };
 
         public static Feedback GetMockedFeedback2() => new Feedback
@@ -26,7 +26,16 @@ namespace SoundSphere.Tests.Mocks
             User = UserMock.GetMockedUser2(),
             Type = FeedbackType.Optimization,
             Message = "feedback_message2",
-            SentAt = new DateTime(2024, 1, 2),
+            SentAt = new DateTime(2024, 1, 2)
+        };
+
+        public static Feedback GetMockedFeedback3() => new Feedback
+        {
+            Id = Guid.Parse("118edd2b-7957-43a0-9f99-49b3e72edd46"),
+            User = UserMock.GetMockedUser3(),
+            Type = FeedbackType.Improvement,
+            Message = "feedback_message3",
+            SentAt = new DateTime(2024, 1, 3)
         };
 
         public static FeedbackDto GetMockedFeedbackDto1() => new FeedbackDto
@@ -35,7 +44,7 @@ namespace SoundSphere.Tests.Mocks
             UserId = Guid.Parse("0a9e546f-38b4-4dbf-a482-24a82169890e"),
             Type = FeedbackType.Issue,
             Message = "feedback_message1",
-            SentAt = new DateTime(2024, 1, 1),
+            SentAt = new DateTime(2024, 1, 1)
         };
 
         public static FeedbackDto GetMockedFeedbackDto2() => new FeedbackDto
@@ -44,7 +53,16 @@ namespace SoundSphere.Tests.Mocks
             UserId = Guid.Parse("31a088bd-6fe8-4226-bd03-f4af698abe83"),
             Type = FeedbackType.Optimization,
             Message = "feedback_message2",
-            SentAt = new DateTime(2024, 1, 2),
+            SentAt = new DateTime(2024, 1, 2)
+        };
+
+        public static FeedbackDto GetMockedFeedbackDto3() => new FeedbackDto
+        {
+            Id = Guid.Parse("118edd2b-7957-43a0-9f99-49b3e72edd46"),
+            UserId = Guid.Parse("b3692c1c-384a-47ef-a258-106bceb73f0c"),
+            Type = FeedbackType.Improvement,
+            Message = "feedback_message3",
+            SentAt = new DateTime(2024, 1, 3)
         };
     }
 }

@@ -9,7 +9,7 @@ namespace SoundSphere.Infrastructure.Exceptions
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try { await next(context); }
-            catch (Exception exception)
+            catch (ApplicationException exception)
             {
                 var problem = exception switch
                 {

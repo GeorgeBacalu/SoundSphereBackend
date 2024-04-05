@@ -14,5 +14,15 @@
         public static readonly Guid ValidSongGuid = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8");
         public static readonly Guid ValidUserGuid = Guid.Parse("0a9e546f-38b4-4dbf-a482-24a82169890e");
         public static readonly Guid InvalidGuid = Guid.Empty;
+
+        public static readonly string ApiAlbum = "/api/Album";
+        public static readonly string ApiArtist = "/api/Artist";
+        public static readonly string ApiAuthority = "/api/Authority";
+        public static readonly string ApiFeedback = "/api/Feedback";
+        public static readonly string ApiNotification = "/api/Notification";
+        public static readonly string ApiPlaylist = "/api/Playlist";
+        public static readonly string ApiRole = "/api/Role";
+        public static readonly string ApiSong = "/api/Song";
+        public static readonly string ApiUser = "/api/User";
     }
 }

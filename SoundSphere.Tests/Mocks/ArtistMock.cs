@@ -18,7 +18,7 @@ namespace SoundSphere.Tests.Mocks
             ImageUrl = "https://artist_imageurl1.jpg",
             Bio = "artist_bio1",
             SimilarArtists = new List<ArtistLink>(),
-            IsActive = true,
+            IsActive = true
         };
 
         public static Artist GetMockedArtist2() => new Artist
@@ -35,7 +35,24 @@ namespace SoundSphere.Tests.Mocks
                     SimilarArtistId = Guid.Parse("d4f7f9d2-472e-488e-b7ef-73d169ba2bf5")
                 }
             },
-            IsActive = false,
+            IsActive = false
+        };
+
+        public static Artist GetMockedArtist3() => new Artist
+        {
+            Id = Guid.Parse("6c89d77c-c21c-48b8-89b2-57bb41207dba"),
+            Name = "artist_name3",
+            ImageUrl = "https://artist_imageurl3.jpg",
+            Bio = "artist_bio3",
+            SimilarArtists = new List<ArtistLink>
+            {
+                new ArtistLink
+                {
+                    ArtistId = Guid.Parse("6c89d77c-c21c-48b8-89b2-57bb41207dba"),
+                    SimilarArtistId = Guid.Parse("0f9d6cf2-497e-48ff-b1fa-440678951c28")
+                }
+            },
+            IsActive = true
         };
 
         public static ArtistDto GetMockedArtistDto1() => new ArtistDto
@@ -45,7 +62,7 @@ namespace SoundSphere.Tests.Mocks
             ImageUrl = "https://artist_imageurl1.jpg",
             Bio = "artist_bio1",
             SimilarArtistsIds = new List<Guid>(),
-            IsActive = true,
+            IsActive = true
         };
 
         public static ArtistDto GetMockedArtistDto2() => new ArtistDto
@@ -55,7 +72,17 @@ namespace SoundSphere.Tests.Mocks
             ImageUrl = "https://artist_imageurl2.jpg",
             Bio = "artist_bio2",
             SimilarArtistsIds = new List<Guid> { Guid.Parse("d4f7f9d2-472e-488e-b7ef-73d169ba2bf5") },
-            IsActive = false,
+            IsActive = false
+        };
+
+        public static ArtistDto GetMockedArtistDto3() => new ArtistDto
+        {
+            Id = Guid.Parse("6c89d77c-c21c-48b8-89b2-57bb41207dba"),
+            Name = "artist_name3",
+            ImageUrl = "https://artist_imageurl3.jpg",
+            Bio = "artist_bio3",
+            SimilarArtistsIds = new List<Guid> { Guid.Parse("0f9d6cf2-497e-48ff-b1fa-440678951c28") },
+            IsActive = true
         };
     }
 }

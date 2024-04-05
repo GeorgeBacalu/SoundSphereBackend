@@ -18,7 +18,7 @@ namespace SoundSphere.Tests.Mocks
             Type = NotificationType.Music,
             Message = "notification_message1",
             SentAt = new DateTime(2024, 1, 1),
-            IsRead = false,
+            IsRead = false
         };
 
         public static Notification GetMockedNotification2() => new Notification
@@ -31,6 +31,16 @@ namespace SoundSphere.Tests.Mocks
             IsRead = false
         };
 
+        public static Notification GetMockedNotification3() => new Notification
+        {
+            Id = Guid.Parse("5e53bb96-cc40-48c6-96a4-02d31df5cbab"),
+            User = UserMock.GetMockedUser3(),
+            Type = NotificationType.System,
+            Message = "notificaiton_message3",
+            SentAt = new DateTime(2024, 1, 3),
+            IsRead = false
+        };
+
         public static NotificationDto GetMockedNotificationDto1() => new NotificationDto
         {
             Id = Guid.Parse("39eb6228-682d-4418-85f4-9aaf6e4c698f"),
@@ -38,7 +48,7 @@ namespace SoundSphere.Tests.Mocks
             Type = NotificationType.Music,
             Message = "notification_message1",
             SentAt = new DateTime(2024, 1, 1),
-            IsRead = false,
+            IsRead = false
         };
 
         public static NotificationDto GetMockedNotificationDto2() => new NotificationDto
@@ -48,7 +58,17 @@ namespace SoundSphere.Tests.Mocks
             Type = NotificationType.Social,
             Message = "notification_message2",
             SentAt = new DateTime(2024, 1, 2),
-            IsRead = false,
+            IsRead = false
+        };
+
+        public static NotificationDto GetMockedNotificationDto3() => new NotificationDto
+        {
+            Id = Guid.Parse("5e53bb96-cc40-48c6-96a4-02d31df5cbab"),
+            UserId = Guid.Parse("b3692c1c-384a-47ef-a258-106bceb73f0c"),
+            Type = NotificationType.System,
+            Message = "notificaiton_message3",
+            SentAt = new DateTime(2024, 1, 3),
+            IsRead = false
         };
     }
 }

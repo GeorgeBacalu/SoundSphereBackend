@@ -31,6 +31,16 @@ namespace SoundSphere.Tests.Mocks
             IsActive = false
         };
 
+        public static Playlist GetMockedPlaylist3() => new Playlist
+        {
+            Id = Guid.Parse("adb690d7-5aa3-4603-ae97-cf485aec007c"),
+            Title = "playlist_title3",
+            User = UserMock.GetMockedUser3(),
+            Songs = SongMock.GetMockedSongs1(),
+            CreatedAt = new DateTime(2024, 1, 3),
+            IsActive = true
+        };
+
         public static PlaylistDto GetMockedPlaylistDto1() => new PlaylistDto
         {
             Id = Guid.Parse("239d050b-b59c-47e0-9e1a-ab5faf6f903e"),
@@ -57,6 +67,20 @@ namespace SoundSphere.Tests.Mocks
             },
             CreatedAt = new DateTime(2024, 1, 2),
             IsActive = false
+        };
+
+        public static PlaylistDto GetMockedPlaylistDto3() => new PlaylistDto
+        {
+            Id = Guid.Parse("adb690d7-5aa3-4603-ae97-cf485aec007c"),
+            Title = "playlist_title3",
+            UserId = Guid.Parse("b3692c1c-384a-47ef-a258-106bceb73f0c"),
+            SongsIds = new List<Guid>()
+            {
+                Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8"),
+                Guid.Parse("5185636d-ab67-446e-8fc7-dbca2c50297c")
+            },
+            CreatedAt = new DateTime(2024, 1, 3),
+            IsActive = true
         };
     }
 }
