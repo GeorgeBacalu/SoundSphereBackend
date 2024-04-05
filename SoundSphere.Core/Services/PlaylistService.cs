@@ -23,6 +23,8 @@ namespace SoundSphere.Core.Services
 
         public IList<PlaylistDto> FindAll() => ConvertToDtos(_playlistRepository.FindAll());
 
+        public IList<PlaylistDto> FindAllActive() => ConvertToDtos(_playlistRepository.FindAllActive());
+
         public PlaylistDto FindById(Guid id) => ConvertToDto(_playlistRepository.FindById(id));
 
         public PlaylistDto Save(PlaylistDto playlistDto)

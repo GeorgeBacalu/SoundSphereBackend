@@ -21,6 +21,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly ArtistDto _artistDto1 = ArtistMock.GetMockedArtistDto1();
         private readonly ArtistDto _artistDto2 = ArtistMock.GetMockedArtistDto2();
         private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
+        private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
 
         public ArtistServiceIntegrationTest(DbFixture fixture)
         {
@@ -43,6 +44,8 @@ namespace SoundSphere.Tests.Integration.Services
         }
 
         [Fact] public void FindAll_Test() => Execute((artistService, context) => artistService.FindAll().Should().BeEquivalentTo(_artistDtos));
+
+        [Fact] public void FindAllActive_Test() => Execute((artistService, context) => artistService.FindAllActive().Should().BeEquivalentTo(_activeArtistDtos));
 
         [Fact] public void FindById_Test() => Execute((artistService, context) => artistService.FindById(Constants.ValidArtistGuid).Should().BeEquivalentTo(_artistDto1));
 

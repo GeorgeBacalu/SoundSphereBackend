@@ -11,6 +11,10 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<PlaylistDto> GetMockedPlaylistDtos() => new List<PlaylistDto> { GetMockedPlaylistDto1(), GetMockedPlaylistDto2() };
 
+        public static IList<Playlist> GetMockedActivePlaylists() => GetMockedPlaylists().Where(playlist => playlist.IsActive).ToList();
+
+        public static IList<PlaylistDto> GetMockedActivePlaylistDtos() => GetMockedPlaylistDtos().Where(playlist => playlist.IsActive).ToList();
+
         public static Playlist GetMockedPlaylist1() => new Playlist
         {
             Id = Guid.Parse("239d050b-b59c-47e0-9e1a-ab5faf6f903e"),

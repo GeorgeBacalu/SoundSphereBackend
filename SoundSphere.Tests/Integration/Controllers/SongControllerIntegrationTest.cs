@@ -25,6 +25,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly SongDto _songDto1 = SongMock.GetMockedSongDto1();
         private readonly SongDto _songDto2 = SongMock.GetMockedSongDto2();
         private readonly IList<SongDto> _songDtos = SongMock.GetMockedSongDtos();
+        private readonly IList<SongDto> _activeSongDtos = SongMock.GetMockedActiveSongDtos();
 
         public SongControllerIntegrationTest()
         {
@@ -57,6 +58,15 @@ namespace SoundSphere.Tests.Integration.Controllers
             response?.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = JsonConvert.DeserializeObject<IList<SongDto>>(await response.Content.ReadAsStringAsync());
             result.Should().BeEquivalentTo(_songDtos);
+        });
+
+        [Fact] public async Task FindAllActive_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.GetAsync($"{Constants.ApiSong}/active");
+            response?.Should().NotBeNull();
+            response?.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = JsonConvert.DeserializeObject<IList<SongDto>>(await response.Content.ReadAsStringAsync());
+            result.Should().BeEquivalentTo(_activeSongDtos);
         });
 
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>

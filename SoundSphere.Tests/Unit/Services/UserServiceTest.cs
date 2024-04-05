@@ -22,9 +22,11 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly User _user1 = UserMock.GetMockedUser1();
         private readonly User _user2 = UserMock.GetMockedUser2();
         private readonly IList<User> _users = UserMock.GetMockedUsers();
+        private readonly IList<User> _activeUsers = UserMock.GetMockedActiveUsers();
         private readonly UserDto _userDto1 = UserMock.GetMockedUserDto1();
         private readonly UserDto _userDto2 = UserMock.GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
+        private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
         private readonly Role _role1 = RoleMock.GetMockedRole1();
         private readonly IList<Authority> _authorities1 = AuthorityMock.GetMockedAuthorities1();
 
@@ -41,6 +43,12 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _userRepository.Setup(mock => mock.FindAll()).Returns(_users);
             _userService.FindAll().Should().BeEquivalentTo(_userDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _userRepository.Setup(mock => mock.FindAllActive()).Returns(_activeUsers);
+            _userService.FindAllActive().Should().BeEquivalentTo(_activeUserDtos);
         }
 
         [Fact] public void FindById_Test()

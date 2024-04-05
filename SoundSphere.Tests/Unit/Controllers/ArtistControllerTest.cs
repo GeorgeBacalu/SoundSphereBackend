@@ -18,6 +18,7 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly ArtistDto _artistDto1 = ArtistMock.GetMockedArtistDto1();
         private readonly ArtistDto _artistDto2 = ArtistMock.GetMockedArtistDto2();
         private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
+        private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
 
         public ArtistControllerTest() => _artistController = new(_artistService.Object);
 
@@ -28,6 +29,15 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().BeEquivalentTo(_artistDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _artistService.Setup(mock => mock.FindAllActive()).Returns(_activeArtistDtos);
+            var result = _artistController.FindAllActive() as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().BeEquivalentTo(_activeArtistDtos);
         }
 
         [Fact] public void FindById_Test()

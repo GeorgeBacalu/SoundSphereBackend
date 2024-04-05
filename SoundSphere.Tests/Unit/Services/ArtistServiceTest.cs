@@ -20,9 +20,11 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Artist _artist1 = ArtistMock.GetMockedArtist1();
         private readonly Artist _artist2 = ArtistMock.GetMockedArtist2();
         private readonly IList<Artist> _artists = ArtistMock.GetMockedArtists();
+        private readonly IList<Artist> _activeArtists = ArtistMock.GetMockedActiveArtists();
         private readonly ArtistDto _artistDto1 = ArtistMock.GetMockedArtistDto1();
         private readonly ArtistDto _artistDto2 = ArtistMock.GetMockedArtistDto2();
         private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
+        private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
 
         public ArtistServiceTest()
         {
@@ -37,6 +39,12 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _artistRepository.Setup(mock => mock.FindAll()).Returns(_artists);
             _artistService.FindAll().Should().BeEquivalentTo(_artistDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _artistRepository.Setup(mock => mock.FindAllActive()).Returns(_activeArtists);
+            _artistService.FindAllActive().Should().BeEquivalentTo(_activeArtistDtos);
         }
 
         [Fact] public void FindById_Test()

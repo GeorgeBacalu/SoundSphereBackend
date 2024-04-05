@@ -15,6 +15,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Playlist _playlist1 = PlaylistMock.GetMockedPlaylist1();
         private readonly Playlist _playlist2 = PlaylistMock.GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = PlaylistMock.GetMockedPlaylists();
+        private readonly IList<Playlist> _activePlaylists = PlaylistMock.GetMockedActivePlaylists();
 
         public PlaylistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -29,6 +30,8 @@ namespace SoundSphere.Tests.Integration.Repositories
         }
 
         [Fact] public void FindAll_Test() => Execute((playlistRepository, context) => playlistRepository.FindAll().Should().BeEquivalentTo(_playlists));
+
+        [Fact] public void FindAllActive_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllActive().Should().BeEquivalentTo(_activePlaylists));
 
         [Fact] public void FindById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(_playlist1));
 

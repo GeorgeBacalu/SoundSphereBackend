@@ -11,6 +11,10 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<UserDto> GetMockedUserDtos() => new List<UserDto> { GetMockedUserDto1(), GetMockedUserDto2() };
 
+        public static IList<User> GetMockedActiveUsers() => GetMockedUsers().Where(user => user.IsActive).ToList();
+
+        public static IList<UserDto> GetMockedActiveUserDtos() => GetMockedUserDtos().Where(user => user.IsActive).ToList();
+
         public static User GetMockedUser1() => new User
         {
             Id = Guid.Parse("0a9e546f-38b4-4dbf-a482-24a82169890e"),

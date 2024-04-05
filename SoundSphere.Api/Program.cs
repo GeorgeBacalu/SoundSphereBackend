@@ -65,7 +65,6 @@ public class Program
     {
         var context = services.CreateScope().ServiceProvider.GetRequiredService<SoundSphereContext>();
         if (!File.Exists(path)) throw new FileNotFoundException("SQL script file not found!", path);
-        var script = File.ReadAllText(path);
-        context.Database.ExecuteSqlRaw(script);
+        context.Database.ExecuteSqlRaw(File.ReadAllText(path));
     }
 }

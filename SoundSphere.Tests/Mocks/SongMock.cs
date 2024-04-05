@@ -11,6 +11,10 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<SongDto> GetMockedSongDtos() => GetMockedSongDtos1().Concat(GetMockedSongDtos2()).ToList();
 
+        public static IList<Song> GetMockedActiveSongs() => GetMockedSongs().Where(song => song.IsActive).ToList();
+
+        public static IList<SongDto> GetMockedActiveSongDtos() => GetMockedSongDtos().Where(song => song.IsActive).ToList();
+
         public static IList<Song> GetMockedSongs1() => new List<Song> { GetMockedSong1(), GetMockedSong2() };
 
         public static IList<Song> GetMockedSongs2() => new List<Song> { GetMockedSong3(), GetMockedSong4() };

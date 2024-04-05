@@ -24,11 +24,13 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Song _song3 = SongMock.GetMockedSong3();
         private readonly Song _song4 = SongMock.GetMockedSong4();
         private readonly IList<Song> _songs = SongMock.GetMockedSongs();
+        private readonly IList<Song> _activeSongs = SongMock.GetMockedActiveSongs();
         private readonly SongDto _songDto1 = SongMock.GetMockedSongDto1();
         private readonly SongDto _songDto2 = SongMock.GetMockedSongDto2();
         private readonly SongDto _songDto3 = SongMock.GetMockedSongDto3();
         private readonly SongDto _songDto4 = SongMock.GetMockedSongDto4();
         private readonly IList<SongDto> _songDtos = SongMock.GetMockedSongDtos();
+        private readonly IList<SongDto> _activeSongDtos = SongMock.GetMockedActiveSongDtos();
         private readonly Album _album1 = AlbumMock.GetMockedAlbum1();
         private readonly IList<Artist> _artists1 = new List<Artist> { ArtistMock.GetMockedArtist1() };
 
@@ -49,6 +51,12 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _songRepository.Setup(mock => mock.FindAll()).Returns(_songs);
             _songService.FindAll().Should().BeEquivalentTo(_songDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _songRepository.Setup(mock => mock.FindAllActive()).Returns(_activeSongs);
+            _songService.FindAllActive().Should().BeEquivalentTo(_activeSongDtos);
         }
 
         [Fact] public void FindById_Test()

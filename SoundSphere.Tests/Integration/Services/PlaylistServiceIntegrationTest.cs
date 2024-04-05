@@ -21,6 +21,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly PlaylistDto _playlistDto1 = PlaylistMock.GetMockedPlaylistDto1();
         private readonly PlaylistDto _playlistDto2 = PlaylistMock.GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
+        private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
 
         public PlaylistServiceIntegrationTest(DbFixture fixture)
         {
@@ -43,6 +44,8 @@ namespace SoundSphere.Tests.Integration.Services
         }
 
         [Fact] public void FindAll_Test() => Execute((playlistService, context) => playlistService.FindAll().Should().BeEquivalentTo(_playlistDtos));
+
+        [Fact] public void FindAllActive_Test() => Execute((playlistService, context) => playlistService.FindAllActive().Should().BeEquivalentTo(_activePlaylistDtos));
 
         [Fact] public void FindById_Test() => Execute((playlistService, context) => playlistService.FindById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(_playlistDto1));
 

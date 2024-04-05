@@ -16,6 +16,11 @@ namespace SoundSphere.Database.Repositories
             .Include(playlist => playlist.User)
             .ToList();
 
+        public IList<Playlist> FindAllActive() => _context.Playlists
+            .Where(playlist => playlist.IsActive)
+            .Include(playlist => playlist.User)
+            .ToList();
+
         public Playlist FindById(Guid id) => _context.Playlists
             .Include(playlist => playlist.User)
             .FirstOrDefault(playlist => playlist.Id == id)

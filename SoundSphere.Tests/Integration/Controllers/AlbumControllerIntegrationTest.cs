@@ -25,6 +25,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
         private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
+        private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
 
         public AlbumControllerIntegrationTest()
         {
@@ -58,6 +59,15 @@ namespace SoundSphere.Tests.Integration.Controllers
             response?.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
             result.Should().BeEquivalentTo(_albumDtos);
+        });
+
+        [Fact] public async Task FindAllActive_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.GetAsync($"{Constants.ApiAlbum}/active");
+            response?.Should().NotBeNull();
+            response?.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
+            result.Should().BeEquivalentTo(_activeAlbumDtos);
         });
 
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>

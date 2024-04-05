@@ -20,6 +20,11 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet] public IActionResult FindAll() => Ok(_playlistService.FindAll());
 
+        /// <summary>Find all active playlists</summary>
+        /// <remarks>Return list with all active playlists</remarks>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("active")] public IActionResult FindAllActive() => Ok(_playlistService.FindAllActive());
+
         /// <summary>Find playlist by ID</summary>
         /// <remarks>Return playlist with given ID</remarks>
         /// <param name="id">Playlist fetching ID</param>

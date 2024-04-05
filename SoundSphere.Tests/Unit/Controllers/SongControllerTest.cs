@@ -18,6 +18,7 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly SongDto _songDto1 = SongMock.GetMockedSongDto1();
         private readonly SongDto _songDto2 = SongMock.GetMockedSongDto2();
         private readonly IList<SongDto> _songDtos = SongMock.GetMockedSongDtos();
+        private readonly IList<SongDto> _activeSongDtos = SongMock.GetMockedActiveSongDtos();
 
         public SongControllerTest() => _songController = new(_songService.Object);
 
@@ -28,6 +29,15 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().BeEquivalentTo(_songDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _songService.Setup(mock => mock.FindAllActive()).Returns(_activeSongDtos);
+            var result = _songController.FindAllActive() as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().BeEquivalentTo(_activeSongDtos);
         }
 
         [Fact] public void FindById_Test()

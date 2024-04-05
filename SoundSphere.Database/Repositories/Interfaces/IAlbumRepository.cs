@@ -6,6 +6,8 @@ namespace SoundSphere.Database.Repositories.Interfaces
     {
         IList<Album> FindAll();
 
+        IList<Album> FindAllActive();
+
         Album FindById(Guid id);
 
         Album Save(Album album);

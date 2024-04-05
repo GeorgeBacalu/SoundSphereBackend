@@ -11,6 +11,10 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<AlbumDto> GetMockedAlbumDtos() => new List<AlbumDto> { GetMockedAlbumDto1(), GetMockedAlbumDto2() };
 
+        public static IList<Album> GetMockedActiveAlbums() => GetMockedAlbums().Where(album => album.IsActive).ToList();
+
+        public static IList<AlbumDto> GetMockedActiveAlbumDtos() => GetMockedAlbumDtos().Where(album => album.IsActive).ToList();
+
         public static Album GetMockedAlbum1() => new Album
         {
             Id = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb"),

@@ -20,6 +20,7 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly User _user1 = UserMock.GetMockedUser1();
         private readonly User _user2 = UserMock.GetMockedUser2();
         private readonly IList<User> _users = UserMock.GetMockedUsers();
+        private readonly IList<User> _activeUsers = UserMock.GetMockedActiveUsers();
 
         public UserRepositoryTest()
         {
@@ -33,6 +34,8 @@ namespace SoundSphere.Tests.Unit.Repositories
         }
 
         [Fact] public void FindAll_Test() => _userRepository.FindAll().Should().BeEquivalentTo(_users);
+
+        [Fact] public void FindAllActive_Test() => _userRepository.FindAllActive().Should().BeEquivalentTo(_activeUsers);
 
         [Fact] public void FindById_ValidId_Test() => _userRepository.FindById(Constants.ValidUserGuid).Should().BeEquivalentTo(_user1);
 

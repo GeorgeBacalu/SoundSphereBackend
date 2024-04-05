@@ -18,6 +18,7 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
         private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
+        private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
 
         public AlbumControllerTest() => _albumController = new(_albumService.Object);
 
@@ -28,6 +29,15 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().BeEquivalentTo(_albumDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _albumService.Setup(mock => mock.FindAllActive()).Returns(_activeAlbumDtos);
+            var result = _albumController.FindAllActive() as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().BeEquivalentTo(_activeAlbumDtos);
         }
 
         [Fact] public void FindById_Test()

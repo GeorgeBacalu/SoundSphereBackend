@@ -7,6 +7,8 @@ namespace SoundSphere.Core.Services.Interfaces
     {
         IList<AlbumDto> FindAll();
 
+        IList<AlbumDto> FindAllActive();
+
         AlbumDto FindById(Guid id);
 
         AlbumDto Save(AlbumDto albumDto);

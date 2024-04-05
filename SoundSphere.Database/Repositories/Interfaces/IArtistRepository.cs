@@ -6,6 +6,8 @@ namespace SoundSphere.Database.Repositories.Interfaces
     {
         IList<Artist> FindAll();
 
+        IList<Artist> FindAllActive();
+
         Artist FindById(Guid id);
 
         Artist Save(Artist artist);

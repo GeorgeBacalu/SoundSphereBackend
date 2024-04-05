@@ -20,9 +20,11 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Album _album1 = AlbumMock.GetMockedAlbum1();
         private readonly Album _album2 = AlbumMock.GetMockedAlbum2();
         private readonly IList<Album> _albums = AlbumMock.GetMockedAlbums();
+        private readonly IList<Album> _activeAlbums = AlbumMock.GetMockedActiveAlbums();
         private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
         private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
+        private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
 
         public AlbumServiceTest()
         {
@@ -37,6 +39,12 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _albumRepository.Setup(mock => mock.FindAll()).Returns(_albums);
             _albumService.FindAll().Should().BeEquivalentTo(_albumDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _albumRepository.Setup(mock => mock.FindAllActive()).Returns(_activeAlbums);
+            _albumService.FindAllActive().Should().BeEquivalentTo(_activeAlbumDtos);
         }
 
         [Fact] public void FindById_Test()

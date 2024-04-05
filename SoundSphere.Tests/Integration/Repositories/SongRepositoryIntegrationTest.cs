@@ -16,6 +16,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Song _song1 = SongMock.GetMockedSong1();
         private readonly Song _song2 = SongMock.GetMockedSong2();
         private readonly IList<Song> _songs = SongMock.GetMockedSongs();
+        private readonly IList<Song> _activeSongs = SongMock.GetMockedActiveSongs();
 
         public SongRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -30,6 +31,8 @@ namespace SoundSphere.Tests.Integration.Repositories
         }
 
         [Fact] public void FindAll_Test() => Execute((songRepository, context) => songRepository.FindAll().Should().BeEquivalentTo(_songs));
+
+        [Fact] public void FindAllActive_Test() => Execute((songRepository, context) => songRepository.FindAllActive().Should().BeEquivalentTo(_activeSongs));
 
         [Fact] public void FindById_ValidId_Test() => Execute((songRepository, context) => songRepository.FindById(Constants.ValidSongGuid).Should().BeEquivalentTo(_song1));
 

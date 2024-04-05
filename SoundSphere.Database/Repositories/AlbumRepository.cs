@@ -16,6 +16,11 @@ namespace SoundSphere.Database.Repositories
             .Include(album => album.SimilarAlbums)
             .ToList();
 
+        public IList<Album> FindAllActive() => _context.Albums
+            .Where(album => album.IsActive)
+            .Include(album => album.SimilarAlbums)
+            .ToList();
+
         public Album FindById(Guid id) => _context.Albums
             .Include(album => album.SimilarAlbums)
             .FirstOrDefault(album => album.Id == id)

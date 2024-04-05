@@ -18,6 +18,7 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly UserDto _userDto1 = UserMock.GetMockedUserDto1();
         private readonly UserDto _userDto2 = UserMock.GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
+        private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
 
         public UserControllerTest() => _userController = new(_userService.Object);
 
@@ -28,6 +29,15 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().BeEquivalentTo(_userDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _userService.Setup(mock => mock.FindAllActive()).Returns(_activeUserDtos);
+            var result = _userController.FindAllActive() as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().BeEquivalentTo(_activeUserDtos);
         }
 
         [Fact] public void FindById_Test()

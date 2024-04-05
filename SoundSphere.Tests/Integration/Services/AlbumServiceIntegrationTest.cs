@@ -21,6 +21,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
         private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
+        private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
 
         public AlbumServiceIntegrationTest(DbFixture fixture)
         {
@@ -43,6 +44,8 @@ namespace SoundSphere.Tests.Integration.Services
         }
 
         [Fact] public void FindAll_Test() => Execute((albumService, context) => albumService.FindAll().Should().BeEquivalentTo(_albumDtos));
+
+        [Fact] public void FindAllActive_Test() => Execute((albumService, context) => albumService.FindAllActive().Should().BeEquivalentTo(_activeAlbumDtos));
 
         [Fact] public void FindById_Test() => Execute((albumService, context) => albumService.FindById(Constants.ValidAlbumGuid).Should().BeEquivalentTo(_albumDto1));
 

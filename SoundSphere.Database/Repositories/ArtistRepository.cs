@@ -16,6 +16,11 @@ namespace SoundSphere.Database.Repositories
             .Include(artist => artist.SimilarArtists)
             .ToList();
 
+        public IList<Artist> FindAllActive() => _context.Artists
+            .Where(artist => artist.IsActive)
+            .Include(artist => artist.SimilarArtists)
+            .ToList();
+
         public Artist FindById(Guid id) => _context.Artists
             .Include(artist => artist.SimilarArtists)
             .FirstOrDefault(artist => artist.Id == id)
@@ -34,7 +39,8 @@ namespace SoundSphere.Database.Repositories
             artistToUpdate.Name = artist.Name;
             artistToUpdate.ImageUrl = artist.ImageUrl;
             artistToUpdate.Bio = artist.Bio;
-            artistToUpdate.SimilarArtists = artist.SimilarArtists;
+            artistToUpdate.SimilarArtists.Clear();
+            artist.SimilarArtists.ToList().ForEach(artistToUpdate.SimilarArtists.Add);
             _context.SaveChanges();
             return artistToUpdate;
         }

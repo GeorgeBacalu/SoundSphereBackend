@@ -15,6 +15,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Artist _artist1 = ArtistMock.GetMockedArtist1();
         private readonly Artist _artist2 = ArtistMock.GetMockedArtist2();
         private readonly IList<Artist> _artists = ArtistMock.GetMockedArtists();
+        private readonly IList<Artist> _activeArtists = ArtistMock.GetMockedActiveArtists();
 
         public ArtistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -29,6 +30,8 @@ namespace SoundSphere.Tests.Integration.Repositories
         }
 
         [Fact] public void FindAll_Test() => Execute((artistRepository, context) => artistRepository.FindAll().Should().BeEquivalentTo(_artists));
+
+        [Fact] public void FindAllActive_Test() => Execute((artistRepository, context) => artistRepository.FindAllActive().Should().BeEquivalentTo(_activeArtists));
 
         [Fact] public void FindById_ValidId_Test() => Execute((artistRepository, context) => artistRepository.FindById(Constants.ValidArtistGuid).Should().BeEquivalentTo(_artist1));
 

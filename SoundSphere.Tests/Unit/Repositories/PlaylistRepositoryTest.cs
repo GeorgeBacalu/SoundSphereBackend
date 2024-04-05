@@ -20,6 +20,7 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Playlist _playlist1 = PlaylistMock.GetMockedPlaylist1();
         private readonly Playlist _playlist2 = PlaylistMock.GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = PlaylistMock.GetMockedPlaylists();
+        private readonly IList<Playlist> _activePlaylists = PlaylistMock.GetMockedActivePlaylists();
 
         public PlaylistRepositoryTest()
         {
@@ -33,6 +34,8 @@ namespace SoundSphere.Tests.Unit.Repositories
         }
 
         [Fact] public void FindAll_Test() => _playlistRepository.FindAll().Should().BeEquivalentTo(_playlists);
+
+        [Fact] public void FindAllActive_Test() => _playlistRepository.FindAllActive().Should().BeEquivalentTo(_activePlaylists);
 
         [Fact] public void FindById_ValidId_Test() => _playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(_playlist1);
 

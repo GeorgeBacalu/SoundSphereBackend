@@ -21,6 +21,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly UserDto _userDto1 = UserMock.GetMockedUserDto1();
         private readonly UserDto _userDto2 = UserMock.GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
+        private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
 
         public UserServiceIntegrationTest(DbFixture fixture)
         {
@@ -43,6 +44,8 @@ namespace SoundSphere.Tests.Integration.Services
         }
 
         [Fact] public void FindAll_Test() => Execute((userService, context) => userService.FindAll().Should().BeEquivalentTo(_userDtos));
+
+        [Fact] public void FindAllActive_Test() => Execute((userService, context) => userService.FindAllActive().Should().BeEquivalentTo(_activeUserDtos));
 
         [Fact] public void FindById_Test() => Execute((userService, context) => userService.FindById(Constants.ValidUserGuid).Should().BeEquivalentTo(_userDto1));
 

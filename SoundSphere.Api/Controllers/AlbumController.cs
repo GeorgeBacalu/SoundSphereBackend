@@ -20,6 +20,11 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet] public IActionResult FindAll() => Ok(_albumService.FindAll());
 
+        /// <summary>Find all active albums</summary>
+        /// <remarks>Return list with all active albums</remarks>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("active")] public IActionResult FindAllActive() => Ok(_albumService.FindAllActive());
+
         /// <summary>Find album by ID</summary>
         /// <remarks>Return album with given ID</remarks>
         /// <param name="id">Album fetching ID</param>

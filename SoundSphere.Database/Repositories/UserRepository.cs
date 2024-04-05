@@ -17,6 +17,12 @@ namespace SoundSphere.Database.Repositories
             .Include(user => user.Authorities)
             .ToList();
 
+        public IList<User> FindAllActive() => _context.Users
+            .Where(user => user.IsActive)
+            .Include(user => user.Role)
+            .Include(user => user.Authorities)
+            .ToList();
+
         public User FindById(Guid id) => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)

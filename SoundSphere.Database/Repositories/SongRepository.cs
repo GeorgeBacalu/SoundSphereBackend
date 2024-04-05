@@ -18,6 +18,13 @@ namespace SoundSphere.Database.Repositories
             .Include(song => song.SimilarSongs)
             .ToList();
 
+        public IList<Song> FindAllActive() => _context.Songs
+            .Where(song => song.IsActive)
+            .Include(song => song.Album)
+            .Include(song => song.Artists)
+            .Include(song => song.SimilarSongs)
+            .ToList();
+
         public Song FindById(Guid id) => _context.Songs
             .Include(song => song.Album)
             .Include(song => song.Artists)

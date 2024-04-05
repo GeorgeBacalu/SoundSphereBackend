@@ -23,6 +23,8 @@ namespace SoundSphere.Core.Services
 
         public IList<SongDto> FindAll() => ConvertToDtos(_songRepository.FindAll());
 
+        public IList<SongDto> FindAllActive() => ConvertToDtos(_songRepository.FindAllActive());
+
         public SongDto FindById(Guid id) => ConvertToDto(_songRepository.FindById(id));
 
         public SongDto Save(SongDto songDto)

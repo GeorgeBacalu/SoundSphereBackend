@@ -20,6 +20,11 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet] public IActionResult FindAll() => Ok(_artistService.FindAll());
 
+        /// <summary>Find all active artists</summary>
+        /// <remarks>Return list with all active artists</remarks>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("active")] public IActionResult FindAllActive() => Ok(_artistService.FindAllActive());
+
         /// <summary>Find artist by ID</summary>
         /// <remarks>Return artist with given ID</remarks>
         /// <param name="id">Artist fetching ID</param>

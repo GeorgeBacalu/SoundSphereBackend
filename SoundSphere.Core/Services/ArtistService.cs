@@ -19,6 +19,8 @@ namespace SoundSphere.Core.Services
 
         public IList<ArtistDto> FindAll() => ConvertToDtos(_artistRepository.FindAll());
 
+        public IList<ArtistDto> FindAllActive() => ConvertToDtos(_artistRepository.FindAllActive());
+
         public ArtistDto FindById(Guid id) => ConvertToDto(_artistRepository.FindById(id));
 
         public ArtistDto Save(ArtistDto artistDto)

@@ -18,6 +18,7 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly PlaylistDto _playlistDto1 = PlaylistMock.GetMockedPlaylistDto1();
         private readonly PlaylistDto _playlistDto2 = PlaylistMock.GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
+        private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
 
         public PlaylistControllerTest() => _playlistController = new(_playlistService.Object);
 
@@ -28,6 +29,15 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().BeEquivalentTo(_playlistDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _playlistService.Setup(mock => mock.FindAllActive()).Returns(_activePlaylistDtos);
+            var result = _playlistController.FindAllActive() as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().BeEquivalentTo(_activePlaylistDtos);
         }
 
         [Fact] public void FindById_Test()

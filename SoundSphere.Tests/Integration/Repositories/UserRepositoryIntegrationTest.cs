@@ -15,6 +15,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly User _user1 = UserMock.GetMockedUser1();
         private readonly User _user2 = UserMock.GetMockedUser2();
         private readonly IList<User> _users = UserMock.GetMockedUsers();
+        private readonly IList<User> _activeUsers = UserMock.GetMockedActiveUsers();
 
         public UserRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -29,6 +30,8 @@ namespace SoundSphere.Tests.Integration.Repositories
         }
 
         [Fact] public void FindAll_Test() => Execute((userRepository, context) => userRepository.FindAll().Should().BeEquivalentTo(_users));
+
+        [Fact] public void FindAllActive_Test() => Execute((userRepository, context) => userRepository.FindAllActive().Should().BeEquivalentTo(_activeUsers));
 
         [Fact] public void FindById_ValidId_Test() => Execute((userRepository, context) => userRepository.FindById(Constants.ValidUserGuid).Should().BeEquivalentTo(_user1));
 

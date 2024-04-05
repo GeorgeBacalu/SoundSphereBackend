@@ -6,6 +6,8 @@ namespace SoundSphere.Database.Repositories.Interfaces
     {
         IList<User> FindAll();
 
+        IList<User> FindAllActive();
+
         User FindById(Guid id);
 
         User Save(User user);

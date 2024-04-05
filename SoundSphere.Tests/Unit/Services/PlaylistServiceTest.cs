@@ -22,9 +22,11 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Playlist _playlist1 = PlaylistMock.GetMockedPlaylist1();
         private readonly Playlist _playlist2 = PlaylistMock.GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = PlaylistMock.GetMockedPlaylists();
+        private readonly IList<Playlist> _activePlaylists = PlaylistMock.GetMockedActivePlaylists();
         private readonly PlaylistDto _playlistDto1 = PlaylistMock.GetMockedPlaylistDto1();
         private readonly PlaylistDto _playlistDto2 = PlaylistMock.GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
+        private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
         private readonly User _user1 = UserMock.GetMockedUser1();
         private readonly IList<Song> _songs1 = SongMock.GetMockedSongs1();
 
@@ -41,6 +43,12 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _playlistRepository.Setup(mock => mock.FindAll()).Returns(_playlists);
             _playlistService.FindAll().Should().BeEquivalentTo(_playlistDtos);
+        }
+
+        [Fact] public void FindAllActive_Test()
+        {
+            _playlistRepository.Setup(mock => mock.FindAllActive()).Returns(_activePlaylists);
+            _playlistService.FindAllActive().Should().BeEquivalentTo(_activePlaylistDtos);
         }
 
         [Fact] public void FindById_Test()

@@ -21,6 +21,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly SongDto _songDto1 = SongMock.GetMockedSongDto1();
         private readonly SongDto _songDto2 = SongMock.GetMockedSongDto2();
         private readonly IList<SongDto> _songDtos = SongMock.GetMockedSongDtos();
+        private readonly IList<SongDto> _activeSongDtos = SongMock.GetMockedActiveSongDtos();
 
         public SongServiceIntegrationTest(DbFixture fixture)
         {

@@ -7,6 +7,8 @@ namespace SoundSphere.Core.Services.Interfaces
     {
         IList<UserDto> FindAll();
 
+        IList<UserDto> FindAllActive();
+
         UserDto FindById(Guid id);
 
         UserDto Save(UserDto userDto);
