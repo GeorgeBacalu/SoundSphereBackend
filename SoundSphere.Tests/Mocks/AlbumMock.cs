@@ -31,14 +31,7 @@ namespace SoundSphere.Tests.Mocks
             Title = "album_title2",
             ImageUrl = "https://album_imageurl2.jpg",
             ReleaseDate = new DateOnly(2020, 1, 2),
-            SimilarAlbums = new List<AlbumLink>
-            {
-                new AlbumLink
-                {
-                    AlbumId = Guid.Parse("543c9236-443d-4526-b53b-b02f33f284ab"),
-                    SimilarAlbumId = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb")
-                }
-            },
+            SimilarAlbums = new List<AlbumLink> { new AlbumLink { AlbumId = Guid.Parse("543c9236-443d-4526-b53b-b02f33f284ab"), SimilarAlbumId = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb") } },
             IsActive = false
         };
 
@@ -48,14 +41,7 @@ namespace SoundSphere.Tests.Mocks
             Title = "album_title3",
             ImageUrl = "https://album_imageurl3.jpg",
             ReleaseDate = new DateOnly(2020, 1, 3),
-            SimilarAlbums = new List<AlbumLink>
-            {
-                new AlbumLink
-                {
-                    AlbumId = Guid.Parse("8a145bd2-7b7f-4188-bcdd-1c3a4a7c5e45"),
-                    SimilarAlbumId = Guid.Parse("543c9236-443d-4526-b53b-b02f33f284ab")
-                }
-            },
+            SimilarAlbums = new List<AlbumLink> { new AlbumLink { AlbumId = Guid.Parse("8a145bd2-7b7f-4188-bcdd-1c3a4a7c5e45"), SimilarAlbumId = Guid.Parse("543c9236-443d-4526-b53b-b02f33f284ab") } },
             IsActive = true
         };
 

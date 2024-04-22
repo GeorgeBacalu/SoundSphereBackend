@@ -11,11 +11,7 @@ namespace SoundSphere.Core.Services
         private readonly IAlbumRepository _albumRepository;
         private readonly IMapper _mapper;
 
-        public AlbumService(IAlbumRepository albumRepository, IMapper mapper)
-        {
-            _albumRepository = albumRepository;
-            _mapper = mapper;
-        }
+        public AlbumService(IAlbumRepository albumRepository, IMapper mapper) => (_albumRepository, _mapper) = (albumRepository, mapper);
 
         public IList<AlbumDto> FindAll() => ConvertToDtos(_albumRepository.FindAll());
 
@@ -53,11 +49,7 @@ namespace SoundSphere.Core.Services
         {
             Album album = _mapper.Map<Album>(albumDto);
             album.SimilarAlbums = albumDto.SimilarAlbumsIds
-                .Select(id => new AlbumLink
-                {
-                    AlbumId = albumDto.Id,
-                    SimilarAlbumId = id
-                })
+                .Select(id => new AlbumLink { AlbumId = albumDto.Id, SimilarAlbumId = id })
                 .ToList();
             return album;
         }

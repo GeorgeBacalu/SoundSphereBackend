@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -13,8 +13,8 @@ namespace SoundSphere.Tests.Unit.Repositories
 {
     public class PlaylistRepositoryTest
     {
-        private readonly Mock<DbSet<Playlist>> _setMock = new();
-        private readonly Mock<SoundSphereContext> _contextMock = new();
+        private readonly Mock<DbSet<Playlist>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly IPlaylistRepository _playlistRepository;
 
         private readonly Playlist _playlist1 = PlaylistMock.GetMockedPlaylist1();
@@ -24,31 +24,31 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         public PlaylistRepositoryTest()
         {
-            var queryablePlaylists = _playlists.AsQueryable();
-            _setMock.As<IQueryable<Playlist>>().Setup(mock => mock.Provider).Returns(queryablePlaylists.Provider);
-            _setMock.As<IQueryable<Playlist>>().Setup(mock => mock.Expression).Returns(queryablePlaylists.Expression);
-            _setMock.As<IQueryable<Playlist>>().Setup(mock => mock.ElementType).Returns(queryablePlaylists.ElementType);
-            _setMock.As<IQueryable<Playlist>>().Setup(mock => mock.GetEnumerator()).Returns(queryablePlaylists.GetEnumerator());
-            _contextMock.Setup(mock => mock.Playlists).Returns(_setMock.Object);
-            _playlistRepository = new PlaylistRepository(_contextMock.Object);
+            IQueryable<Playlist> queryablePlaylists = _playlists.AsQueryable();
+            _dbSetMock.As<IQueryable<Playlist>>().Setup(mock => mock.Provider).Returns(queryablePlaylists.Provider);
+            _dbSetMock.As<IQueryable<Playlist>>().Setup(mock => mock.Expression).Returns(queryablePlaylists.Expression);
+            _dbSetMock.As<IQueryable<Playlist>>().Setup(mock => mock.ElementType).Returns(queryablePlaylists.ElementType);
+            _dbSetMock.As<IQueryable<Playlist>>().Setup(mock => mock.GetEnumerator()).Returns(queryablePlaylists.GetEnumerator());
+            _dbContextMock.Setup(mock => mock.Playlists).Returns(_dbSetMock.Object);
+            _playlistRepository = new PlaylistRepository(_dbContextMock.Object);
         }
 
         [Fact] public void FindAll_Test() => _playlistRepository.FindAll().Should().BeEquivalentTo(_playlists);
 
         [Fact] public void FindAllActive_Test() => _playlistRepository.FindAllActive().Should().BeEquivalentTo(_activePlaylists);
 
-        [Fact] public void FindById_ValidId_Test() => _playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(_playlist1);
+        [Fact] public void FindById_ValidId_Test() => _playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlist1);
 
-        [Fact] public void FindById_InvalidId_Test() =>
-            _playlistRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                               .Should().Throw<ResourceNotFoundException>()
-                               .WithMessage($"Playlist with id {Constants.InvalidGuid} not found!");
+        [Fact] public void FindById_InvalidId_Test() => _playlistRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid));
 
         [Fact] public void Save_Test()
         {
-            _playlistRepository.Save(_playlist1).Should().BeEquivalentTo(_playlist1);
-            _setMock.Verify(mock => mock.Add(It.IsAny<Playlist>()));
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _playlistRepository.Save(_playlist1).Should().Be(_playlist1);
+            _dbSetMock.Verify(mock => mock.Add(It.IsAny<Playlist>()));
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
         [Fact] public void UpdateById_ValidId_Test()
@@ -62,14 +62,14 @@ namespace SoundSphere.Tests.Unit.Repositories
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = _playlist1.IsActive
             };
-            _playlistRepository.UpdateById(_playlist2, Constants.ValidPlaylistGuid).Should().BeEquivalentTo(updatedPlaylist);
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _playlistRepository.UpdateById(_playlist2, Constants.ValidPlaylistGuid).Should().Be(updatedPlaylist);
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
-        [Fact] public void UpdateById_InvalidId_Test() =>
-            _playlistRepository.Invoking(repository => repository.UpdateById(_playlist2, Constants.InvalidGuid))
-                               .Should().Throw<ResourceNotFoundException>()
-                               .WithMessage($"Playlist with id {Constants.InvalidGuid} not found!");
+        [Fact] public void UpdateById_InvalidId_Test() => _playlistRepository
+            .Invoking(repository => repository.UpdateById(_playlist2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid));
 
         [Fact] public void DisableById_ValidId_Test()
         {
@@ -82,13 +82,13 @@ namespace SoundSphere.Tests.Unit.Repositories
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = false
             };
-            _playlistRepository.DisableById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(disabledPlaylist);
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _playlistRepository.DisableById(Constants.ValidPlaylistGuid).Should().Be(disabledPlaylist);
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
-        [Fact] public void DisableById_InvalidId_Test() =>
-            _playlistRepository.Invoking(repository => repository.DisableById(Constants.InvalidGuid))
-                               .Should().Throw<ResourceNotFoundException>()
-                               .WithMessage($"Playlist with id {Constants.InvalidGuid} not found!");
+        [Fact] public void DisableById_InvalidId_Test() => _playlistRepository
+            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid));
     }
 }

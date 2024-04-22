@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -19,7 +19,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         public AlbumRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
-        private void Execute(Action<AlbumRepository, SoundSphereContext> action)
+        private void Execute(Action<AlbumRepository, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var albumRepository = new AlbumRepository(context);
@@ -33,43 +33,43 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void FindAllActive_Test() => Execute((albumRepository, context) => albumRepository.FindAllActive().Should().BeEquivalentTo(_activeAlbums));
 
-        [Fact] public void FindById_ValidId_Test() => Execute((albumRepository, context) => albumRepository.FindById(Constants.ValidAlbumGuid).Should().BeEquivalentTo(_album1));
+        [Fact] public void FindById_ValidId_Test() => Execute((albumRepository, context) => albumRepository.FindById(Constants.ValidAlbumGuid).Should().Be(_album1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((albumRepository, context) => 
-            albumRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                           .Should().Throw<ResourceNotFoundException>()
-                           .WithMessage($"Album with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void FindById_InvalidId_Test() => Execute((albumRepository, context) => albumRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.AlbumNotFound, Constants.InvalidGuid)));
 
         [Fact] public void Save_Test() => Execute((albumRepository, context) =>
         {
             Album newAlbum = AlbumMock.GetMockedAlbum3();
             albumRepository.Save(newAlbum);
-            context.Albums.Find(newAlbum.Id).Should().BeEquivalentTo(newAlbum);
+            context.Albums.Find(newAlbum.Id).Should().Be(newAlbum);
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((albumRepository, context) =>
         {
             Album updatedAlbum = CreateTestAlbum(_album2, _album1.IsActive);
             albumRepository.UpdateById(_album2, Constants.ValidAlbumGuid);
-            context.Albums.Find(Constants.ValidAlbumGuid).Should().BeEquivalentTo(updatedAlbum);
+            context.Albums.Find(Constants.ValidAlbumGuid).Should().Be(updatedAlbum);
         });
 
-        [Fact] public void UpdateById_InvalidId_Test() => Execute((albumRepository, context) =>
-            albumRepository.Invoking(repository => repository.UpdateById(_album2, Constants.InvalidGuid))
-                           .Should().Throw<ResourceNotFoundException>()
-                           .WithMessage($"Album with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void UpdateById_InvalidId_Test() => Execute((albumRepository, context) => albumRepository
+            .Invoking(repository => repository.UpdateById(_album2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.AlbumNotFound, Constants.InvalidGuid)));
 
         [Fact] public void DisableById_ValidId_Test() => Execute((albumRepository, context) =>
         {
             Album disabledAlbum = CreateTestAlbum(_album1, false);
             albumRepository.DisableById(Constants.ValidAlbumGuid);
-            context.Albums.Find(Constants.ValidAlbumGuid).Should().BeEquivalentTo(disabledAlbum);
+            context.Albums.Find(Constants.ValidAlbumGuid).Should().Be(disabledAlbum);
         });
 
-        [Fact] public void DisableById_InvalidId_Test() => Execute((albumRepository, context) =>
-            albumRepository.Invoking(repository => repository.DisableById(Constants.InvalidGuid))
-                           .Should().Throw<ResourceNotFoundException>()
-                           .WithMessage($"Album with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void DisableById_InvalidId_Test() => Execute((albumRepository, context) => albumRepository
+            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.AlbumNotFound, Constants.InvalidGuid)));
 
         private Album CreateTestAlbum(Album album, bool isActive) => new Album
         {

@@ -32,34 +32,17 @@ namespace SoundSphere.Database.Entities
 
         public override bool Equals(object? obj) => obj is User user &&
             Id.Equals(user.Id) &&
-            Name == user.Name &&
-            Email == user.Email &&
-            Password == user.Password &&
-            Mobile == user.Mobile &&
-            Address == user.Address &&
+            Name.Equals(user.Name) &&
+            Email.Equals(user.Email) &&
+            Password.Equals(user.Password) &&
+            Mobile.Equals(user.Mobile) &&
+            Address.Equals(user.Address) &&
             Birthday.Equals(user.Birthday) &&
-            Avatar == user.Avatar &&
+            Avatar.Equals(user.Avatar) &&
             Role.Equals(user.Role) &&
             Authorities.SequenceEqual(user.Authorities) &&
             IsActive == user.IsActive;
 
-        public override int GetHashCode()
-        {
-            HashCode hash = new HashCode();
-            hash.Add(Id);
-            hash.Add(Name);
-            hash.Add(Email);
-            hash.Add(Password);
-            hash.Add(Mobile);
-            hash.Add(Address);
-            hash.Add(Birthday);
-            hash.Add(Avatar);
-            hash.Add(Role);
-            hash.Add(Authorities);
-            hash.Add(UserSongs);
-            hash.Add(UserArtists);
-            hash.Add(IsActive);
-            return hash.ToHashCode();
-        }
+        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, Password, Mobile, Address, Birthday, HashCode.Combine(Avatar, Role, Authorities, UserSongs, UserArtists, IsActive));
     }
 }

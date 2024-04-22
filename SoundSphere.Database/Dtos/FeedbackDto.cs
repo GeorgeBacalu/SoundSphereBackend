@@ -5,6 +5,7 @@ namespace SoundSphere.Database.Dtos
 {
     public class FeedbackDto
     {
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "UserId is required")]
@@ -23,8 +24,8 @@ namespace SoundSphere.Database.Dtos
             Id.Equals(feedbackDto.Id) &&
             UserId.Equals(feedbackDto.UserId) &&
             Type == feedbackDto.Type &&
-            Message == feedbackDto.Message &&
-            SentAt == feedbackDto.SentAt;
+            Message.Equals(feedbackDto.Message) &&
+            SentAt.Equals(feedbackDto.SentAt);
 
         public override int GetHashCode() => HashCode.Combine(Id, UserId, Type, Message, SentAt);
     }

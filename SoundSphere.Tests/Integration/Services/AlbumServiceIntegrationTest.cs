@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using SoundSphere.Core.Services;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
@@ -23,17 +23,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
         private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
 
-        public AlbumServiceIntegrationTest(DbFixture fixture)
-        {
-            _fixture = fixture;
-            _mapper = new MapperConfiguration(config =>
-            {
-                config.CreateMap<Album, AlbumDto>();
-                config.CreateMap<AlbumDto, Album>();
-            }).CreateMapper();
-        }
+        public AlbumServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Album, AlbumDto>(); config.CreateMap<AlbumDto, Album>(); }).CreateMapper());
 
-        private void Execute(Action<AlbumService, SoundSphereContext> action)
+        private void Execute(Action<AlbumService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var albumService = new AlbumService(new AlbumRepository(context), _mapper);
@@ -47,13 +39,13 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void FindAllActive_Test() => Execute((albumService, context) => albumService.FindAllActive().Should().BeEquivalentTo(_activeAlbumDtos));
 
-        [Fact] public void FindById_Test() => Execute((albumService, context) => albumService.FindById(Constants.ValidAlbumGuid).Should().BeEquivalentTo(_albumDto1));
+        [Fact] public void FindById_Test() => Execute((albumService, context) => albumService.FindById(Constants.ValidAlbumGuid).Should().Be(_albumDto1));
 
         [Fact] public void Save_Test() => Execute((albumService, context) =>
         {
             AlbumDto newAlbumDto = AlbumMock.GetMockedAlbumDto3();
             albumService.Save(newAlbumDto);
-            context.Albums.Find(newAlbumDto.Id).Should().BeEquivalentTo(AlbumMock.GetMockedAlbum3());
+            context.Albums.Find(newAlbumDto.Id).Should().Be(newAlbumDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((albumService, context) =>
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Integration.Services
             Album updatedAlbum = CreateTestAlbum(_album2, _album1.IsActive);
             AlbumDto updatedAlbumDto = albumService.ConvertToDto(updatedAlbum);
             albumService.UpdateById(_albumDto2, Constants.ValidAlbumGuid);
-            context.Albums.Find(Constants.ValidAlbumGuid).Should().BeEquivalentTo(updatedAlbum);
+            context.Albums.Find(Constants.ValidAlbumGuid).Should().Be(updatedAlbum);
         });
 
         [Fact] public void DisableById_Test() => Execute((albumService, context) =>
@@ -69,7 +61,7 @@ namespace SoundSphere.Tests.Integration.Services
             Album disabledAlbum = CreateTestAlbum(_album1, false);
             AlbumDto disabledAlbumDto = albumService.ConvertToDto(disabledAlbum);
             albumService.DisableById(Constants.ValidAlbumGuid);
-            context.Albums.Find(Constants.ValidAlbumGuid).Should().BeEquivalentTo(disabledAlbum);
+            context.Albums.Find(Constants.ValidAlbumGuid).Should().Be(disabledAlbum);
         });
 
         private Album CreateTestAlbum(Album album, bool isActive) => new Album

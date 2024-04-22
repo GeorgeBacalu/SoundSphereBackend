@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using SoundSphere.Core.Services;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
@@ -23,17 +23,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
         private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
 
-        public PlaylistServiceIntegrationTest(DbFixture fixture)
-        {
-            _fixture = fixture;
-            _mapper = new MapperConfiguration(config =>
-            {
-                config.CreateMap<Playlist, PlaylistDto>();
-                config.CreateMap<PlaylistDto, Playlist>();
-            }).CreateMapper();
-        }
+        public PlaylistServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Playlist, PlaylistDto>(); config.CreateMap<PlaylistDto, Playlist>(); }).CreateMapper());
 
-        private void Execute(Action<PlaylistService, SoundSphereContext> action)
+        private void Execute(Action<PlaylistService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var playlistService = new PlaylistService(new PlaylistRepository(context), new UserRepository(context), new SongRepository(context), _mapper);
@@ -47,13 +39,13 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void FindAllActive_Test() => Execute((playlistService, context) => playlistService.FindAllActive().Should().BeEquivalentTo(_activePlaylistDtos));
 
-        [Fact] public void FindById_Test() => Execute((playlistService, context) => playlistService.FindById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(_playlistDto1));
+        [Fact] public void FindById_Test() => Execute((playlistService, context) => playlistService.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlistDto1));
 
         [Fact] public void Save_Test() => Execute((playlistService, context) =>
         {
             PlaylistDto newPlaylistDto = PlaylistMock.GetMockedPlaylistDto3();
             playlistService.Save(newPlaylistDto);
-            context.Playlists.Find(newPlaylistDto.Id).Should().BeEquivalentTo(PlaylistMock.GetMockedPlaylist3(), options => options.Excluding(playlist => playlist.CreatedAt));
+            context.Playlists.Find(newPlaylistDto.Id).Should().BeEquivalentTo(newPlaylistDto, options => options.Excluding(playlist => playlist.CreatedAt));
         });
 
         [Fact] public void UpdateById_Test() => Execute((playlistService, context) =>
@@ -69,7 +61,7 @@ namespace SoundSphere.Tests.Integration.Services
             };
             PlaylistDto updatedPlaylistDto = playlistService.ConvertToDto(updatedPlaylist);
             playlistService.UpdateById(_playlistDto2, Constants.ValidPlaylistGuid);
-            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(updatedPlaylist);
+            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(updatedPlaylist);
         });
 
         [Fact] public void DisableById_Test() => Execute((playlistService, context) =>
@@ -85,7 +77,7 @@ namespace SoundSphere.Tests.Integration.Services
             };
             PlaylistDto disabledPlaylistDto = playlistService.ConvertToDto(disabledPlaylist);
             playlistService.DisableById(Constants.ValidPlaylistGuid);
-            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(disabledPlaylist);
+            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(disabledPlaylist);
         });
     }
 }

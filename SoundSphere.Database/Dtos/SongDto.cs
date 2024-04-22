@@ -6,6 +6,7 @@ namespace SoundSphere.Database.Dtos
 {
     public class SongDto
     {
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Title is required")]
@@ -19,7 +20,7 @@ namespace SoundSphere.Database.Dtos
         [Required(ErrorMessage = "Genre is required")]
         public GenreType Genre { get; set; }
 
-        [Required(ErrorMessage = "ReleaseDate is required")]
+        [Required(ErrorMessage = "Release date is required")]
         [Date(ErrorMessage = "Release date can't be in the future")]
         public DateOnly ReleaseDate { get; set; }
 
@@ -39,8 +40,8 @@ namespace SoundSphere.Database.Dtos
 
         public override bool Equals(object? obj) => obj is SongDto songDto &&
             Id.Equals(songDto.Id) &&
-            Title == songDto.Title &&
-            ImageUrl == songDto.ImageUrl &&
+            Title.Equals(songDto.Title) &&
+            ImageUrl.Equals(songDto.ImageUrl) &&
             Genre == songDto.Genre &&
             ReleaseDate.Equals(songDto.ReleaseDate) &&
             DurationSeconds == songDto.DurationSeconds &&
@@ -49,20 +50,6 @@ namespace SoundSphere.Database.Dtos
             SimilarSongsIds.SequenceEqual(songDto.SimilarSongsIds) &&
             IsActive == songDto.IsActive;
 
-        public override int GetHashCode()
-        {
-            HashCode hash = new HashCode();
-            hash.Add(Id);
-            hash.Add(Title);
-            hash.Add(ImageUrl);
-            hash.Add(Genre);
-            hash.Add(ReleaseDate);
-            hash.Add(DurationSeconds);
-            hash.Add(AlbumId);
-            hash.Add(ArtistsIds);
-            hash.Add(SimilarSongsIds);
-            hash.Add(IsActive);
-            return hash.ToHashCode();
-        }
+        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, Genre, ReleaseDate, DurationSeconds, AlbumId, HashCode.Combine(ArtistsIds, SimilarSongsIds, IsActive));
     }
 }

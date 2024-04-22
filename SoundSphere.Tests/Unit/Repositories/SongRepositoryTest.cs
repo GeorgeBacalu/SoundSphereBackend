@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -13,8 +13,8 @@ namespace SoundSphere.Tests.Unit.Repositories
 {
     public class SongRepositoryTest
     {
-        private readonly Mock<DbSet<Song>> _setMock = new();
-        private readonly Mock<SoundSphereContext> _contextMock = new();
+        private readonly Mock<DbSet<Song>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly ISongRepository _songRepository;
 
         private readonly Song _song1 = SongMock.GetMockedSong1();
@@ -24,56 +24,56 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         public SongRepositoryTest()
         {
-            var queryableSongs = _songs.AsQueryable();
-            _setMock.As<IQueryable<Song>>().Setup(mock => mock.Provider).Returns(queryableSongs.Provider);
-            _setMock.As<IQueryable<Song>>().Setup(mock => mock.Expression).Returns(queryableSongs.Expression);
-            _setMock.As<IQueryable<Song>>().Setup(mock => mock.ElementType).Returns(queryableSongs.ElementType);
-            _setMock.As<IQueryable<Song>>().Setup(mock => mock.GetEnumerator()).Returns(queryableSongs.GetEnumerator());
-            _contextMock.Setup(mock => mock.Songs).Returns(_setMock.Object);
-            _songRepository = new SongRepository(_contextMock.Object);
+            IQueryable<Song> queryableSongs = _songs.AsQueryable();
+            _dbSetMock.As<IQueryable<Song>>().Setup(mock => mock.Provider).Returns(queryableSongs.Provider);
+            _dbSetMock.As<IQueryable<Song>>().Setup(mock => mock.Expression).Returns(queryableSongs.Expression);
+            _dbSetMock.As<IQueryable<Song>>().Setup(mock => mock.ElementType).Returns(queryableSongs.ElementType);
+            _dbSetMock.As<IQueryable<Song>>().Setup(mock => mock.GetEnumerator()).Returns(queryableSongs.GetEnumerator());
+            _dbContextMock.Setup(mock => mock.Songs).Returns(_dbSetMock.Object);
+            _songRepository = new SongRepository(_dbContextMock.Object);
         }
 
         [Fact] public void FindAll_Test() => _songRepository.FindAll().Should().BeEquivalentTo(_songs);
 
         [Fact] public void FindAllActive_Test() => _songRepository.FindAllActive().Should().BeEquivalentTo(_activeSongs);
 
-        [Fact] public void FindById_ValidId_Test() => _songRepository.FindById(Constants.ValidSongGuid).Should().BeEquivalentTo(_song1);
+        [Fact] public void FindById_ValidId_Test() => _songRepository.FindById(Constants.ValidSongGuid).Should().Be(_song1);
 
-        [Fact] public void FindById_InvalidId_Test() =>
-            _songRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                           .Should().Throw<ResourceNotFoundException>()
-                           .WithMessage($"Song with id {Constants.InvalidGuid} not found!");
+        [Fact] public void FindById_InvalidId_Test() => _songRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid));
 
         [Fact] public void Save_Test()
         {
-            _songRepository.Save(_song1).Should().BeEquivalentTo(_song1);
-            _setMock.Verify(mock => mock.Add(It.IsAny<Song>()));
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _songRepository.Save(_song1).Should().Be(_song1);
+            _dbSetMock.Verify(mock => mock.Add(It.IsAny<Song>()));
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
         [Fact] public void UpdateById_ValidId_Test()
         {
             Song updatedSong = CreateTestSong(_song2, _song1.IsActive);
-            _songRepository.UpdateById(_song2, Constants.ValidSongGuid).Should().BeEquivalentTo(updatedSong);
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _songRepository.UpdateById(_song2, Constants.ValidSongGuid).Should().Be(updatedSong);
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
-        [Fact] public void UpdateById_InvalidId_Test() =>
-            _songRepository.Invoking(repository => repository.UpdateById(_song2, Constants.InvalidGuid))
-                           .Should().Throw<ResourceNotFoundException>()
-                           .WithMessage($"Song with id {Constants.InvalidGuid} not found!");
+        [Fact] public void UpdateById_InvalidId_Test() => _songRepository
+            .Invoking(repository => repository.UpdateById(_song2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid));
 
         [Fact] public void DisableById_ValidId_Test()
         {
             Song disabledSong = CreateTestSong(_song1, false);
-            _songRepository.DisableById(Constants.ValidSongGuid).Should().BeEquivalentTo(disabledSong);
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _songRepository.DisableById(Constants.ValidSongGuid).Should().Be(disabledSong);
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
-        [Fact] public void DisableById_InvalidId_Test() =>
-            _songRepository.Invoking(repository => repository.DisableById(Constants.InvalidGuid))
-                           .Should().Throw<ResourceNotFoundException>()
-                           .WithMessage($"Song with id {Constants.InvalidGuid} not found!");
+        [Fact] public void DisableById_InvalidId_Test() => _songRepository
+            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid));
 
         private Song CreateTestSong(Song song, bool isActive) => new Song
         {

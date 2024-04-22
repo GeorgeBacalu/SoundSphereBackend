@@ -8,9 +8,9 @@ namespace SoundSphere.Database.Repositories
 {
     public class NotificationRepository : INotificationRepository
     {
-        private readonly SoundSphereContext _context;
+        private readonly SoundSphereDbContext _context;
 
-        public NotificationRepository(SoundSphereContext context) => _context = context;
+        public NotificationRepository(SoundSphereDbContext context) => _context = context;
 
         public IList<Notification> FindAll() => _context.Notifications
             .Include(notification => notification.User)
@@ -19,7 +19,7 @@ namespace SoundSphere.Database.Repositories
         public Notification FindById(Guid id) => _context.Notifications
             .Include(notification => notification.User)
             .FirstOrDefault(notification => notification.Id == id)
-            ?? throw new ResourceNotFoundException($"Notification with id {id} not found!");
+            ?? throw new ResourceNotFoundException(string.Format(Constants.NotificationNotFound, id));
 
         public Notification Save(Notification notification)
         {

@@ -3,7 +3,7 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -13,9 +13,9 @@ namespace SoundSphere.Tests.Unit.Services
 {
     public class FeedbackServiceTest
     {
-        private readonly Mock<IFeedbackRepository> _feedbackRepository = new();
-        private readonly Mock<IUserRepository> _userRepository = new();
-        private readonly Mock<IMapper> _mapper = new();
+        private readonly Mock<IFeedbackRepository> _feedbackRepositoryMock = new();
+        private readonly Mock<IUserRepository> _userRepositoryMock = new();
+        private readonly Mock<IMapper> _mapperMock = new();
         private readonly IFeedbackService _feedbackService;
 
         private readonly Feedback _feedback1 = FeedbackMock.GetMockedFeedback1();
@@ -28,30 +28,30 @@ namespace SoundSphere.Tests.Unit.Services
 
         public FeedbackServiceTest()
         {
-            _mapper.Setup(mock => mock.Map<FeedbackDto>(_feedback1)).Returns(_feedbackDto1);
-            _mapper.Setup(mock => mock.Map<FeedbackDto>(_feedback2)).Returns(_feedbackDto2);
-            _mapper.Setup(mock => mock.Map<Feedback>(_feedbackDto1)).Returns(_feedback1);
-            _mapper.Setup(mock => mock.Map<Feedback>(_feedbackDto2)).Returns(_feedback2);
-            _feedbackService = new FeedbackService(_feedbackRepository.Object, _userRepository.Object, _mapper.Object);
+            _mapperMock.Setup(mock => mock.Map<FeedbackDto>(_feedback1)).Returns(_feedbackDto1);
+            _mapperMock.Setup(mock => mock.Map<FeedbackDto>(_feedback2)).Returns(_feedbackDto2);
+            _mapperMock.Setup(mock => mock.Map<Feedback>(_feedbackDto1)).Returns(_feedback1);
+            _mapperMock.Setup(mock => mock.Map<Feedback>(_feedbackDto2)).Returns(_feedback2);
+            _feedbackService = new FeedbackService(_feedbackRepositoryMock.Object, _userRepositoryMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void FindAll_Test()
         {
-            _feedbackRepository.Setup(mock => mock.FindAll()).Returns(_feedbacks);
+            _feedbackRepositoryMock.Setup(mock => mock.FindAll()).Returns(_feedbacks);
             _feedbackService.FindAll().Should().BeEquivalentTo(_feedbackDtos);
         }
 
         [Fact] public void FindById_Test()
         {
-            _feedbackRepository.Setup(mock => mock.FindById(Constants.ValidFeedbackGuid)).Returns(_feedback1);
-            _feedbackService.FindById(Constants.ValidFeedbackGuid).Should().BeEquivalentTo(_feedbackDto1);
+            _feedbackRepositoryMock.Setup(mock => mock.FindById(Constants.ValidFeedbackGuid)).Returns(_feedback1);
+            _feedbackService.FindById(Constants.ValidFeedbackGuid).Should().Be(_feedbackDto1);
         }
 
         [Fact] public void Save_Test()
         {
-            _userRepository.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
-            _feedbackRepository.Setup(mock => mock.Save(_feedback1)).Returns(_feedback1);
-            _feedbackService.Save(_feedbackDto1).Should().BeEquivalentTo(_feedbackDto1);
+            _userRepositoryMock.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
+            _feedbackRepositoryMock.Setup(mock => mock.Save(_feedback1)).Returns(_feedback1);
+            _feedbackService.Save(_feedbackDto1).Should().Be(_feedbackDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -65,15 +65,15 @@ namespace SoundSphere.Tests.Unit.Services
                 SentAt = _feedback1.SentAt
             };
             FeedbackDto updatedFeedbackDto = ConvertToDto(updatedFeedback);
-            _mapper.Setup(mock => mock.Map<FeedbackDto>(updatedFeedback)).Returns(updatedFeedbackDto);
-            _feedbackRepository.Setup(mock => mock.UpdateById(_feedback2, Constants.ValidFeedbackGuid)).Returns(updatedFeedback);
-            _feedbackService.UpdateById(_feedbackDto2, Constants.ValidFeedbackGuid).Should().BeEquivalentTo(updatedFeedbackDto);
+            _mapperMock.Setup(mock => mock.Map<FeedbackDto>(updatedFeedback)).Returns(updatedFeedbackDto);
+            _feedbackRepositoryMock.Setup(mock => mock.UpdateById(_feedback2, Constants.ValidFeedbackGuid)).Returns(updatedFeedback);
+            _feedbackService.UpdateById(_feedbackDto2, Constants.ValidFeedbackGuid).Should().Be(updatedFeedbackDto);
         }
 
         [Fact] public void DeleteById_Test()
         {
             _feedbackService.DeleteById(Constants.ValidFeedbackGuid);
-            _feedbackRepository.Verify(mock => mock.DeleteById(Constants.ValidFeedbackGuid));
+            _feedbackRepositoryMock.Verify(mock => mock.DeleteById(Constants.ValidFeedbackGuid));
         }
 
         private FeedbackDto ConvertToDto(Feedback feedback) => new FeedbackDto

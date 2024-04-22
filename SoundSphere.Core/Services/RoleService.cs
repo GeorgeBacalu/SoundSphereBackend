@@ -11,11 +11,7 @@ namespace SoundSphere.Core.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
 
-        public RoleService(IRoleRepository roleRepository, IMapper mapper)
-        {
-            _roleRepository = roleRepository;
-            _mapper = mapper;
-        }
+        public RoleService(IRoleRepository roleRepository, IMapper mapper) => (_roleRepository, _mapper) = (roleRepository, mapper);
 
         public IList<RoleDto> FindAll() => ConvertToDtos(_roleRepository.FindAll());
 

@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -13,8 +13,8 @@ namespace SoundSphere.Tests.Unit.Repositories
 {
     public class NotificationRepositoryTest
     {
-        private readonly Mock<DbSet<Notification>> _setMock = new();
-        private readonly Mock<SoundSphereContext> _contextMock = new();
+        private readonly Mock<DbSet<Notification>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly INotificationRepository _notificationRepository;
 
         private readonly Notification _notification1 = NotificationMock.GetMockedNotification1();
@@ -23,29 +23,29 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         public NotificationRepositoryTest()
         {
-            var queryableNotifications = _notifications.AsQueryable();
-            _setMock.As<IQueryable<Notification>>().Setup(mock => mock.Provider).Returns(queryableNotifications.Provider);
-            _setMock.As<IQueryable<Notification>>().Setup(mock => mock.Expression).Returns(queryableNotifications.Expression);
-            _setMock.As<IQueryable<Notification>>().Setup(mock => mock.ElementType).Returns(queryableNotifications.ElementType);
-            _setMock.As<IQueryable<Notification>>().Setup(mock => mock.GetEnumerator()).Returns(queryableNotifications.GetEnumerator());
-            _contextMock.Setup(mock => mock.Notifications).Returns(_setMock.Object);
-            _notificationRepository = new NotificationRepository(_contextMock.Object);
+            IQueryable<Notification> queryableNotifications = _notifications.AsQueryable();
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.Provider).Returns(queryableNotifications.Provider);
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.Expression).Returns(queryableNotifications.Expression);
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.ElementType).Returns(queryableNotifications.ElementType);
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.GetEnumerator()).Returns(queryableNotifications.GetEnumerator());
+            _dbContextMock.Setup(mock => mock.Notifications).Returns(_dbSetMock.Object);
+            _notificationRepository = new NotificationRepository(_dbContextMock.Object);
         }
 
         [Fact] public void FindAll_Test() => _notificationRepository.FindAll().Should().BeEquivalentTo(_notifications);
 
-        [Fact] public void FindById_ValidId_Test() => _notificationRepository.FindById(Constants.ValidNotificationGuid).Should().BeEquivalentTo(_notification1);
+        [Fact] public void FindById_ValidId_Test() => _notificationRepository.FindById(Constants.ValidNotificationGuid).Should().Be(_notification1);
 
-        [Fact] public void FindById_InvalidId_Test() =>
-            _notificationRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                                   .Should().Throw<ResourceNotFoundException>()
-                                   .WithMessage($"Notification with id {Constants.InvalidGuid} not found!");
+        [Fact] public void FindById_InvalidId_Test() => _notificationRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.NotificationNotFound, Constants.InvalidGuid));
 
         [Fact] public void Save_Test()
         {
-            _notificationRepository.Save(_notification1).Should().BeEquivalentTo(_notification1);
-            _setMock.Verify(mock => mock.Add(It.IsAny<Notification>()));
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _notificationRepository.Save(_notification1).Should().Be(_notification1);
+            _dbSetMock.Verify(mock => mock.Add(It.IsAny<Notification>()));
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
         [Fact] public void UpdateById_ValidId_Test()
@@ -59,25 +59,25 @@ namespace SoundSphere.Tests.Unit.Repositories
                 SentAt = _notification1.SentAt,
                 IsRead = _notification2.IsRead
             };
-            _notificationRepository.UpdateById(_notification2, Constants.ValidNotificationGuid).Should().BeEquivalentTo(updatedNotification);
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _notificationRepository.UpdateById(_notification2, Constants.ValidNotificationGuid).Should().Be(updatedNotification);
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
-        [Fact] public void UpdateById_InvalidId_Test() =>
-            _notificationRepository.Invoking(repository => repository.UpdateById(_notification2, Constants.InvalidGuid))
-                                   .Should().Throw<ResourceNotFoundException>()
-                                   .WithMessage($"Notification with id {Constants.InvalidGuid} not found!");
+        [Fact] public void UpdateById_InvalidId_Test() => _notificationRepository
+            .Invoking(repository => repository.UpdateById(_notification2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.NotificationNotFound, Constants.InvalidGuid));
 
         [Fact] public void DeleteById_ValidId_Test()
         {
             _notificationRepository.DeleteById(Constants.ValidNotificationGuid);
-            _setMock.Verify(mock => mock.Remove(It.IsAny<Notification>()));
-            _contextMock.Verify(mock => mock.SaveChanges());
+            _dbSetMock.Verify(mock => mock.Remove(It.IsAny<Notification>()));
+            _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
-        [Fact] public void DeleteById_InvalidId_Test() =>
-            _notificationRepository.Invoking(repository => repository.DeleteById(Constants.InvalidGuid))
-                                   .Should().Throw<ResourceNotFoundException>()
-                                   .WithMessage($"Notification with id {Constants.InvalidGuid} not found!");
+        [Fact] public void DeleteById_InvalidId_Test() => _notificationRepository
+            .Invoking(repository => repository.DeleteById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.NotificationNotFound, Constants.InvalidGuid));
     }
 }

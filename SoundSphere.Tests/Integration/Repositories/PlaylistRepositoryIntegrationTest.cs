@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -19,7 +19,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         public PlaylistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
-        private void Execute(Action<PlaylistRepository, SoundSphereContext> action)
+        private void Execute(Action<PlaylistRepository, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var playlistRepository = new PlaylistRepository(context);
@@ -33,12 +33,12 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void FindAllActive_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllActive().Should().BeEquivalentTo(_activePlaylists));
 
-        [Fact] public void FindById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(_playlist1));
+        [Fact] public void FindById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlist1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((playlistRepository, context) => 
-            playlistRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                              .Should().Throw<ResourceNotFoundException>()
-                              .WithMessage($"Playlist with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void FindById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid)));
 
         [Fact] public void Save_Test() => Execute((playlistRepository, context) =>
         {
@@ -59,13 +59,13 @@ namespace SoundSphere.Tests.Integration.Repositories
                 IsActive = _playlist1.IsActive
             };
             playlistRepository.UpdateById(_playlist2, Constants.ValidPlaylistGuid);
-            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(updatedPlaylist);
+            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(updatedPlaylist);
         });
 
-        [Fact] public void UpdateById_InvalidId_Test() => Execute((playlistRepository, context) =>
-            playlistRepository.Invoking(repository => repository.UpdateById(_playlist2, Constants.InvalidGuid))
-                              .Should().Throw<ResourceNotFoundException>()
-                              .WithMessage($"Playlist with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void UpdateById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+            .Invoking(repository => repository.UpdateById(_playlist2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid)));
 
         [Fact] public void DisableById_ValidId_Test() => Execute((playlistRepository, context) =>
         {
@@ -79,12 +79,12 @@ namespace SoundSphere.Tests.Integration.Repositories
                 IsActive = false
             };
             playlistRepository.DisableById(Constants.ValidPlaylistGuid);
-            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(disabledPlaylist);
+            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(disabledPlaylist);
         });
 
-        [Fact] public void DisableById_InvalidId_Test() => Execute((playlistRepository, context) =>
-            playlistRepository.Invoking(repository => repository.DisableById(Constants.InvalidGuid))
-                              .Should().Throw<ResourceNotFoundException>()
-                              .WithMessage($"Playlist with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void DisableById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid)));
     }
 }

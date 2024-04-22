@@ -11,7 +11,7 @@ namespace SoundSphere.Infrastructure.Exceptions
             try { await next(context); }
             catch (ApplicationException exception)
             {
-                var problem = exception switch
+                ProblemDetails problem = exception switch
                 {
                     ResourceNotFoundException ex => new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = ex.Message },
                     InvalidRequestException ex => new ProblemDetails { Title = "Invalid Request", Status = StatusCodes.Status400BadRequest, Detail = ex.Message },

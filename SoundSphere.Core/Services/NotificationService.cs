@@ -12,12 +12,8 @@ namespace SoundSphere.Core.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IMapper mapper)
-        {
-            _notificationRepository = notificationRepository;
-            _userRepository = userRepository;
-            _mapper = mapper;
-        }
+        public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IMapper mapper) => 
+            (_notificationRepository, _userRepository, _mapper) = (notificationRepository, userRepository, mapper);
 
         public IList<NotificationDto> FindAll() => ConvertToDtos(_notificationRepository.FindAll());
 
@@ -41,12 +37,7 @@ namespace SoundSphere.Core.Services
 
         public IList<Notification> ConvertToEntities(IList<NotificationDto> notificationDtos) => notificationDtos.Select(ConvertToEntity).ToList();
 
-        public NotificationDto ConvertToDto(Notification notification)
-        {
-            NotificationDto notificationDto = _mapper.Map<NotificationDto>(notification);
-            notificationDto.UserId = notification.User.Id;
-            return notificationDto;
-        }
+        public NotificationDto ConvertToDto(Notification notification) => _mapper.Map<NotificationDto>(notification);
 
         public Notification ConvertToEntity(NotificationDto notificationDto)
         {

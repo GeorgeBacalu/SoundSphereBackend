@@ -13,13 +13,8 @@ namespace SoundSphere.Core.Services
         private readonly IAuthorityRepository _authorityRepository;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, IMapper mapper)
-        {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-            _authorityRepository = authorityRepository;
-            _mapper = mapper;
-        }
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, IMapper mapper) => 
+            (_userRepository, _roleRepository, _authorityRepository, _mapper) = (userRepository, roleRepository, authorityRepository, mapper);
 
         public IList<UserDto> FindAll() => ConvertToDtos(_userRepository.FindAll());
 
@@ -51,7 +46,6 @@ namespace SoundSphere.Core.Services
         public UserDto ConvertToDto(User user)
         {
             UserDto userDto = _mapper.Map<UserDto>(user);
-            userDto.RoleId = user.Role.Id;
             userDto.AuthoritiesIds = user.Authorities
                 .Select(authority => authority.Id)
                 .ToList();

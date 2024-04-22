@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Tests.Mocks;
 using System.Net;
-using System.Text;
 
 namespace SoundSphere.Tests.Integration.Controllers
 {
@@ -26,6 +25,8 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly UserDto _userDto2 = UserMock.GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
         private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
+        private readonly IList<Role> _roles = RoleMock.GetMockedRoles();
+        private readonly IList<Authority> _authorities = AuthorityMock.GetMockedAuthorities();
 
         public UserControllerIntegrationTest()
         {
@@ -37,25 +38,25 @@ namespace SoundSphere.Tests.Integration.Controllers
         private async Task Execute(Func<Task> action)
         {
             using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<SoundSphereContext>();
+            var context = scope.ServiceProvider.GetRequiredService<SoundSphereDbContext>();
             await context.Users.AddRangeAsync(_users);
+            await context.Roles.AddRangeAsync(_roles);
+            await context.Authorities.AddRangeAsync(_authorities);
             await context.SaveChangesAsync();
             await action();
             context.Users.RemoveRange(context.Users);
+            context.Roles.RemoveRange(context.Roles);
+            context.Authorities.RemoveRange(context.Authorities);
             await context.SaveChangesAsync();
         }
 
-        public void Dispose()
-        {
-            _factory.Dispose();
-            _httpClient.Dispose();
-        }
+        public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
         [Fact] public async Task FindAll_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync(Constants.ApiUser);
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = JsonConvert.DeserializeObject<IList<UserDto>>(await response.Content.ReadAsStringAsync());
             result.Should().BeEquivalentTo(_userDtos);
         });
@@ -63,8 +64,8 @@ namespace SoundSphere.Tests.Integration.Controllers
         [Fact] public async Task FindAllActive_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync($"{Constants.ApiUser}/active");
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = JsonConvert.DeserializeObject<IList<UserDto>>(await response.Content.ReadAsStringAsync());
             result.Should().BeEquivalentTo(_activeUserDtos);
         });
@@ -72,39 +73,33 @@ namespace SoundSphere.Tests.Integration.Controllers
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync($"{Constants.ApiUser}/{Constants.ValidUserGuid}");
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = JsonConvert.DeserializeObject<UserDto>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_userDto1);
+            result.Should().Be(_userDto1);
         });
 
         [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync($"{Constants.ApiUser}/{Constants.InvalidGuid}");
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(new ProblemDetails
-            {
-                Title = "Resource not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"User with id {Constants.InvalidGuid} not found!"
-            });
+            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.UserNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task Save_Test() => await Execute(async () =>
         {
             UserDto newUserDto = UserMock.GetMockedUserDto3();
-            var requestBody = new StringContent(JsonConvert.SerializeObject(newUserDto), Encoding.UTF8, "application/json");
-            var saveResponse = await _httpClient.PostAsync(Constants.ApiUser, requestBody);
-            saveResponse?.Should().NotBeNull();
-            saveResponse?.StatusCode.Should().Be(HttpStatusCode.Created);
+            var saveResponse = await _httpClient.PostAsync(Constants.ApiUser, new StringContent(JsonConvert.SerializeObject(newUserDto)));
+            saveResponse.Should().NotBeNull();
+            saveResponse.StatusCode.Should().Be(HttpStatusCode.Created);
             var saveResult = JsonConvert.DeserializeObject<UserDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResult.Should().BeEquivalentTo(newUserDto);
+            saveResult.Should().Be(newUserDto);
 
             var getAllResponse = await _httpClient.GetAsync(Constants.ApiUser);
-            getAllResponse?.Should().NotBeNull();
-            getAllResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllResponse.Should().NotBeNull();
+            getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getAllResult = JsonConvert.DeserializeObject<IList<UserDto>>(await getAllResponse.Content.ReadAsStringAsync());
             getAllResult.Should().Contain(newUserDto);
         });
@@ -113,64 +108,52 @@ namespace SoundSphere.Tests.Integration.Controllers
         {
             User updatedUser = CreateTestUser(_user2, _user1.IsActive);
             UserDto updatedUserDto = ConvertToDto(updatedUser);
-            var requestBody = new StringContent(JsonConvert.SerializeObject(_userDto2), Encoding.UTF8, "application/json");
-            var updateResponse = await _httpClient.PutAsync($"{Constants.ApiUser}/{Constants.ValidUserGuid}", requestBody);
-            updateResponse?.Should().NotBeNull();
-            updateResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            var updateResponse = await _httpClient.PutAsync($"{Constants.ApiUser}/{Constants.ValidUserGuid}", new StringContent(JsonConvert.SerializeObject(updatedUserDto)));
+            updateResponse.Should().NotBeNull();
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var updateResult = JsonConvert.DeserializeObject<UserDto>(await updateResponse.Content.ReadAsStringAsync());
+            updateResult.Should().Be(updatedUserDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiUser}/{Constants.ValidUserGuid}");
-            getResponse?.Should().NotBeNull();
-            getResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            getResponse.Should().NotBeNull();
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResult = JsonConvert.DeserializeObject<UserDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().BeEquivalentTo(updatedUserDto);
+            getResult.Should().Be(updatedUserDto);
         });
 
         [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
         {
-            var requestBody = new StringContent(JsonConvert.SerializeObject(_userDto2), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"{Constants.ApiUser}/{Constants.InvalidGuid}", requestBody);
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            var response = await _httpClient.PutAsync($"{Constants.ApiUser}/{Constants.InvalidGuid}", new StringContent(JsonConvert.SerializeObject(_userDto2)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(new ProblemDetails
-            {
-                Title = "Resource not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"User with id {Constants.InvalidGuid} not found!"
-            });
+            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.UserNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task DisableById_ValidId_Test() => await Execute(async () =>
         {
             User disabledUser = CreateTestUser(_user1, false);
             UserDto disabledUserDto = ConvertToDto(disabledUser);
-            var requestBody = new StringContent(JsonConvert.SerializeObject(_userDto1), Encoding.UTF8, "application/json");
-            var disableResponse = await _httpClient.PutAsync($"{Constants.ApiUser}/{Constants.ValidUserGuid}/disable", requestBody);
-            disableResponse?.Should().NotBeNull();
-            disableResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            var disableResponse = await _httpClient.DeleteAsync($"{Constants.ApiUser}/{Constants.ValidUserGuid}");
+            disableResponse.Should().NotBeNull();
+            disableResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var disableResult = JsonConvert.DeserializeObject<UserDto>(await disableResponse.Content.ReadAsStringAsync());
-            disableResult.Should().BeEquivalentTo(disabledUserDto);
+            disableResult.Should().Be(disabledUserDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiUser}/{Constants.ValidUserGuid}");
-            getResponse?.Should().NotBeNull();
-            getResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            getResponse.Should().NotBeNull();
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResult = JsonConvert.DeserializeObject<UserDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().BeEquivalentTo(disabledUserDto);
+            getResult.Should().Be(disabledUserDto);
         });
 
         [Fact] public async Task DisableById_InvalidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.DeleteAsync($"{Constants.ApiUser}/{Constants.InvalidGuid}");
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(new ProblemDetails
-            {
-                Title = "Resource not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"User with id {Constants.InvalidGuid} not found!"
-            });
+            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.UserNotFound, Constants.InvalidGuid) });
         });
 
         private User CreateTestUser(User user, bool isActive) => new User
@@ -198,9 +181,7 @@ namespace SoundSphere.Tests.Integration.Controllers
             Birthday = user.Birthday,
             Avatar = user.Avatar,
             RoleId = user.Role.Id,
-            AuthoritiesIds = user.Authorities
-                .Select(authority => authority.Id)
-                .ToList(),
+            AuthoritiesIds = user.Authorities.Select(authority => authority.Id).ToList(),
             IsActive = user.IsActive
         };
     }

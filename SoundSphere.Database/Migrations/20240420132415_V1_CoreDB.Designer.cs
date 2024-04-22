@@ -11,8 +11,8 @@ using SoundSphere.Database.Context;
 
 namespace SoundSphere.Api.Migrations
 {
-    [DbContext(typeof(SoundSphereContext))]
-    [Migration("20240326184232_V1_CoreDB")]
+    [DbContext(typeof(SoundSphereDbContext))]
+    [Migration("20240420132415_V1_CoreDB")]
     partial class V1_CoreDB
     {
         /// <inheritdoc />

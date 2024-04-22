@@ -1,8 +1,18 @@
-﻿namespace SoundSphere.Database.Constants
+﻿namespace SoundSphere.Database
 {
     public class Constants
     {
         private Constants() { }
+
+        public static readonly string AlbumNotFound = "Album with id {0} not found";
+        public static readonly string ArtistNotFound = "Artist with id {0} not found";
+        public static readonly string AuthorityNotFound = "Authority with id {0} not found";
+        public static readonly string FeedbackNotFound = "Feedback with id {0} not found";
+        public static readonly string NotificationNotFound = "Notification with id {0} not found";
+        public static readonly string PlaylistNotFound = "Playlist with id {0} not found";
+        public static readonly string RoleNotFound = "Role with id {0} not found";
+        public static readonly string SongNotFound = "Song with id {0} not found";
+        public static readonly string UserNotFound = "User with id {0} not found";
 
         public static readonly Guid ValidAlbumGuid = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb");
         public static readonly Guid ValidArtistGuid = Guid.Parse("d4f7f9d2-472e-488e-b7ef-73d169ba2bf5");

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using SoundSphere.Core.Services;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
@@ -22,17 +22,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly NotificationDto _notificationDto2 = NotificationMock.GetMockedNotificationDto2();
         private readonly IList<NotificationDto> _notificationDtos = NotificationMock.GetMockedNotificationDtos();
     
-        public NotificationServiceIntegrationTest(DbFixture fixture)
-        {
-            _fixture = fixture;
-            _mapper = new MapperConfiguration(config =>
-            {
-                config.CreateMap<Notification, NotificationDto>();
-                config.CreateMap<NotificationDto, Notification>();
-            }).CreateMapper();
-        }
+        public NotificationServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Notification, NotificationDto>(); config.CreateMap<NotificationDto, Notification>(); }).CreateMapper());
 
-        private void Execute(Action<NotificationService, SoundSphereContext> action)
+        private void Execute(Action<NotificationService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var notificationService = new NotificationService(new NotificationRepository(context), new UserRepository(context), _mapper);
@@ -44,13 +36,13 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void FindAll_Test() => Execute((notificationService, context) => notificationService.FindAll().Should().BeEquivalentTo(_notificationDtos));
 
-        [Fact] public void FindById_Test() => Execute((notificationService, context) => notificationService.FindById(Constants.ValidNotificationGuid).Should().BeEquivalentTo(_notificationDto1));
+        [Fact] public void FindById_Test() => Execute((notificationService, context) => notificationService.FindById(Constants.ValidNotificationGuid).Should().Be(_notificationDto1));
 
         [Fact] public void Save_Test() => Execute((notificationService, context) =>
         {
             NotificationDto newNotificationDto = NotificationMock.GetMockedNotificationDto3();
             notificationService.Save(newNotificationDto);
-            context.Notifications.Find(newNotificationDto.Id).Should().BeEquivalentTo(NotificationMock.GetMockedNotification3(), options => options.Excluding(notification => notification.SentAt));
+            context.Notifications.Find(newNotificationDto.Id).Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.SentAt));
         });
 
         [Fact] public void UpdateById_Test() => Execute((notificationService, context) =>
@@ -66,7 +58,7 @@ namespace SoundSphere.Tests.Integration.Services
             };
             NotificationDto updatedNotificationDto = notificationService.ConvertToDto(updatedNotification);
             notificationService.UpdateById(_notificationDto2, Constants.ValidNotificationGuid);
-            context.Notifications.Find(Constants.ValidNotificationGuid).Should().BeEquivalentTo(updatedNotification);
+            context.Notifications.Find(Constants.ValidNotificationGuid).Should().Be(updatedNotification);
         });
 
         [Fact] public void DeleteById_Test() => Execute((notificationService, context) =>

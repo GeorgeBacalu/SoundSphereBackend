@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -8,7 +8,7 @@ using SoundSphere.Tests.Mocks;
 
 namespace SoundSphere.Tests.Integration.Repositories
 {
-    public class UserRepositoryIntegrationTest
+    public class UserRepositoryIntegrationTest : IClassFixture<DbFixture>
     {
         private readonly DbFixture _fixture;
 
@@ -19,7 +19,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         public UserRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
-        private void Execute(Action<UserRepository, SoundSphereContext> action)
+        private void Execute(Action<UserRepository, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var userRepository = new UserRepository(context);
@@ -33,43 +33,43 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void FindAllActive_Test() => Execute((userRepository, context) => userRepository.FindAllActive().Should().BeEquivalentTo(_activeUsers));
 
-        [Fact] public void FindById_ValidId_Test() => Execute((userRepository, context) => userRepository.FindById(Constants.ValidUserGuid).Should().BeEquivalentTo(_user1));
+        [Fact] public void FindById_ValidId_Test() => Execute((userRepository, context) => userRepository.FindById(Constants.ValidUserGuid).Should().Be(_user1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((userRepository, context) => 
-            userRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                          .Should().Throw<ResourceNotFoundException>()
-                          .WithMessage($"User with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void FindById_InvalidId_Test() => Execute((userRepository, context) => userRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.UserNotFound, Constants.InvalidGuid)));
 
         [Fact] public void Save_Test() => Execute((userRepository, context) =>
         {
             User newUser = UserMock.GetMockedUser3();
             userRepository.Save(newUser);
-            context.Users.Find(newUser.Id).Should().BeEquivalentTo(newUser);
+            context.Users.Find(newUser.Id).Should().Be(newUser);
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((userRepository, context) =>
         {
             User updatedUser = CreateTestUser(_user2, _user1.IsActive);
             userRepository.UpdateById(_user2, Constants.ValidUserGuid);
-            context.Users.Find(Constants.ValidUserGuid).Should().BeEquivalentTo(updatedUser);
+            context.Users.Find(Constants.ValidUserGuid).Should().Be(updatedUser);
         });
 
-        [Fact] public void UpdateById_InvalidId_Test() => Execute((userRepository, context) =>
-            userRepository.Invoking(repository => repository.UpdateById(_user2, Constants.InvalidGuid))
-                          .Should().Throw<ResourceNotFoundException>()
-                          .WithMessage($"User with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void UpdateById_InvalidId_Test() => Execute((userRepository, context) => userRepository
+            .Invoking(repository => repository.UpdateById(_user2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.UserNotFound, Constants.InvalidGuid)));
 
         [Fact] public void DisableById_ValidId_Test() => Execute((userRepository, context) =>
         {
             User disabledUser = CreateTestUser(_user1, false);
             userRepository.DisableById(Constants.ValidUserGuid);
-            context.Users.Find(Constants.ValidUserGuid).Should().BeEquivalentTo(disabledUser);
+            context.Users.Find(Constants.ValidUserGuid).Should().Be(disabledUser);
         });
 
-        [Fact] public void DisableById_InvalidId_Test() => Execute((userRepository, context) =>
-            userRepository.Invoking(repository => repository.DisableById(Constants.InvalidGuid))
-                          .Should().Throw<ResourceNotFoundException>()
-                          .WithMessage($"User with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void DisableById_InvalidId_Test() => Execute((userRepository, context) => userRepository
+            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.UserNotFound, Constants.InvalidGuid)));
 
         private User CreateTestUser(User user, bool isActive) => new User
         {

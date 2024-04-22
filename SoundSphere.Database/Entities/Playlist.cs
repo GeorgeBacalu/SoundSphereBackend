@@ -16,10 +16,10 @@
 
         public override bool Equals(object? obj) => obj is Playlist playlist &&
             Id.Equals(playlist.Id) &&
-            Title == playlist.Title &&
+            Title.Equals(playlist.Title) &&
             User.Equals(playlist.User) &&
             Songs.SequenceEqual(playlist.Songs) &&
-            CreatedAt == playlist.CreatedAt &&
+            CreatedAt.Equals(playlist.CreatedAt) &&
             IsActive == playlist.IsActive;
 
         public override int GetHashCode() => HashCode.Combine(Id, Title, User, Songs, CreatedAt, IsActive);

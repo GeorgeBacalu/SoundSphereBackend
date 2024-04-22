@@ -8,12 +8,8 @@ namespace SoundSphere.Tests.Integration
     {
         private readonly IConfiguration _configuration;
 
-        public DbFixture() => _configuration = new ConfigurationBuilder()
-            .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\SoundSphere.Api"))
-            .AddJsonFile("appsettings.Test.json")
-            .Build();
+        public DbFixture() => _configuration = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory).AddJsonFile("appsettings.Test.json").Build();
 
-        public SoundSphereContext CreateContext() => new SoundSphereContext(new DbContextOptionsBuilder<SoundSphereContext>()
-            .UseSqlServer(_configuration.GetConnectionString("DefaultConnection")).Options);
+        public SoundSphereDbContext CreateContext() => new SoundSphereDbContext(new DbContextOptionsBuilder<SoundSphereDbContext>().UseSqlServer(_configuration.GetConnectionString("DefaultConnection")).Options);
     }
 }

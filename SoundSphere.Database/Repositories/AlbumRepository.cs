@@ -8,23 +8,23 @@ namespace SoundSphere.Database.Repositories
 {
     public class AlbumRepository : IAlbumRepository
     {
-        private readonly SoundSphereContext _context;
+        private readonly SoundSphereDbContext _context;
 
-        public AlbumRepository(SoundSphereContext context) => _context = context;
+        public AlbumRepository(SoundSphereDbContext context) => _context = context;
 
         public IList<Album> FindAll() => _context.Albums
             .Include(album => album.SimilarAlbums)
             .ToList();
 
         public IList<Album> FindAllActive() => _context.Albums
-            .Where(album => album.IsActive)
             .Include(album => album.SimilarAlbums)
+            .Where(album => album.IsActive)
             .ToList();
 
         public Album FindById(Guid id) => _context.Albums
             .Include(album => album.SimilarAlbums)
             .FirstOrDefault(album => album.Id == id)
-            ?? throw new ResourceNotFoundException($"Album with id {id} not found!");
+            ?? throw new ResourceNotFoundException(string.Format(Constants.AlbumNotFound, id));
 
         public Album Save(Album album)
         {
@@ -52,15 +52,10 @@ namespace SoundSphere.Database.Repositories
             return albumToDisable;
         }
 
-        public void AddAlbumLink(Album album) =>
-            album.SimilarAlbums = album.SimilarAlbums
-                            .Select(similarAlbum => _context.Albums.Find(similarAlbum.SimilarAlbumId))
-                            .Where(similarAlbum => similarAlbum != null)
-                            .Select(similarAlbum => new AlbumLink
-                            {
-                                Album = album,
-                                SimilarAlbum = similarAlbum
-                            })
-                            .ToList();
+        public void AddAlbumLink(Album album) => album.SimilarAlbums = album.SimilarAlbums
+            .Select(similarAlbum => _context.Albums.Find(similarAlbum.SimilarAlbumId))
+            .Where(similarAlbum => similarAlbum != null)
+            .Select(similarAlbum => new AlbumLink { Album = album, SimilarAlbum = similarAlbum })
+            .ToList();
     }
 }

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using SoundSphere.Core.Services;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
@@ -19,17 +19,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly AuthorityDto _authorityDto1 = AuthorityMock.GetMockedAuthorityDto1();
         private readonly IList<AuthorityDto> _authorityDtos = AuthorityMock.GetMockedAuthorityDtos();
 
-        public AuthorityServiceIntegrationTest(DbFixture fixture)
-        {
-            _fixture = fixture;
-            _mapper = new MapperConfiguration(config =>
-            {
-                config.CreateMap<Authority, AuthorityDto>();
-                config.CreateMap<AuthorityDto, Authority>();
-            }).CreateMapper();
-        }
+        public AuthorityServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Authority, AuthorityDto>(); config.CreateMap<AuthorityDto, Authority>(); }).CreateMapper());
 
-        private void Execute(Action<AuthorityService, SoundSphereContext> action)
+        private void Execute(Action<AuthorityService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var authorityService = new AuthorityService(new AuthorityRepository(context), _mapper);
@@ -43,10 +35,8 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void FindById_Test() => Execute((authorityService, context) => authorityService.FindById(Constants.ValidAuthorityGuid).Should().BeEquivalentTo(_authorityDto1));
 
-        [Fact] public void Save_Test() => Execute((authorityService, context) =>
-        {
-            AuthorityDto newAuthorityDto = AuthorityMock.GetMockedAuthorityDto1();
-            authorityService.Invoking(service => service.Save(newAuthorityDto)).Should().Throw<InvalidOperationException>();
-        });
+        [Fact] public void Save_Test() => Execute((authorityService, context) => authorityService
+            .Invoking(service => service.Save(_authorityDto1))
+            .Should().Throw<InvalidOperationException>());
     }
 }

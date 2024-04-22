@@ -8,23 +8,23 @@ namespace SoundSphere.Database.Repositories
 {
     public class ArtistRepository : IArtistRepository
     {
-        private readonly SoundSphereContext _context;
+        private readonly SoundSphereDbContext _context;
 
-        public ArtistRepository(SoundSphereContext context) => _context = context;
+        public ArtistRepository(SoundSphereDbContext context) => _context = context;
 
         public IList<Artist> FindAll() => _context.Artists
             .Include(artist => artist.SimilarArtists)
             .ToList();
 
         public IList<Artist> FindAllActive() => _context.Artists
-            .Where(artist => artist.IsActive)
             .Include(artist => artist.SimilarArtists)
+            .Where(artist => artist.IsActive)
             .ToList();
 
         public Artist FindById(Guid id) => _context.Artists
             .Include(artist => artist.SimilarArtists)
             .FirstOrDefault(artist => artist.Id == id)
-            ?? throw new ResourceNotFoundException($"Artist with id {id} not found!");
+            ?? throw new ResourceNotFoundException(string.Format(Constants.ArtistNotFound, id));
 
         public Artist Save(Artist artist)
         {
@@ -39,8 +39,7 @@ namespace SoundSphere.Database.Repositories
             artistToUpdate.Name = artist.Name;
             artistToUpdate.ImageUrl = artist.ImageUrl;
             artistToUpdate.Bio = artist.Bio;
-            artistToUpdate.SimilarArtists.Clear();
-            artist.SimilarArtists.ToList().ForEach(artistToUpdate.SimilarArtists.Add);
+            artistToUpdate.SimilarArtists = artist.SimilarArtists;
             _context.SaveChanges();
             return artistToUpdate;
         }
@@ -53,25 +52,14 @@ namespace SoundSphere.Database.Repositories
             return artistToDisable;
         }
 
-        public void AddArtistLink(Artist artist) =>
-            artist.SimilarArtists = artist.SimilarArtists
-                            .Select(similarArtist => _context.Artists.Find(similarArtist.SimilarArtistId))
-                            .Where(similarArtist => similarArtist != null)
-                            .Select(similarArtist => new ArtistLink
-                            {
-                                Artist = artist,
-                                SimilarArtist = similarArtist
-                            })
-                            .ToList();
+        public void AddArtistLink(Artist artist) => artist.SimilarArtists = artist.SimilarArtists
+            .Select(similarArtist => _context.Artists.Find(similarArtist.SimilarArtistId))
+            .Where(similarArtist => similarArtist != null)
+            .Select(similarArtist => new ArtistLink { Artist = artist, SimilarArtist = similarArtist })
+            .ToList();
 
-        public void AddUserArtist(Artist artist) =>
-            _context.AddRange(_context.Users
-                            .Select(user => new UserArtist
-                            {
-                                User = user,
-                                Artist = artist,
-                                IsFollowing = false
-                            })
-                            .ToList());
+        public void AddUserArtist(Artist artist) => _context.AddRange(_context.Users
+            .Select(user => new UserArtist { User = user, Artist = artist, IsFollowing = false })
+            .ToList());
     }
 }

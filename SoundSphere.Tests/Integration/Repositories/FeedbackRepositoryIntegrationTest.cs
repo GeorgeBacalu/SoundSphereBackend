@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -18,7 +18,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         public FeedbackRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
-        private void Execute(Action<FeedbackRepository, SoundSphereContext> action)
+        private void Execute(Action<FeedbackRepository, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var feedbackRepository = new FeedbackRepository(context);
@@ -30,12 +30,12 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void FindAll_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindAll().Should().BeEquivalentTo(_feedbacks));
 
-        [Fact] public void FindById_ValidId_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindById(Constants.ValidFeedbackGuid).Should().BeEquivalentTo(_feedback1));
+        [Fact] public void FindById_ValidId_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindById(Constants.ValidFeedbackGuid).Should().Be(_feedback1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((feedbackRepository, context) => 
-            feedbackRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                              .Should().Throw<ResourceNotFoundException>()
-                              .WithMessage($"Feedback with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void FindById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid)));
 
         [Fact] public void Save_Test() => Execute((feedbackRepository, context) =>
         {
@@ -55,13 +55,13 @@ namespace SoundSphere.Tests.Integration.Repositories
                 SentAt = _feedback1.SentAt
             };
             feedbackRepository.UpdateById(_feedback2, Constants.ValidFeedbackGuid);
-            context.Feedbacks.Find(Constants.ValidFeedbackGuid).Should().BeEquivalentTo(updatedFeedback);
+            context.Feedbacks.Find(Constants.ValidFeedbackGuid).Should().Be(updatedFeedback);
         });
 
-        [Fact] public void UpdateById_InvalidId_Test() => Execute((feedbackRepository, context) =>
-            feedbackRepository.Invoking(repository => repository.UpdateById(_feedback2, Constants.InvalidGuid))
-                              .Should().Throw<ResourceNotFoundException>()
-                              .WithMessage($"Feedback with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void UpdateById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
+            .Invoking(repository => repository.UpdateById(_feedback2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid)));
 
         [Fact] public void DeleteById_ValidId_Test() => Execute((feedbackRepository, context) =>
         {
@@ -69,9 +69,9 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Feedbacks.Should().BeEquivalentTo(new List<Feedback> { _feedback2 });
         });
 
-        [Fact] public void DeleteById_InvalidId_Test() => Execute((feedbackRepository, context) =>
-            feedbackRepository.Invoking(repository => repository.DeleteById(Constants.InvalidGuid))
-                              .Should().Throw<ResourceNotFoundException>()
-                              .WithMessage($"Feedback with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void DeleteById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
+            .Invoking(repository => repository.DeleteById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid)));
     }
 }

@@ -16,8 +16,8 @@
 
         public override bool Equals(object? obj) => obj is Album album &&
             Id.Equals(album.Id) &&
-            Title == album.Title &&
-            ImageUrl == album.ImageUrl &&
+            Title.Equals(album.Title) &&
+            ImageUrl.Equals(album.ImageUrl) &&
             ReleaseDate.Equals(album.ReleaseDate) &&
             SimilarAlbums.SequenceEqual(album.SimilarAlbums) &&
             IsActive == album.IsActive;

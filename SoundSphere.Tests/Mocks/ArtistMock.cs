@@ -31,14 +31,7 @@ namespace SoundSphere.Tests.Mocks
             Name = "artist_name2",
             ImageUrl = "https://artist_imageurl2.jpg",
             Bio = "artist_bio2",
-            SimilarArtists = new List<ArtistLink>
-            {
-                new ArtistLink
-                {
-                    ArtistId = Guid.Parse("0f9d6cf2-497e-48ff-b1fa-440678951c28"),
-                    SimilarArtistId = Guid.Parse("d4f7f9d2-472e-488e-b7ef-73d169ba2bf5")
-                }
-            },
+            SimilarArtists = new List<ArtistLink> { new ArtistLink { ArtistId = Guid.Parse("0f9d6cf2-497e-48ff-b1fa-440678951c28"), SimilarArtistId = Guid.Parse("d4f7f9d2-472e-488e-b7ef-73d169ba2bf5") } },
             IsActive = false
         };
 
@@ -48,14 +41,7 @@ namespace SoundSphere.Tests.Mocks
             Name = "artist_name3",
             ImageUrl = "https://artist_imageurl3.jpg",
             Bio = "artist_bio3",
-            SimilarArtists = new List<ArtistLink>
-            {
-                new ArtistLink
-                {
-                    ArtistId = Guid.Parse("6c89d77c-c21c-48b8-89b2-57bb41207dba"),
-                    SimilarArtistId = Guid.Parse("0f9d6cf2-497e-48ff-b1fa-440678951c28")
-                }
-            },
+            SimilarArtists = new List<ArtistLink> { new ArtistLink { ArtistId = Guid.Parse("6c89d77c-c21c-48b8-89b2-57bb41207dba"), SimilarArtistId = Guid.Parse("0f9d6cf2-497e-48ff-b1fa-440678951c28") } },
             IsActive = true
         };
 

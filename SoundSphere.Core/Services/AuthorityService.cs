@@ -11,11 +11,7 @@ namespace SoundSphere.Core.Services
         private readonly IAuthorityRepository _authorityRepository;
         private readonly IMapper _mapper;
 
-        public AuthorityService(IAuthorityRepository authorityRepository, IMapper mapper)
-        {
-            _authorityRepository = authorityRepository;
-            _mapper = mapper;
-        }
+        public AuthorityService(IAuthorityRepository authorityRepository, IMapper mapper) => (_authorityRepository, _mapper) = (authorityRepository, mapper);
 
         public IList<AuthorityDto> FindAll() => ConvertToDtos(_authorityRepository.FindAll());
 

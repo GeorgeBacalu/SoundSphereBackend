@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Tests.Mocks;
 using System.Net;
-using System.Text;
 
 namespace SoundSphere.Tests.Integration.Controllers
 {
@@ -37,7 +36,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private async Task Execute(Func<Task> action)
         {
             using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<SoundSphereContext>();
+            var context = scope.ServiceProvider.GetRequiredService<SoundSphereDbContext>();
             await context.Users.AddRangeAsync(_users);
             await context.Notifications.AddRangeAsync(_notifications);
             await context.SaveChangesAsync();
@@ -47,17 +46,13 @@ namespace SoundSphere.Tests.Integration.Controllers
             await context.SaveChangesAsync();
         }
 
-        public void Dispose()
-        {
-            _factory.Dispose();
-            _httpClient.Dispose();
-        }
+        public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
         [Fact] public async Task FindAll_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync(Constants.ApiNotification);
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = JsonConvert.DeserializeObject<IList<NotificationDto>>(await response.Content.ReadAsStringAsync());
             result.Should().BeEquivalentTo(_notificationDtos);
         });
@@ -65,43 +60,33 @@ namespace SoundSphere.Tests.Integration.Controllers
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync($"{Constants.ApiNotification}/{Constants.ValidNotificationGuid}");
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = JsonConvert.DeserializeObject<NotificationDto>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_notificationDto1);
+            result.Should().Be(_notificationDto1);
         });
 
         [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync($"{Constants.ApiNotification}/{Constants.InvalidGuid}");
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(new ProblemDetails
-            {
-                Title = "Resource not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"Notification with id {Constants.InvalidGuid} not found!"
-            });
+            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.NotificationNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task Save_Test() => await Execute(async () =>
         {
             NotificationDto newNotificationDto = NotificationMock.GetMockedNotificationDto3();
-            var requestBody = new StringContent(JsonConvert.SerializeObject(newNotificationDto), Encoding.UTF8, "application/json");
-            var saveResponse = await _httpClient.PostAsync(Constants.ApiNotification, requestBody);
-            saveResponse?.Should().NotBeNull();
-            saveResponse?.StatusCode.Should().Be(HttpStatusCode.Created);
+            var saveResponse = await _httpClient.PostAsync(Constants.ApiNotification, new StringContent(JsonConvert.SerializeObject(newNotificationDto)));
+            saveResponse.Should().NotBeNull();
+            saveResponse.StatusCode.Should().Be(HttpStatusCode.Created);
             var saveResult = JsonConvert.DeserializeObject<NotificationDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResult?.Id.Should().Be(newNotificationDto.Id);
-            saveResult?.Type.Should().Be(newNotificationDto.Type);
-            saveResult?.Message.Should().Be(newNotificationDto.Message);
-            saveResult?.UserId.Should().Be(newNotificationDto.UserId);
-            saveResult?.IsRead.Should().Be(newNotificationDto.IsRead);
+            saveResponse.Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.SentAt));
 
             var getAllResponse = await _httpClient.GetAsync(Constants.ApiNotification);
-            getAllResponse?.Should().NotBeNull();
-            getAllResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllResponse.Should().NotBeNull();
+            getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getAllResult = JsonConvert.DeserializeObject<IList<NotificationDto>>(await getAllResponse.Content.ReadAsStringAsync());
             getAllResult.Should().Contain(newNotificationDto);
         });
@@ -118,65 +103,48 @@ namespace SoundSphere.Tests.Integration.Controllers
                 IsRead = _notification2.IsRead
             };
             NotificationDto updatedNotificationDto = ConvertToDto(updatedNotification);
-            var requestBody = new StringContent(JsonConvert.SerializeObject(_notificationDto2), Encoding.UTF8, "application/json");
-            var updateResponse = await _httpClient.PutAsync($"{Constants.ApiNotification}/{Constants.ValidNotificationGuid}", requestBody);
-            updateResponse?.Should().NotBeNull();
-            updateResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            var updateResponse = await _httpClient.PutAsync($"{Constants.ApiNotification}/{Constants.ValidNotificationGuid}", new StringContent(JsonConvert.SerializeObject(updatedNotificationDto)));
+            updateResponse.Should().NotBeNull();
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var updateResult = JsonConvert.DeserializeObject<NotificationDto>(await updateResponse.Content.ReadAsStringAsync());
             updateResult.Should().BeEquivalentTo(updatedNotificationDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiNotification}/{Constants.ValidNotificationGuid}");
-            getResponse?.Should().NotBeNull();
-            getResponse?.StatusCode.Should().Be(HttpStatusCode.OK);
+            getResponse.Should().NotBeNull();
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResult = JsonConvert.DeserializeObject<NotificationDto>(await getResponse.Content.ReadAsStringAsync());
             getResult.Should().BeEquivalentTo(updatedNotificationDto);
         });
 
         [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
         {
-            var requestBody = new StringContent(JsonConvert.SerializeObject(_notificationDto2), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"{Constants.ApiNotification}/{Constants.InvalidGuid}", requestBody);
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            var response = await _httpClient.PutAsync($"{Constants.ApiNotification}/{Constants.InvalidGuid}", new StringContent(JsonConvert.SerializeObject(_notificationDto2)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(new ProblemDetails
-            {
-                Title = "Resource not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"Notification with id {Constants.InvalidGuid} not found!"
-            });
+            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.NotificationNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task DeleteById_ValidId_Test() => await Execute(async () =>
         {
             var deleteResponse = await _httpClient.DeleteAsync($"{Constants.ApiNotification}/{Constants.ValidNotificationGuid}");
-            deleteResponse?.Should().NotBeNull();
-            deleteResponse?.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            deleteResponse.Should().NotBeNull();
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiNotification}/{Constants.ValidNotificationGuid}");
-            getResponse?.Should().NotBeNull();
-            getResponse?.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            getResponse.Should().NotBeNull();
+            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var getResult = JsonConvert.DeserializeObject<ProblemDetails>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().BeEquivalentTo(new ProblemDetails
-            {
-                Title = "Resource not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"Notification with id {Constants.ValidNotificationGuid} not found!"
-            });
+            getResult.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.NotificationNotFound, Constants.ValidNotificationGuid) });
         });
 
         [Fact] public async Task DeleteById_InvalidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.DeleteAsync($"{Constants.ApiNotification}/{Constants.InvalidGuid}");
-            response?.Should().NotBeNull();
-            response?.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(new ProblemDetails
-            {
-                Title = "Resource not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"Notification with id {Constants.InvalidGuid} not found!"
-            });
+            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.NotificationNotFound, Constants.InvalidGuid) });
         });
 
         private NotificationDto ConvertToDto(Notification notification) => new NotificationDto

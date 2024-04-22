@@ -5,6 +5,7 @@ namespace SoundSphere.Database.Dtos
 {
     public class AlbumDto
     {
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
         
         [Required(ErrorMessage = "Title is required")]
@@ -26,8 +27,8 @@ namespace SoundSphere.Database.Dtos
 
         public override bool Equals(object? obj) => obj is AlbumDto albumDto &&
             Id.Equals(albumDto.Id) &&
-            Title == albumDto.Title &&
-            ImageUrl == albumDto.ImageUrl &&
+            Title.Equals(albumDto.Title) &&
+            ImageUrl.Equals(albumDto.ImageUrl) &&
             ReleaseDate.Equals(albumDto.ReleaseDate) &&
             SimilarAlbumsIds.SequenceEqual(albumDto.SimilarAlbumsIds) &&
             IsActive == albumDto.IsActive;

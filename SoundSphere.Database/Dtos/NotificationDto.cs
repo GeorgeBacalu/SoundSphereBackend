@@ -5,6 +5,7 @@ namespace SoundSphere.Database.Dtos
 {
     public class NotificationDto
     {
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "UserId is required")]
@@ -25,8 +26,8 @@ namespace SoundSphere.Database.Dtos
             Id.Equals(notificationDto.Id) &&
             UserId.Equals(notificationDto.UserId) &&
             Type == notificationDto.Type &&
-            Message == notificationDto.Message &&
-            SentAt == notificationDto.SentAt &&
+            Message.Equals(notificationDto.Message) &&
+            SentAt.Equals(notificationDto.SentAt) &&
             IsRead == notificationDto.IsRead;
 
         public override int GetHashCode() => HashCode.Combine(Id, UserId, Type, Message, SentAt, IsRead);

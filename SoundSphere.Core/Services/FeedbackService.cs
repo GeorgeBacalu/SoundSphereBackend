@@ -12,12 +12,8 @@ namespace SoundSphere.Core.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public FeedbackService(IFeedbackRepository feedbackRepository, IUserRepository userRepository, IMapper mapper)
-        {
-            _feedbackRepository = feedbackRepository;
-            _userRepository = userRepository;
-            _mapper = mapper;
-        }
+        public FeedbackService(IFeedbackRepository feedbackRepository, IUserRepository userRepository, IMapper mapper) => 
+            (_feedbackRepository, _userRepository, _mapper) = (feedbackRepository, userRepository, mapper);
 
         public IList<FeedbackDto> FindAll() => ConvertToDtos(_feedbackRepository.FindAll());
 
@@ -40,12 +36,7 @@ namespace SoundSphere.Core.Services
 
         public IList<Feedback> ConvertToEntities(IList<FeedbackDto> feedbackDtos) => feedbackDtos.Select(ConvertToEntity).ToList();
 
-        public FeedbackDto ConvertToDto(Feedback feedback)
-        {
-            FeedbackDto feedbackDto = _mapper.Map<FeedbackDto>(feedback);
-            feedbackDto.UserId = feedback.User.Id;
-            return feedbackDto;
-        }
+        public FeedbackDto ConvertToDto(Feedback feedback) => _mapper.Map<FeedbackDto>(feedback);
 
         public Feedback ConvertToEntity(FeedbackDto feedbackDto)
         {

@@ -3,7 +3,7 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -13,10 +13,10 @@ namespace SoundSphere.Tests.Unit.Services
 {
     public class PlaylistServiceTest
     {
-        private readonly Mock<IPlaylistRepository> _playlistRepository = new();
-        private readonly Mock<IUserRepository> _userRepository = new();
-        private readonly Mock<ISongRepository> _songRepository = new();
-        private readonly Mock<IMapper> _mapper = new();
+        private readonly Mock<IPlaylistRepository> _playlistRepositoryMock = new();
+        private readonly Mock<IUserRepository> _userRepositoryMock = new();
+        private readonly Mock<ISongRepository> _songRepositoryMock = new();
+        private readonly Mock<IMapper> _mapperMock = new();
         private readonly IPlaylistService _playlistService;
 
         private readonly Playlist _playlist1 = PlaylistMock.GetMockedPlaylist1();
@@ -32,37 +32,37 @@ namespace SoundSphere.Tests.Unit.Services
 
         public PlaylistServiceTest()
         {
-            _mapper.Setup(mock => mock.Map<PlaylistDto>(_playlist1)).Returns(_playlistDto1);
-            _mapper.Setup(mock => mock.Map<PlaylistDto>(_playlist2)).Returns(_playlistDto2);
-            _mapper.Setup(mock => mock.Map<Playlist>(_playlistDto1)).Returns(_playlist1);
-            _mapper.Setup(mock => mock.Map<Playlist>(_playlistDto2)).Returns(_playlist2);
-            _playlistService = new PlaylistService(_playlistRepository.Object, _userRepository.Object, _songRepository.Object, _mapper.Object);
+            _mapperMock.Setup(mock => mock.Map<PlaylistDto>(_playlist1)).Returns(_playlistDto1);
+            _mapperMock.Setup(mock => mock.Map<PlaylistDto>(_playlist2)).Returns(_playlistDto2);
+            _mapperMock.Setup(mock => mock.Map<Playlist>(_playlistDto1)).Returns(_playlist1);
+            _mapperMock.Setup(mock => mock.Map<Playlist>(_playlistDto2)).Returns(_playlist2);
+            _playlistService = new PlaylistService(_playlistRepositoryMock.Object, _userRepositoryMock.Object, _songRepositoryMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void FindAll_Test()
         {
-            _playlistRepository.Setup(mock => mock.FindAll()).Returns(_playlists);
+            _playlistRepositoryMock.Setup(mock => mock.FindAll()).Returns(_playlists);
             _playlistService.FindAll().Should().BeEquivalentTo(_playlistDtos);
         }
 
         [Fact] public void FindAllActive_Test()
         {
-            _playlistRepository.Setup(mock => mock.FindAllActive()).Returns(_activePlaylists);
+            _playlistRepositoryMock.Setup(mock => mock.FindAllActive()).Returns(_activePlaylists);
             _playlistService.FindAllActive().Should().BeEquivalentTo(_activePlaylistDtos);
         }
 
         [Fact] public void FindById_Test()
         {
-            _playlistRepository.Setup(mock => mock.FindById(Constants.ValidPlaylistGuid)).Returns(_playlist1);
-            _playlistService.FindById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(_playlistDto1);
+            _playlistRepositoryMock.Setup(mock => mock.FindById(Constants.ValidPlaylistGuid)).Returns(_playlist1);
+            _playlistService.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlistDto1);
         }
 
         [Fact] public void Save_Test()
         {
-            _playlistDto1.SongsIds.ToList().ForEach(id => _songRepository.Setup(mock => mock.FindById(id)).Returns(_songs1.First(song => song.Id == id)));
-            _userRepository.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
-            _playlistRepository.Setup(mock => mock.Save(_playlist1)).Returns(_playlist1);
-            _playlistService.Save(_playlistDto1).Should().BeEquivalentTo(_playlistDto1);
+            _playlistDto1.SongsIds.ToList().ForEach(id => _songRepositoryMock.Setup(mock => mock.FindById(id)).Returns(_songs1.First(song => song.Id == id)));
+            _userRepositoryMock.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
+            _playlistRepositoryMock.Setup(mock => mock.Save(_playlist1)).Returns(_playlist1);
+            _playlistService.Save(_playlistDto1).Should().Be(_playlistDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -77,9 +77,9 @@ namespace SoundSphere.Tests.Unit.Services
                 IsActive = _playlist1.IsActive
             };
             PlaylistDto updatedPlaylistDto = ConvertToDto(updatedPlaylist);
-            _mapper.Setup(mock => mock.Map<PlaylistDto>(updatedPlaylist)).Returns(updatedPlaylistDto);
-            _playlistRepository.Setup(mock => mock.UpdateById(_playlist2, Constants.ValidPlaylistGuid)).Returns(updatedPlaylist);
-            _playlistService.UpdateById(_playlistDto2, Constants.ValidPlaylistGuid).Should().BeEquivalentTo(updatedPlaylistDto);
+            _mapperMock.Setup(mock => mock.Map<PlaylistDto>(updatedPlaylist)).Returns(updatedPlaylistDto);
+            _playlistRepositoryMock.Setup(mock => mock.UpdateById(_playlist2, Constants.ValidPlaylistGuid)).Returns(updatedPlaylist);
+            _playlistService.UpdateById(_playlistDto2, Constants.ValidPlaylistGuid).Should().Be(updatedPlaylistDto);
         }
 
         [Fact] public void DisableById_Test()
@@ -94,9 +94,9 @@ namespace SoundSphere.Tests.Unit.Services
                 IsActive = false
             };
             PlaylistDto disabledPlaylistDto = ConvertToDto(disabledPlaylist);
-            _mapper.Setup(mock => mock.Map<PlaylistDto>(disabledPlaylist)).Returns(disabledPlaylistDto);
-            _playlistRepository.Setup(mock => mock.DisableById(Constants.ValidPlaylistGuid)).Returns(disabledPlaylist);
-            _playlistService.DisableById(Constants.ValidPlaylistGuid).Should().BeEquivalentTo(disabledPlaylistDto);
+            _mapperMock.Setup(mock => mock.Map<PlaylistDto>(disabledPlaylist)).Returns(disabledPlaylistDto);
+            _playlistRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidPlaylistGuid)).Returns(disabledPlaylist);
+            _playlistService.DisableById(Constants.ValidPlaylistGuid).Should().Be(disabledPlaylistDto);
         }
 
         private PlaylistDto ConvertToDto(Playlist playlist) => new PlaylistDto
@@ -104,9 +104,7 @@ namespace SoundSphere.Tests.Unit.Services
             Id = playlist.Id,
             Title = playlist.Title,
             UserId = playlist.User.Id,
-            SongsIds = playlist.Songs
-                .Select(song => song.Id)
-                .ToList(),
+            SongsIds = playlist.Songs.Select(song => song.Id).ToList(),
             CreatedAt = playlist.CreatedAt,
             IsActive = playlist.IsActive
         };

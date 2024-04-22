@@ -5,6 +5,7 @@ namespace SoundSphere.Database.Dtos
 {
     public class RoleDto
     {
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Type is required")]

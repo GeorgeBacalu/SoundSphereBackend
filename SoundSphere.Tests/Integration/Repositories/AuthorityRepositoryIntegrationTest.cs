@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -17,7 +17,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         public AuthorityRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
-        private void Execute(Action<AuthorityRepository, SoundSphereContext> action)
+        private void Execute(Action<AuthorityRepository, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var authorityRepository = new AuthorityRepository(context);
@@ -29,17 +29,15 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void FindAll_Test() => Execute((authorityRepository, context) => authorityRepository.FindAll().Should().BeEquivalentTo(_authorities));
 
-        [Fact] public void FindById_ValidId_Test() => Execute((authorityRepository, context) => authorityRepository.FindById(Constants.ValidAuthorityGuid).Should().BeEquivalentTo(_authority1));
+        [Fact] public void FindById_ValidId_Test() => Execute((authorityRepository, context) => authorityRepository.FindById(Constants.ValidAuthorityGuid).Should().Be(_authority1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((authorityRepository, context) => 
-            authorityRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                               .Should().Throw<ResourceNotFoundException>()
-                               .WithMessage($"Authority with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void FindById_InvalidId_Test() => Execute((authorityRepository, context) => authorityRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.AuthorityNotFound, Constants.InvalidGuid)));
 
-        [Fact] public void Save_Test() => Execute((authorityRepository, context) =>
-        {
-            Authority newAuthority = AuthorityMock.GetMockedAuthority1();
-            authorityRepository.Invoking(repository => repository.Save(newAuthority)).Should().Throw<InvalidOperationException>();
-        });
+        [Fact] public void Save_Test() => Execute((authorityRepository, context) => authorityRepository
+            .Invoking(repository => repository.Save(_authority1))
+            .Should().Throw<InvalidOperationException>());
     }
 }

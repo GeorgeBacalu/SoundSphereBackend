@@ -7,15 +7,15 @@ namespace SoundSphere.Database.Repositories
 {
     public class AuthorityRepository : IAuthorityRepository
     {
-        private readonly SoundSphereContext _context;
+        private readonly SoundSphereDbContext _context;
 
-        public AuthorityRepository(SoundSphereContext context) => _context = context;
+        public AuthorityRepository(SoundSphereDbContext context) => _context = context;
 
         public IList<Authority> FindAll() => _context.Authorities.ToList();
 
         public Authority FindById(Guid id) => _context.Authorities
-            .FirstOrDefault(authority => authority.Id == id) 
-            ?? throw new ResourceNotFoundException($"Authority with id {id} not found!");
+            .FirstOrDefault(authority => authority.Id == id)
+            ?? throw new ResourceNotFoundException(string.Format(Constants.AuthorityNotFound, id));
 
         public Authority Save(Authority authority)
         {

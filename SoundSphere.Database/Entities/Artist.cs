@@ -20,9 +20,9 @@ namespace SoundSphere.Database.Entities
 
         public override bool Equals(object? obj) => obj is Artist artist &&
             Id.Equals(artist.Id) &&
-            Name == artist.Name &&
-            ImageUrl == artist.ImageUrl &&
-            Bio == artist.Bio &&
+            Name.Equals(artist.Name) &&
+            ImageUrl.Equals(artist.ImageUrl) &&
+            Bio.Equals(artist.Bio) &&
             SimilarArtists.SequenceEqual(artist.SimilarArtists) &&
             IsActive == artist.IsActive;
 

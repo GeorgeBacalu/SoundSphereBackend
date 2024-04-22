@@ -4,6 +4,7 @@ namespace SoundSphere.Database.Dtos
 {
     public class PlaylistDto
     {
+        [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Title is required")]
@@ -22,10 +23,10 @@ namespace SoundSphere.Database.Dtos
 
         public override bool Equals(object? obj) => obj is PlaylistDto playlistDto &&
             Id.Equals(playlistDto.Id) &&
-            Title == playlistDto.Title &&
+            Title.Equals(playlistDto.Title) &&
             UserId.Equals(playlistDto.UserId) &&
             SongsIds.SequenceEqual(playlistDto.SongsIds) &&
-            CreatedAt == playlistDto.CreatedAt &&
+            CreatedAt.Equals(playlistDto.CreatedAt) &&
             IsActive == playlistDto.IsActive;
 
         public override int GetHashCode() => HashCode.Combine(Id, Title, UserId, SongsIds, CreatedAt, IsActive);

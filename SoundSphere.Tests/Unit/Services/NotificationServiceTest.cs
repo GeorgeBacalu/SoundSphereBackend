@@ -3,7 +3,7 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -13,9 +13,9 @@ namespace SoundSphere.Tests.Unit.Services
 {
     public class NotificationServiceTest
     {
-        private readonly Mock<INotificationRepository> _notificationRepository = new();
-        private readonly Mock<IUserRepository> _userRepository = new();
-        private readonly Mock<IMapper> _mapper = new();
+        private readonly Mock<INotificationRepository> _notificationRepositoryMock = new();
+        private readonly Mock<IUserRepository> _userRepositoryMock = new();
+        private readonly Mock<IMapper> _mapperMock = new();
         private readonly INotificationService _notificationService;
 
         private readonly Notification _notification1 = NotificationMock.GetMockedNotification1();
@@ -28,30 +28,30 @@ namespace SoundSphere.Tests.Unit.Services
 
         public NotificationServiceTest()
         {
-            _mapper.Setup(mock => mock.Map<NotificationDto>(_notification1)).Returns(_notificationDto1);
-            _mapper.Setup(mock => mock.Map<NotificationDto>(_notification2)).Returns(_notificationDto2);
-            _mapper.Setup(mock => mock.Map<Notification>(_notificationDto1)).Returns(_notification1);
-            _mapper.Setup(mock => mock.Map<Notification>(_notificationDto2)).Returns(_notification2);
-            _notificationService = new NotificationService(_notificationRepository.Object, _userRepository.Object, _mapper.Object);
+            _mapperMock.Setup(mock => mock.Map<NotificationDto>(_notification1)).Returns(_notificationDto1);
+            _mapperMock.Setup(mock => mock.Map<NotificationDto>(_notification2)).Returns(_notificationDto2);
+            _mapperMock.Setup(mock => mock.Map<Notification>(_notificationDto1)).Returns(_notification1);
+            _mapperMock.Setup(mock => mock.Map<Notification>(_notificationDto2)).Returns(_notification2);
+            _notificationService = new NotificationService(_notificationRepositoryMock.Object, _userRepositoryMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void FindAll_Test()
         {
-            _notificationRepository.Setup(mock => mock.FindAll()).Returns(_notifications);
+            _notificationRepositoryMock.Setup(mock => mock.FindAll()).Returns(_notifications);
             _notificationService.FindAll().Should().BeEquivalentTo(_notificationDtos);
         }
 
         [Fact] public void FindById_Test()
         {
-            _notificationRepository.Setup(mock => mock.FindById(Constants.ValidNotificationGuid)).Returns(_notification1);
-            _notificationService.FindById(Constants.ValidNotificationGuid).Should().BeEquivalentTo(_notificationDto1);
+            _notificationRepositoryMock.Setup(mock => mock.FindById(Constants.ValidNotificationGuid)).Returns(_notification1);
+            _notificationService.FindById(Constants.ValidNotificationGuid).Should().Be(_notificationDto1);
         }
 
         [Fact] public void Save_Test()
         {
-            _userRepository.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
-            _notificationRepository.Setup(mock => mock.Save(_notification1)).Returns(_notification1);
-            _notificationService.Save(_notificationDto1).Should().BeEquivalentTo(_notificationDto1);
+            _userRepositoryMock.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
+            _notificationRepositoryMock.Setup(mock => mock.Save(_notification1)).Returns(_notification1);
+            _notificationService.Save(_notificationDto1).Should().Be(_notificationDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -66,15 +66,15 @@ namespace SoundSphere.Tests.Unit.Services
                 IsRead = _notification2.IsRead
             };
             NotificationDto updatedNotificationDto = ConvertToDto(updatedNotification);
-            _mapper.Setup(mock => mock.Map<NotificationDto>(updatedNotification)).Returns(updatedNotificationDto);
-            _notificationRepository.Setup(mock => mock.UpdateById(_notification2, Constants.ValidNotificationGuid)).Returns(updatedNotification);
-            _notificationService.UpdateById(_notificationDto2, Constants.ValidNotificationGuid).Should().BeEquivalentTo(updatedNotificationDto);
+            _mapperMock.Setup(mock => mock.Map<NotificationDto>(updatedNotification)).Returns(updatedNotificationDto);
+            _notificationRepositoryMock.Setup(mock => mock.UpdateById(_notification2, Constants.ValidNotificationGuid)).Returns(updatedNotification);
+            _notificationService.UpdateById(_notificationDto2, Constants.ValidNotificationGuid).Should().Be(updatedNotificationDto);
         }
 
         [Fact] public void DeleteById_Test()
         {
             _notificationService.DeleteById(Constants.ValidNotificationGuid);
-            _notificationRepository.Verify(mock => mock.DeleteById(Constants.ValidNotificationGuid));
+            _notificationRepositoryMock.Verify(mock => mock.DeleteById(Constants.ValidNotificationGuid));
         }
 
         private NotificationDto ConvertToDto(Notification notification) => new NotificationDto

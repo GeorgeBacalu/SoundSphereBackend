@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
-using Newtonsoft.Json.Bson;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -20,7 +19,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         public SongRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
-        private void Execute(Action<SongRepository, SoundSphereContext> action)
+        private void Execute(Action<SongRepository, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var songRepository = new SongRepository(context);
@@ -34,43 +33,43 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void FindAllActive_Test() => Execute((songRepository, context) => songRepository.FindAllActive().Should().BeEquivalentTo(_activeSongs));
 
-        [Fact] public void FindById_ValidId_Test() => Execute((songRepository, context) => songRepository.FindById(Constants.ValidSongGuid).Should().BeEquivalentTo(_song1));
+        [Fact] public void FindById_ValidId_Test() => Execute((songRepository, context) => songRepository.FindById(Constants.ValidSongGuid).Should().Be(_song1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((songRepository, context) => 
-            songRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                          .Should().Throw<ResourceNotFoundException>()
-                          .WithMessage($"Song with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void FindById_InvalidId_Test() => Execute((songRepository, context) => songRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid)));
 
         [Fact] public void Save_Test() => Execute((songRepository, context) =>
         {
             Song newSong = SongMock.GetMockedSong5();
             songRepository.Save(newSong);
-            context.Songs.Find(newSong.Id).Should().BeEquivalentTo(newSong);
+            context.Songs.Find(newSong.Id).Should().Be(newSong);
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((songRepository, context) =>
         {
             Song updatedSong = CreateTestSong(_song2, _song1.IsActive);
             songRepository.UpdateById(_song2, Constants.ValidSongGuid);
-            context.Songs.Find(Constants.ValidSongGuid).Should().BeEquivalentTo(updatedSong);
+            context.Songs.Find(Constants.ValidSongGuid).Should().Be(updatedSong);
         });
 
-        [Fact] public void UpdateById_InvalidId_Test() => Execute((songRepository, context) =>
-            songRepository.Invoking(repository => repository.UpdateById(_song2, Constants.InvalidGuid))
-                          .Should().Throw<ResourceNotFoundException>()
-                          .WithMessage($"Song with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void UpdateById_InvalidId_Test() => Execute((songRepository, context) => songRepository
+            .Invoking(repository => repository.UpdateById(_song2, Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid)));
 
         [Fact] public void DisableById_ValidId_Test() => Execute((songRepository, context) =>
         {
             Song disabledSong = CreateTestSong(_song1, false);
             songRepository.DisableById(Constants.ValidSongGuid);
-            context.Songs.Find(Constants.ValidSongGuid).Should().BeEquivalentTo(disabledSong);
+            context.Songs.Find(Constants.ValidSongGuid).Should().Be(disabledSong);
         });
 
-        [Fact] public void DisableById_InvalidId_Test() => Execute((songRepository, context) =>
-            songRepository.Invoking(repository => repository.DisableById(Constants.InvalidGuid))
-                          .Should().Throw<ResourceNotFoundException>()
-                          .WithMessage($"Song with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void DisableById_InvalidId_Test() => Execute((songRepository, context) => songRepository
+            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid)));
 
         private Song CreateTestSong(Song song, bool isActive) => new Song
         {

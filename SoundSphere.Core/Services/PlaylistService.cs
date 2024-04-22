@@ -13,13 +13,8 @@ namespace SoundSphere.Core.Services
         private readonly ISongRepository _songRepository;
         private readonly IMapper _mapper;
 
-        public PlaylistService(IPlaylistRepository playlistRepository, IUserRepository userRepository, ISongRepository songRepository, IMapper mapper)
-        {
-            _playlistRepository = playlistRepository;
-            _userRepository = userRepository;
-            _songRepository = songRepository;
-            _mapper = mapper;
-        }
+        public PlaylistService(IPlaylistRepository playlistRepository, IUserRepository userRepository, ISongRepository songRepository, IMapper mapper) => 
+            (_playlistRepository, _userRepository, _songRepository, _mapper) = (playlistRepository, userRepository, songRepository, mapper);
 
         public IList<PlaylistDto> FindAll() => ConvertToDtos(_playlistRepository.FindAll());
 
@@ -48,7 +43,6 @@ namespace SoundSphere.Core.Services
         public PlaylistDto ConvertToDto(Playlist playlist)
         {
             PlaylistDto playlistDto = _mapper.Map<PlaylistDto>(playlist);
-            playlistDto.UserId = playlist.User.Id;
             playlistDto.SongsIds = playlist.Songs
                 .Select(song => song.Id)
                 .ToList();

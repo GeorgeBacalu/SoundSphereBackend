@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
@@ -17,7 +17,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         public RoleRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
-        private void Execute(Action<RoleRepository, SoundSphereContext> action)
+        private void Execute(Action<RoleRepository, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var roleRepository = new RoleRepository(context);
@@ -29,18 +29,15 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void FindAll_Test() => Execute((roleRepository, context) => roleRepository.FindAll().Should().BeEquivalentTo(_roles));
 
-        [Fact] public void FindById_ValidId_Test() => Execute((roleRepository, context) => roleRepository.FindById(Constants.ValidRoleGuid).Should().BeEquivalentTo(_role1));
+        [Fact] public void FindById_ValidId_Test() => Execute((roleRepository, context) => roleRepository.FindById(Constants.ValidRoleGuid).Should().Be(_role1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((roleRepository, context) => 
-        roleRepository.Invoking(repository => repository.FindById(Constants.InvalidGuid))
-                      .Should().Throw<ResourceNotFoundException>()
-                      .WithMessage($"Role with id {Constants.InvalidGuid} not found!"));
+        [Fact] public void FindById_InvalidId_Test() => Execute((roleRepository, context) => roleRepository
+            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+            .Should().Throw<ResourceNotFoundException>()
+            .WithMessage(string.Format(Constants.RoleNotFound, Constants.InvalidGuid)));
 
-        [Fact] public void Save_Test() => Execute((roleRepository, context) =>
-        {
-            Role newRole = RoleMock.GetMockedRole1();
-            roleRepository.Invoking(repository => repository.Save(newRole))
-                          .Should().Throw<InvalidOperationException>();
-        });
+        [Fact] public void Save_Test() => Execute((roleRepository, context) => roleRepository
+            .Invoking(repository => repository.Save(_role1))
+            .Should().Throw<InvalidOperationException>());
     }
 }

@@ -8,23 +8,23 @@ namespace SoundSphere.Database.Repositories
 {
     public class PlaylistRepository : IPlaylistRepository
     {
-        private readonly SoundSphereContext _context;
+        private readonly SoundSphereDbContext _context;
 
-        public PlaylistRepository(SoundSphereContext context) => _context = context;
+        public PlaylistRepository(SoundSphereDbContext context) => _context = context;
 
         public IList<Playlist> FindAll() => _context.Playlists
             .Include(playlist => playlist.User)
             .ToList();
 
         public IList<Playlist> FindAllActive() => _context.Playlists
-            .Where(playlist => playlist.IsActive)
             .Include(playlist => playlist.User)
+            .Where(playlist => playlist.IsActive)
             .ToList();
 
         public Playlist FindById(Guid id) => _context.Playlists
             .Include(playlist => playlist.User)
             .FirstOrDefault(playlist => playlist.Id == id)
-            ?? throw new ResourceNotFoundException($"Playlist with id {id} not found!");
+            ?? throw new ResourceNotFoundException(string.Format(Constants.PlaylistNotFound, id));
 
         public Playlist Save(Playlist playlist)
         {

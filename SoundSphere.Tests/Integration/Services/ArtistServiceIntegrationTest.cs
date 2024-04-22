@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using SoundSphere.Core.Services;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
@@ -23,17 +23,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
         private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
 
-        public ArtistServiceIntegrationTest(DbFixture fixture)
-        {
-            _fixture = fixture;
-            _mapper = new MapperConfiguration(config =>
-            {
-                config.CreateMap<Artist, ArtistDto>();
-                config.CreateMap<ArtistDto, Artist>();
-            }).CreateMapper();
-        }
+        public ArtistServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Artist, ArtistDto>(); config.CreateMap<ArtistDto, Artist>(); }).CreateMapper());
 
-        private void Execute(Action<ArtistService, SoundSphereContext> action)
+        private void Execute(Action<ArtistService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var artistService = new ArtistService(new ArtistRepository(context), _mapper);
@@ -47,13 +39,13 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void FindAllActive_Test() => Execute((artistService, context) => artistService.FindAllActive().Should().BeEquivalentTo(_activeArtistDtos));
 
-        [Fact] public void FindById_Test() => Execute((artistService, context) => artistService.FindById(Constants.ValidArtistGuid).Should().BeEquivalentTo(_artistDto1));
+        [Fact] public void FindById_Test() => Execute((artistService, context) => artistService.FindById(Constants.ValidArtistGuid).Should().Be(_artistDto1));
 
         [Fact] public void Save_Test() => Execute((artistService, context) =>
         {
             ArtistDto newArtistDto = ArtistMock.GetMockedArtistDto3();
             artistService.Save(newArtistDto);
-            context.Artists.Find(newArtistDto.Id).Should().BeEquivalentTo(ArtistMock.GetMockedArtist3());
+            context.Artists.Find(newArtistDto.Id).Should().Be(newArtistDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((artistService, context) =>
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Integration.Services
             Artist updatedArtist = CreateTestArtist(_artist2, _artist1.IsActive);
             ArtistDto updatedArtistDto = artistService.ConvertToDto(updatedArtist);
             artistService.UpdateById(_artistDto2, Constants.ValidArtistGuid);
-            context.Artists.Find(Constants.ValidArtistGuid).Should().BeEquivalentTo(updatedArtist);
+            context.Artists.Find(Constants.ValidArtistGuid).Should().Be(updatedArtist);
         });
 
         [Fact] public void DisableById_Test() => Execute((artistService, context) =>
@@ -69,7 +61,7 @@ namespace SoundSphere.Tests.Integration.Services
             Artist disabledArtist = CreateTestArtist(_artist1, false);
             ArtistDto disabledArtistDto = artistService.ConvertToDto(disabledArtist);
             artistService.DisableById(Constants.ValidArtistGuid);
-            context.Artists.Find(Constants.ValidArtistGuid).Should().BeEquivalentTo(disabledArtist);
+            context.Artists.Find(Constants.ValidArtistGuid).Should().Be(disabledArtist);
         });
 
         private Artist CreateTestArtist(Artist artist, bool isActive) => new Artist

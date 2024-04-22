@@ -3,7 +3,7 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -13,8 +13,8 @@ namespace SoundSphere.Tests.Unit.Services
 {
     public class RoleServiceTest
     {
-        private readonly Mock<IRoleRepository> _roleRepository = new();
-        private readonly Mock<IMapper> _mapper = new();
+        private readonly Mock<IRoleRepository> _roleRepositoryMock = new();
+        private readonly Mock<IMapper> _mapperMock = new();
         private readonly IRoleService _roleService;
 
         private readonly Role _role1 = RoleMock.GetMockedRole1();
@@ -28,31 +28,31 @@ namespace SoundSphere.Tests.Unit.Services
 
         public RoleServiceTest()
         {
-            _mapper.Setup(mock => mock.Map<RoleDto>(_role1)).Returns(_roleDto1);
-            _mapper.Setup(mock => mock.Map<RoleDto>(_role2)).Returns(_roleDto2);
-            _mapper.Setup(mock => mock.Map<RoleDto>(_role3)).Returns(_roleDto3);
-            _mapper.Setup(mock => mock.Map<Role>(_roleDto1)).Returns(_role1);
-            _mapper.Setup(mock => mock.Map<Role>(_roleDto2)).Returns(_role2);
-            _mapper.Setup(mock => mock.Map<Role>(_roleDto3)).Returns(_role3);
-            _roleService = new RoleService(_roleRepository.Object, _mapper.Object);
+            _mapperMock.Setup(mock => mock.Map<RoleDto>(_role1)).Returns(_roleDto1);
+            _mapperMock.Setup(mock => mock.Map<RoleDto>(_role2)).Returns(_roleDto2);
+            _mapperMock.Setup(mock => mock.Map<RoleDto>(_role3)).Returns(_roleDto3);
+            _mapperMock.Setup(mock => mock.Map<Role>(_roleDto1)).Returns(_role1);
+            _mapperMock.Setup(mock => mock.Map<Role>(_roleDto2)).Returns(_role2);
+            _mapperMock.Setup(mock => mock.Map<Role>(_roleDto3)).Returns(_role3);
+            _roleService = new RoleService(_roleRepositoryMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void FindAll_Test()
         {
-            _roleRepository.Setup(mock => mock.FindAll()).Returns(_roles);
+            _roleRepositoryMock.Setup(mock => mock.FindAll()).Returns(_roles);
             _roleService.FindAll().Should().BeEquivalentTo(_roleDtos);
         }
 
         [Fact] public void FindById_Test()
         {
-            _roleRepository.Setup(mock => mock.FindById(Constants.ValidRoleGuid)).Returns(_role1);
-            _roleService.FindById(Constants.ValidRoleGuid).Should().BeEquivalentTo(_roleDto1);
+            _roleRepositoryMock.Setup(mock => mock.FindById(Constants.ValidRoleGuid)).Returns(_role1);
+            _roleService.FindById(Constants.ValidRoleGuid).Should().Be(_roleDto1);
         }
 
         [Fact] public void Save_Test()
         {
-            _roleRepository.Setup(mock => mock.Save(_role1)).Returns(_role1);
-            _roleService.Save(_roleDto1).Should().BeEquivalentTo(_roleDto1);
+            _roleRepositoryMock.Setup(mock => mock.Save(_role1)).Returns(_role1);
+            _roleService.Save(_roleDto1).Should().Be(_roleDto1);
         }
     }
 }

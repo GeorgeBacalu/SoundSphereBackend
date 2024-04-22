@@ -3,7 +3,7 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -13,10 +13,10 @@ namespace SoundSphere.Tests.Unit.Services
 {
     public class UserServiceTest
     {
-        private readonly Mock<IUserRepository> _userRepository = new();
-        private readonly Mock<IRoleRepository> _roleRepository = new();
-        private readonly Mock<IAuthorityRepository> _authorityRepository = new();
-        private readonly Mock<IMapper> _mapper = new();
+        private readonly Mock<IUserRepository> _userRepositoryMock = new();
+        private readonly Mock<IRoleRepository> _roleRepositoryMock = new();
+        private readonly Mock<IAuthorityRepository> _authorityRepositoryMock = new();
+        private readonly Mock<IMapper> _mapperMock = new();
         private readonly IUserService _userService;
 
         private readonly User _user1 = UserMock.GetMockedUser1();
@@ -32,55 +32,55 @@ namespace SoundSphere.Tests.Unit.Services
 
         public UserServiceTest()
         {
-            _mapper.Setup(mock => mock.Map<UserDto>(_user1)).Returns(_userDto1);
-            _mapper.Setup(mock => mock.Map<UserDto>(_user2)).Returns(_userDto2);
-            _mapper.Setup(mock => mock.Map<User>(_userDto1)).Returns(_user1);
-            _mapper.Setup(mock => mock.Map<User>(_userDto2)).Returns(_user2);
-            _userService = new UserService(_userRepository.Object, _roleRepository.Object, _authorityRepository.Object, _mapper.Object);
+            _mapperMock.Setup(mock => mock.Map<UserDto>(_user1)).Returns(_userDto1);
+            _mapperMock.Setup(mock => mock.Map<UserDto>(_user2)).Returns(_userDto2);
+            _mapperMock.Setup(mock => mock.Map<User>(_userDto1)).Returns(_user1);
+            _mapperMock.Setup(mock => mock.Map<User>(_userDto2)).Returns(_user2);
+            _userService = new UserService(_userRepositoryMock.Object, _roleRepositoryMock.Object, _authorityRepositoryMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void FindAll_Test()
         {
-            _userRepository.Setup(mock => mock.FindAll()).Returns(_users);
+            _userRepositoryMock.Setup(mock => mock.FindAll()).Returns(_users);
             _userService.FindAll().Should().BeEquivalentTo(_userDtos);
         }
 
         [Fact] public void FindAllActive_Test()
         {
-            _userRepository.Setup(mock => mock.FindAllActive()).Returns(_activeUsers);
+            _userRepositoryMock.Setup(mock => mock.FindAllActive()).Returns(_activeUsers);
             _userService.FindAllActive().Should().BeEquivalentTo(_activeUserDtos);
         }
 
         [Fact] public void FindById_Test()
         {
-            _userRepository.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
-            _userService.FindById(Constants.ValidUserGuid).Should().BeEquivalentTo(_userDto1);
+            _userRepositoryMock.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
+            _userService.FindById(Constants.ValidUserGuid).Should().Be(_userDto1);
         }
 
         [Fact] public void Save_Test()
         {
-            _userDto1.AuthoritiesIds.ToList().ForEach(id => _authorityRepository.Setup(mock => mock.FindById(id)).Returns(_authorities1.First(authority => authority.Id == id)));
-            _roleRepository.Setup(mock => mock.FindById(Constants.ValidRoleGuid)).Returns(_role1);
-            _userRepository.Setup(mock => mock.Save(_user1)).Returns(_user1);
-            _userService.Save(_userDto1).Should().BeEquivalentTo(_userDto1);
+            _userDto1.AuthoritiesIds.ToList().ForEach(id => _authorityRepositoryMock.Setup(mock => mock.FindById(id)).Returns(_authorities1.First(authority => authority.Id == id)));
+            _roleRepositoryMock.Setup(mock => mock.FindById(Constants.ValidRoleGuid)).Returns(_role1);
+            _userRepositoryMock.Setup(mock => mock.Save(_user1)).Returns(_user1);
+            _userService.Save(_userDto1).Should().Be(_userDto1);
         }
 
         [Fact] public void UpdateById_Test()
         {
             User updatedUser = CreateTestUser(_user2, _user1.IsActive);
             UserDto updatedUserDto = ConvertToDto(updatedUser);
-            _mapper.Setup(mock => mock.Map<UserDto>(updatedUser)).Returns(updatedUserDto);
-            _userRepository.Setup(mock => mock.UpdateById(_user2, Constants.ValidUserGuid)).Returns(updatedUser);
-            _userService.UpdateById(_userDto2, Constants.ValidUserGuid).Should().BeEquivalentTo(updatedUserDto);
+            _mapperMock.Setup(mock => mock.Map<UserDto>(updatedUser)).Returns(updatedUserDto);
+            _userRepositoryMock.Setup(mock => mock.UpdateById(_user2, Constants.ValidUserGuid)).Returns(updatedUser);
+            _userService.UpdateById(_userDto2, Constants.ValidUserGuid).Should().Be(updatedUserDto);
         }
 
         [Fact] public void DisableById_Test()
         {
             User disabledUser = CreateTestUser(_user1, false);
             UserDto disabledUserDto = ConvertToDto(disabledUser);
-            _mapper.Setup(mock => mock.Map<UserDto>(disabledUser)).Returns(disabledUserDto);
-            _userRepository.Setup(mock => mock.DisableById(Constants.ValidUserGuid)).Returns(disabledUser);
-            _userService.DisableById(Constants.ValidUserGuid).Should().BeEquivalentTo(disabledUserDto);
+            _mapperMock.Setup(mock => mock.Map<UserDto>(disabledUser)).Returns(disabledUserDto);
+            _userRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidUserGuid)).Returns(disabledUser);
+            _userService.DisableById(Constants.ValidUserGuid).Should().Be(disabledUserDto);
         }
 
         private User CreateTestUser(User user, bool isActive) => new User
@@ -108,9 +108,7 @@ namespace SoundSphere.Tests.Unit.Services
             Birthday = user.Birthday,
             Avatar = user.Avatar,
             RoleId = user.Role.Id,
-            AuthoritiesIds = user.Authorities
-                .Select(authority => authority.Id)
-                .ToList(),
+            AuthoritiesIds = user.Authorities.Select(authority => authority.Id).ToList(),
             IsActive = user.IsActive
         };
     }

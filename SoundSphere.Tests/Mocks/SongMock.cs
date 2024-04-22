@@ -47,14 +47,7 @@ namespace SoundSphere.Tests.Mocks
             DurationSeconds = 185,
             Album = AlbumMock.GetMockedAlbum2(),
             Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
-            SimilarSongs = new List<SongLink>
-            {
-                new SongLink
-                {
-                    SongId = Guid.Parse("5185636d-ab67-446e-8fc7-dbca2c50297c"),
-                    SimilarSongId = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8")
-                }
-            },
+            SimilarSongs = new List<SongLink> { new SongLink { SongId = Guid.Parse("5185636d-ab67-446e-8fc7-dbca2c50297c"), SimilarSongId = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8") } },
             IsActive = true
         };
 
@@ -68,14 +61,7 @@ namespace SoundSphere.Tests.Mocks
             DurationSeconds = 190,
             Album = AlbumMock.GetMockedAlbum1(),
             Artists = new List<Artist> { ArtistMock.GetMockedArtist1() },
-            SimilarSongs = new List<SongLink>
-            {
-                new SongLink
-                {
-                    SongId = Guid.Parse("e33675e4-4ac3-44cc-96f9-76e3a68689a4"),
-                    SimilarSongId = Guid.Parse("5185636d-ab67-446e-8fc7-dbca2c50297c")
-                }
-            },
+            SimilarSongs = new List<SongLink> { new SongLink { SongId = Guid.Parse("e33675e4-4ac3-44cc-96f9-76e3a68689a4"), SimilarSongId = Guid.Parse("5185636d-ab67-446e-8fc7-dbca2c50297c") } },
             IsActive = true
         };
 
@@ -89,14 +75,7 @@ namespace SoundSphere.Tests.Mocks
             DurationSeconds = 195,
             Album = AlbumMock.GetMockedAlbum2(),
             Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
-            SimilarSongs = new List<SongLink>
-            {
-                new SongLink
-                {
-                    SongId = Guid.Parse("fc558718-6e35-486b-8990-a955894fe765"),
-                    SimilarSongId = Guid.Parse("e33675e4-4ac3-44cc-96f9-76e3a68689a4")
-                }
-            },
+            SimilarSongs = new List<SongLink> { new SongLink { SongId = Guid.Parse("fc558718-6e35-486b-8990-a955894fe765"), SimilarSongId = Guid.Parse("e33675e4-4ac3-44cc-96f9-76e3a68689a4") } },
             IsActive = false
         };
 
@@ -110,14 +89,7 @@ namespace SoundSphere.Tests.Mocks
             DurationSeconds = 200,
             Album = AlbumMock.GetMockedAlbum1(),
             Artists = new List<Artist> { ArtistMock.GetMockedArtist1() },
-            SimilarSongs = new List<SongLink>()
-            {
-                new SongLink
-                {
-                    SongId = Guid.Parse("c5617289-4a05-4839-b1a0-710b011c6344"),
-                    SimilarSongId = Guid.Parse("fc558718-6e35-486b-8990-a955894fe765")
-                }
-            },
+            SimilarSongs = new List<SongLink>() { new SongLink { SongId = Guid.Parse("c5617289-4a05-4839-b1a0-710b011c6344"), SimilarSongId = Guid.Parse("fc558718-6e35-486b-8990-a955894fe765") } },
             IsActive = true
         };
 

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using SoundSphere.Core.Services;
-using SoundSphere.Database.Constants;
+using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos;
 using SoundSphere.Database.Entities;
@@ -23,17 +23,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
         private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
 
-        public UserServiceIntegrationTest(DbFixture fixture)
-        {
-            _fixture = fixture;
-            _mapper = new MapperConfiguration(config =>
-            {
-                config.CreateMap<User, UserDto>();
-                config.CreateMap<UserDto, User>();
-            }).CreateMapper();
-        }
+        public UserServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<User, UserDto>(); config.CreateMap<UserDto, User>(); }).CreateMapper());
 
-        private void Execute(Action<UserService, SoundSphereContext> action)
+        private void Execute(Action<UserService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
             var userService = new UserService(new UserRepository(context), new RoleRepository(context), new AuthorityRepository(context), _mapper);
@@ -47,13 +39,13 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void FindAllActive_Test() => Execute((userService, context) => userService.FindAllActive().Should().BeEquivalentTo(_activeUserDtos));
 
-        [Fact] public void FindById_Test() => Execute((userService, context) => userService.FindById(Constants.ValidUserGuid).Should().BeEquivalentTo(_userDto1));
+        [Fact] public void FindById_Test() => Execute((userService, context) => userService.FindById(Constants.ValidUserGuid).Should().Be(_userDto1));
 
         [Fact] public void Save_Test() => Execute((userService, context) =>
         {
             UserDto newUserDto = UserMock.GetMockedUserDto3();
             userService.Save(newUserDto);
-            context.Users.Find(newUserDto.Id).Should().BeEquivalentTo(UserMock.GetMockedUser3());
+            context.Users.Find(newUserDto.Id).Should().Be(newUserDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((userService, context) =>
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Integration.Services
             User updatedUser = CreateTestUser(_user2, _user1.IsActive);
             UserDto updatedUserDto = userService.ConvertToDto(updatedUser);
             userService.UpdateById(_userDto2, Constants.ValidUserGuid);
-            context.Users.Find(Constants.ValidUserGuid).Should().BeEquivalentTo(updatedUser);
+            context.Users.Find(Constants.ValidUserGuid).Should().Be(updatedUser);
         });
 
         [Fact] public void DisableById_Test() => Execute((userService, context) =>
@@ -69,7 +61,7 @@ namespace SoundSphere.Tests.Integration.Services
             User disabledUser = CreateTestUser(_user1, false);
             UserDto disabledUserDto = userService.ConvertToDto(disabledUser);
             userService.DisableById(Constants.ValidUserGuid);
-            context.Users.Find(Constants.ValidUserGuid).Should().BeEquivalentTo(disabledUser);
+            context.Users.Find(Constants.ValidUserGuid).Should().Be(disabledUser);
         });
 
         private User CreateTestUser(User user, bool isActive) => new User

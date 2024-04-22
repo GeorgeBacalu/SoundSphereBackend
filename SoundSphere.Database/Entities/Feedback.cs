@@ -16,8 +16,8 @@
             Id.Equals(feedback.Id) &&
             User.Equals(feedback.User) &&
             Type == feedback.Type &&
-            Message == feedback.Message &&
-            SentAt == feedback.SentAt;
+            Message.Equals(feedback.Message) &&
+            SentAt.Equals(feedback.SentAt);
 
         public override int GetHashCode() => HashCode.Combine(Id, User, Type, Message, SentAt);
     }

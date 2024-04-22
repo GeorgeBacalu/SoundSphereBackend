@@ -8,9 +8,9 @@ namespace SoundSphere.Database.Repositories
 {
     public class FeedbackRepository : IFeedbackRepository
     {
-        private readonly SoundSphereContext _context;
+        private readonly SoundSphereDbContext _context;
 
-        public FeedbackRepository(SoundSphereContext context) => _context = context;
+        public FeedbackRepository(SoundSphereDbContext context) => _context = context;
 
         public IList<Feedback> FindAll() => _context.Feedbacks
             .Include(feedback => feedback.User)
@@ -19,7 +19,7 @@ namespace SoundSphere.Database.Repositories
         public Feedback FindById(Guid id) => _context.Feedbacks
             .Include(feedback => feedback.User)
             .FirstOrDefault(feedback => feedback.Id == id)
-            ?? throw new ResourceNotFoundException($"Feedback with id {id} not found!");
+            ?? throw new ResourceNotFoundException(string.Format(Constants.FeedbackNotFound, id));
 
         public Feedback Save(Feedback feedback)
         {

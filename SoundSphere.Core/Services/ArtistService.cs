@@ -11,11 +11,7 @@ namespace SoundSphere.Core.Services
         private readonly IArtistRepository _artistRepository;
         private readonly IMapper _mapper;
 
-        public ArtistService(IArtistRepository artistRepository, IMapper mapper)
-        {
-            _artistRepository = artistRepository;
-            _mapper = mapper;
-        }
+        public ArtistService(IArtistRepository artistRepository, IMapper mapper) => (_artistRepository, _mapper) = (artistRepository, mapper);
 
         public IList<ArtistDto> FindAll() => ConvertToDtos(_artistRepository.FindAll());
 
@@ -54,11 +50,7 @@ namespace SoundSphere.Core.Services
         {
             Artist artist = _mapper.Map<Artist>(artistDto);
             artist.SimilarArtists = artistDto.SimilarArtistsIds
-                .Select(id => new ArtistLink
-                {
-                    ArtistId = artistDto.Id,
-                    SimilarArtistId = id
-                })
+                .Select(id => new ArtistLink { ArtistId = artistDto.Id, SimilarArtistId = id })
                 .ToList();
             return artist;
         }

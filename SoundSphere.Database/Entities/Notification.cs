@@ -18,8 +18,8 @@
             Id.Equals(notification.Id) &&
             User.Equals(notification.User) &&
             Type == notification.Type &&
-            Message == notification.Message &&
-            SentAt == notification.SentAt &&
+            Message.Equals(notification.Message) &&
+            SentAt.Equals(notification.SentAt) &&
             IsRead == notification.IsRead;
 
         public override int GetHashCode() => HashCode.Combine(Id, User, Type, Message, SentAt, IsRead);

@@ -10,7 +10,7 @@ using SoundSphere.Database.Context;
 
 namespace SoundSphere.Api.Migrations
 {
-    [DbContext(typeof(SoundSphereContext))]
+    [DbContext(typeof(SoundSphereDbContext))]
     partial class SoundSphereContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
