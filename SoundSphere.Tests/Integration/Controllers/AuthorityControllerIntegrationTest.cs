@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
 using SoundSphere.Tests.Mocks;
 using System.Net;

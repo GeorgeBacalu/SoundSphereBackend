@@ -1,7 +1,7 @@
 ﻿using SoundSphere.Database.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace SoundSphere.Database.Dtos
+namespace SoundSphere.Database.Dtos.Common
 {
     public class RoleDto
     {

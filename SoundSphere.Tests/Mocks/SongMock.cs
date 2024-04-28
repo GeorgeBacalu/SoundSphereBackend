@@ -1,4 +1,4 @@
-﻿using SoundSphere.Database.Dtos;
+﻿using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Tests.Mocks

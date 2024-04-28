@@ -1,7 +1,7 @@
 ﻿using SoundSphere.Database.Attributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace SoundSphere.Database.Dtos
+namespace SoundSphere.Database.Dtos.Common
 {
     public class UserDto
     {
@@ -37,7 +37,7 @@ namespace SoundSphere.Database.Dtos
 
         [MaxLength(4, ErrorMessage = "There can't be more than 4 authorities")]
         public IList<Guid> AuthoritiesIds { get; set; } = new List<Guid>();
-        
+
         public bool IsActive { get; set; } = true;
 
         public override bool Equals(object? obj) => obj is UserDto userDto &&
