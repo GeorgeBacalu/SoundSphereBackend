@@ -1,11 +1,13 @@
 ﻿using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Entities;
+using SoundSphere.Database.Dtos.Request;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
     public interface INotificationService
     {
         IList<NotificationDto> FindAll();
+
+        IList<NotificationDto> FindAllPagination(NotificationPaginationRequest payload);
 
         NotificationDto FindById(Guid id);
 
@@ -14,13 +16,5 @@ namespace SoundSphere.Core.Services.Interfaces
         NotificationDto UpdateById(NotificationDto notificationDto, Guid id);
 
         void DeleteById(Guid id);
-
-        IList<NotificationDto> ConvertToDtos(IList<Notification> notifications);
-
-        IList<Notification> ConvertToEntities(IList<NotificationDto> notificationDtos);
-
-        NotificationDto ConvertToDto(Notification notification);
-
-        Notification ConvertToEntity(NotificationDto notificationDto);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -16,15 +18,19 @@ namespace SoundSphere.Core.Services
         public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, IMapper mapper) => 
             (_userRepository, _roleRepository, _authorityRepository, _mapper) = (userRepository, roleRepository, authorityRepository, mapper);
 
-        public IList<UserDto> FindAll() => ConvertToDtos(_userRepository.FindAll());
+        public IList<UserDto> FindAll() => _userRepository.FindAll().ToDtos(_mapper);
 
-        public IList<UserDto> FindAllActive() => ConvertToDtos(_userRepository.FindAllActive());
+        public IList<UserDto> FindAllActive() => _userRepository.FindAllActive().ToDtos(_mapper);
 
-        public UserDto FindById(Guid id) => ConvertToDto(_userRepository.FindById(id));
+        public IList<UserDto> FindAllPagination(UserPaginationRequest payload) => _userRepository.FindAllPagination(payload).ToDtos(_mapper);
+
+        public IList<UserDto> FindAllActivePagination(UserPaginationRequest payload) => _userRepository.FindAllActivePagination(payload).ToDtos(_mapper);
+
+        public UserDto FindById(Guid id) => _userRepository.FindById(id).ToDto(_mapper);
 
         public UserDto Save(UserDto userDto)
         {
-            User user = ConvertToEntity(userDto);
+            User user = userDto.ToEntity(_roleRepository, _authorityRepository, _mapper);
             if (user.Id == Guid.Empty) user.Id = Guid.NewGuid();
             user.IsActive = true;
             user.Password = "password";
@@ -32,34 +38,11 @@ namespace SoundSphere.Core.Services
             _userRepository.LinkUserToAuthorities(user);
             _userRepository.AddUserSong(user);
             _userRepository.AddUserArtist(user);
-            return ConvertToDto(_userRepository.Save(user));
+            return _userRepository.Save(user).ToDto(_mapper);
         }
 
-        public UserDto UpdateById(UserDto userDto, Guid id) => ConvertToDto(_userRepository.UpdateById(ConvertToEntity(userDto), id));
+        public UserDto UpdateById(UserDto userDto, Guid id) => _userRepository.UpdateById(userDto.ToEntity(_roleRepository, _authorityRepository, _mapper), id).ToDto(_mapper);
 
-        public UserDto DisableById(Guid id) => ConvertToDto(_userRepository.DisableById(id));
-
-        public IList<UserDto> ConvertToDtos(IList<User> users) => users.Select(ConvertToDto).ToList();
-
-        public IList<User> ConvertToEntities(IList<UserDto> userDtos) => userDtos.Select(ConvertToEntity).ToList();
-
-        public UserDto ConvertToDto(User user)
-        {
-            UserDto userDto = _mapper.Map<UserDto>(user);
-            userDto.AuthoritiesIds = user.Authorities
-                .Select(authority => authority.Id)
-                .ToList();
-            return userDto;
-        }
-
-        public User ConvertToEntity(UserDto userDto)
-        {
-            User user = _mapper.Map<User>(userDto);
-            user.Role = _roleRepository.FindById(userDto.RoleId);
-            user.Authorities = userDto.AuthoritiesIds
-                .Select(_authorityRepository.FindById)
-                .ToList();
-            return user;
-        }
+        public UserDto DisableById(Guid id) => _userRepository.DisableById(id).ToDto(_mapper);
     }
 }

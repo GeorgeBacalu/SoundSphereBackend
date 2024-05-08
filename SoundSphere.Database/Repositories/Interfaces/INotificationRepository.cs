@@ -1,10 +1,13 @@
-﻿using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface INotificationRepository
     {
         IList<Notification> FindAll();
+
+        IList<Notification> FindAllPagination(NotificationPaginationRequest payload);
 
         Notification FindById(Guid id);
 

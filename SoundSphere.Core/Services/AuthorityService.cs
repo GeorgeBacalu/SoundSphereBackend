@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
@@ -13,23 +14,15 @@ namespace SoundSphere.Core.Services
 
         public AuthorityService(IAuthorityRepository authorityRepository, IMapper mapper) => (_authorityRepository, _mapper) = (authorityRepository, mapper);
 
-        public IList<AuthorityDto> FindAll() => ConvertToDtos(_authorityRepository.FindAll());
+        public IList<AuthorityDto> FindAll() => _authorityRepository.FindAll().ToDtos(_mapper);
 
-        public AuthorityDto FindById(Guid id) => ConvertToDto(_authorityRepository.FindById(id));
+        public AuthorityDto FindById(Guid id) => _authorityRepository.FindById(id).ToDto(_mapper);
 
         public AuthorityDto Save(AuthorityDto authorityDto)
         {
-            Authority authority = ConvertToEntity(authorityDto);
+            Authority authority = authorityDto.ToEntity(_mapper);
             if (authority.Id == Guid.Empty) authority.Id = Guid.NewGuid();
-            return ConvertToDto(_authorityRepository.Save(authority));
+            return _authorityRepository.Save(authority).ToDto(_mapper);
         }
-
-        public IList<AuthorityDto> ConvertToDtos(IList<Authority> authorities) => authorities.Select(ConvertToDto).ToList();
-
-        public IList<Authority> ConvertToEntities(IList<AuthorityDto> authorityDtos) => authorityDtos.Select(ConvertToEntity).ToList();
-
-        public AuthorityDto ConvertToDto(Authority authority) => _mapper.Map<AuthorityDto>(authority);
-
-        public Authority ConvertToEntity(AuthorityDto authorityDto) => _mapper.Map<Authority>(authorityDto);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -16,55 +18,30 @@ namespace SoundSphere.Core.Services
         public SongService(ISongRepository songRepository, IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper) => 
             (_songRepository, _albumRepository, _artistRepository, _mapper) = (songRepository, albumRepository, artistRepository, mapper);
 
-        public IList<SongDto> FindAll() => ConvertToDtos(_songRepository.FindAll());
+        public IList<SongDto> FindAll() => _songRepository.FindAll().ToDtos(_mapper);
 
-        public IList<SongDto> FindAllActive() => ConvertToDtos(_songRepository.FindAllActive());
+        public IList<SongDto> FindAllActive() => _songRepository.FindAllActive().ToDtos(_mapper);
 
-        public SongDto FindById(Guid id) => ConvertToDto(_songRepository.FindById(id));
+        public IList<SongDto> FindAllPagination(SongPaginationRequest payload) => _songRepository.FindAllPagination(payload).ToDtos(_mapper);
+
+        public IList<SongDto> FindAllActivePagination(SongPaginationRequest payload) => _songRepository.FindAllActivePagination(payload).ToDtos(_mapper);
+
+        public SongDto FindById(Guid id) => _songRepository.FindById(id).ToDto(_mapper);
 
         public SongDto Save(SongDto songDto)
         {
-            Song song = ConvertToEntity(songDto);
+            Song song = songDto.ToEntity(_albumRepository, _artistRepository, _mapper);
             if (song.Id == Guid.Empty) song.Id = Guid.NewGuid();
             song.IsActive = true;
             _songRepository.LinkSongToAlbum(song);
             _songRepository.LinkSongToArtists(song);
             _songRepository.AddSongLink(song);
             _songRepository.AddUserSong(song);
-            return ConvertToDto(_songRepository.Save(song));
+            return _songRepository.Save(song).ToDto(_mapper);
         }
 
-        public SongDto UpdateById(SongDto songDto, Guid id) => ConvertToDto(_songRepository.UpdateById(ConvertToEntity(songDto), id));
+        public SongDto UpdateById(SongDto songDto, Guid id) => _songRepository.UpdateById(songDto.ToEntity(_albumRepository, _artistRepository, _mapper), id).ToDto(_mapper);
 
-        public SongDto DisableById(Guid id) => ConvertToDto(_songRepository.DisableById(id));
-
-        public IList<SongDto> ConvertToDtos(IList<Song> songs) => songs.Select(ConvertToDto).ToList();
-
-        public IList<Song> ConvertToEntities(IList<SongDto> songDtos) => songDtos.Select(ConvertToEntity).ToList();
-
-        public SongDto ConvertToDto(Song song)
-        {
-            SongDto songDto = _mapper.Map<SongDto>(song);
-            songDto.ArtistsIds = song.Artists
-                .Select(artist => artist.Id)
-                .ToList();
-            songDto.SimilarSongsIds = song.SimilarSongs
-                .Select(songLink => songLink.SimilarSongId)
-                .ToList();
-            return songDto;
-        }
-
-        public Song ConvertToEntity(SongDto songDto)
-        {
-            Song song = _mapper.Map<Song>(songDto);
-            song.Album = _albumRepository.FindById(songDto.AlbumId);
-            song.Artists = songDto.ArtistsIds
-                .Select(_artistRepository.FindById)
-                .ToList();
-            song.SimilarSongs = songDto.SimilarSongsIds
-                .Select(id => new SongLink { SongId = songDto.Id, SimilarSongId = id })
-                .ToList();
-            return song;
-        }
+        public SongDto DisableById(Guid id) => _songRepository.DisableById(id).ToDto(_mapper);
     }
 }

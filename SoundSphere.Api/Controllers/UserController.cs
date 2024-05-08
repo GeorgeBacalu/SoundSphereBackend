@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
@@ -24,6 +25,18 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with all active users</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("active")] public IActionResult FindAllActive() => Ok(_userService.FindAllActive());
+
+        /// <summary>Find users paginated, sorted and filtered</summary>
+        /// <remarks>Return list with users paginated, sorted and filtered</remarks>
+        /// <param name="payload">Request body with users pagination rules</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost("pagination")] public IActionResult FindAllPagination(UserPaginationRequest payload) => Ok(_userService.FindAllPagination(payload));
+
+        /// <summary>Find active users paginated, sorted and filtered</summary>
+        /// <remarks>Return list with active users paginated, sorted and filtered</remarks>
+        /// <param name="payload">Request body with users pagination rules</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost("active/pagination")] public IActionResult FindAllActivePagination(UserPaginationRequest payload) => Ok(_userService.FindAllActivePagination(payload));
 
         /// <summary>Find user by ID</summary>
         /// <remarks>Return user with given ID</remarks>

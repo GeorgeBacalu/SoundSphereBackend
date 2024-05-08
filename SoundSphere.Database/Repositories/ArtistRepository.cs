@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
+using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
 
@@ -21,8 +23,24 @@ namespace SoundSphere.Database.Repositories
             .Where(artist => artist.IsActive)
             .ToList();
 
+        public IList<Artist> FindAllPagination(ArtistPaginationRequest payload) => _context.Artists
+            .Include(artist => artist.SimilarArtists)
+            .Filter(payload)
+            .Sort(payload)
+            .Paginate(payload)
+            .ToList();
+
+        public IList<Artist> FindAllActivePagination(ArtistPaginationRequest payload) => _context.Artists
+            .Include (artist => artist.SimilarArtists)
+            .Where(artist => artist.IsActive)
+            .Filter(payload)
+            .Sort(payload)
+            .Paginate(payload)
+            .ToList();
+
         public Artist FindById(Guid id) => _context.Artists
             .Include(artist => artist.SimilarArtists)
+            .Where(artist => artist.IsActive)
             .FirstOrDefault(artist => artist.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(Constants.ArtistNotFound, id));
 

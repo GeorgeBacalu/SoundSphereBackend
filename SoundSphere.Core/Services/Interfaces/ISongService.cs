@@ -1,5 +1,5 @@
 ﻿using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Entities;
+using SoundSphere.Database.Dtos.Request;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
@@ -9,6 +9,10 @@ namespace SoundSphere.Core.Services.Interfaces
 
         IList<SongDto> FindAllActive();
 
+        IList<SongDto> FindAllPagination(SongPaginationRequest payload);
+
+        IList<SongDto> FindAllActivePagination(SongPaginationRequest payload);
+
         SongDto FindById(Guid id);
 
         SongDto Save(SongDto songDto);
@@ -16,13 +20,5 @@ namespace SoundSphere.Core.Services.Interfaces
         SongDto UpdateById(SongDto songDto, Guid id);
 
         SongDto DisableById(Guid id);
-
-        IList<SongDto> ConvertToDtos(IList<Song> songs);
-
-        IList<Song> ConvertToEntities(IList<SongDto> songDtos);
-
-        SongDto ConvertToDto(Song song);
-
-        Song ConvertToEntity(SongDto songDto);
     }
 }

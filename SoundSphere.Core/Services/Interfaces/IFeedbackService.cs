@@ -1,11 +1,13 @@
 ﻿using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Entities;
+using SoundSphere.Database.Dtos.Request;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IFeedbackService
     {
         IList<FeedbackDto> FindAll();
+
+        IList<FeedbackDto> FindAllPagination(FeedbackPaginationRequest payload);
 
         FeedbackDto FindById(Guid id);
 
@@ -14,13 +16,5 @@ namespace SoundSphere.Core.Services.Interfaces
         FeedbackDto UpdateById(FeedbackDto feedbackDto, Guid id);
 
         void DeleteById(Guid id);
-
-        IList<FeedbackDto> ConvertToDtos(IList<Feedback> feedbacks);
-
-        IList<Feedback> ConvertToEntities(IList<FeedbackDto> feedbackDtos);
-
-        FeedbackDto ConvertToDto(Feedback feedback);
-
-        Feedback ConvertToEntity(FeedbackDto feedbackDto);
     }
 }

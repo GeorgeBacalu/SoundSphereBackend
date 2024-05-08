@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
@@ -19,6 +20,12 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with all feedbacks</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet] public IActionResult FindAll() => Ok(_feedbackService.FindAll());
+
+        /// <summary>Find feedbacks paginated, sorted and filtered</summary>
+        /// <remarks>Return list with feedbacks paginated, sorted and filtered</remarks>
+        /// <param name="payload">Request body with feedbacks pagination rules</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost("pagination")] public IActionResult FindAllPagination(FeedbackPaginationRequest payload) => Ok(_feedbackService.FindAllPagination(payload));
 
         /// <summary>Find feedback by ID</summary>
         /// <remarks>Return feedback with given ID</remarks>

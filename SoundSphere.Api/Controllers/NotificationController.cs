@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
@@ -19,6 +20,12 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with all notifications</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet] public IActionResult FindAll() => Ok(_notificationService.FindAll());
+
+        /// <summary>Find notifications paginated, sorted and filtered</summary>
+        /// <remarks>Return list with notifications paginated, sorted and filtered</remarks>
+        /// <param name="payload">Request body with notifications pagination rules</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost("pagination")] public IActionResult FindAllPagination(NotificationPaginationRequest payload) => Ok(_notificationService.FindAllPagination(payload));
 
         /// <summary>Find notification by ID</summary>
         /// <remarks>Return notification with given ID</remarks>

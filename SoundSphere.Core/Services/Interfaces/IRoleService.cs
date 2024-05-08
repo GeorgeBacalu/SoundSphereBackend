@@ -1,5 +1,4 @@
 ﻿using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
@@ -10,13 +9,5 @@ namespace SoundSphere.Core.Services.Interfaces
         RoleDto FindById(Guid id);
 
         RoleDto Save(RoleDto roleDto);
-
-        IList<RoleDto> ConvertToDtos(IList<Role> roles);
-
-        IList<Role> ConvertToEntities(IList<RoleDto> roleDtos);
-
-        RoleDto ConvertToDto(Role role);
-
-        Role ConvertToEntity(RoleDto roleDto);
     }
 }
