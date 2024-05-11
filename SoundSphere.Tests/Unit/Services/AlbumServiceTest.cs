@@ -5,6 +5,7 @@ using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Tests.Mocks;
@@ -21,10 +22,15 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Album _album2 = AlbumMock.GetMockedAlbum2();
         private readonly IList<Album> _albums = AlbumMock.GetMockedAlbums();
         private readonly IList<Album> _activeAlbums = AlbumMock.GetMockedActiveAlbums();
+        private readonly IList<Album> _paginatedAlbums = AlbumMock.GetMockedPaginatedAlbums();
+        private readonly IList<Album> _activePaginatedAlbums = AlbumMock.GetMockedActivePaginatedAlbums();
         private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
         private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
         private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
+        private readonly IList<AlbumDto> _paginatedAlbumDtos = AlbumMock.GetMockedPaginatedAlbumDtos();
+        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = AlbumMock.GetMockedActivePaginatedAlbumDtos();
+        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
 
         public AlbumServiceTest()
         {
@@ -47,6 +53,18 @@ namespace SoundSphere.Tests.Unit.Services
             _albumService.FindAllActive().Should().BeEquivalentTo(_activeAlbumDtos);
         }
 
+        [Fact] public void FindAllPagination_Test()
+        {
+            _albumRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedAlbums);
+            _albumService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedAlbumDtos);
+        }
+
+        [Fact] public void FindAllActivePagination_Test()
+        {
+            _albumRepositoryMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedAlbums);
+            _albumService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbumDtos);
+        }
+
         [Fact] public void FindById_Test()
         {
             _albumRepositoryMock.Setup(mock => mock.FindById(Constants.ValidAlbumGuid)).Returns(_album1);
@@ -61,8 +79,8 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void UpdateById_Test()
         {
-            Album updatedAlbum = CreateTestAlbum(_album2, _album1.IsActive);
-            AlbumDto updatedAlbumDto = ConvertToDto(updatedAlbum);
+            Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
+            AlbumDto updatedAlbumDto = ToDto(updatedAlbum);
             _mapperMock.Setup(mock => mock.Map<AlbumDto>(updatedAlbum)).Returns(updatedAlbumDto);
             _albumRepositoryMock.Setup(mock => mock.UpdateById(_album2, Constants.ValidAlbumGuid)).Returns(updatedAlbum);
             _albumService.UpdateById(_albumDto2, Constants.ValidAlbumGuid).Should().Be(updatedAlbumDto);
@@ -70,14 +88,14 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void DisableById_Test()
         {
-            Album disabledAlbum = CreateTestAlbum(_album1, false);
-            AlbumDto disabledAlbumDto = ConvertToDto(disabledAlbum);
+            Album disabledAlbum = GetAlbum(_album1, false);
+            AlbumDto disabledAlbumDto = ToDto(disabledAlbum);
             _mapperMock.Setup(mock => mock.Map<AlbumDto>(disabledAlbum)).Returns(disabledAlbumDto);
             _albumRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidAlbumGuid)).Returns(disabledAlbum);
             _albumService.DisableById(Constants.ValidAlbumGuid).Should().Be(disabledAlbumDto);
         }
 
-        private Album CreateTestAlbum(Album album, bool isActive) => new Album
+        private Album GetAlbum(Album album, bool isActive) => new Album
         {
             Id = Constants.ValidAlbumGuid,
             Title = album.Title,
@@ -87,7 +105,7 @@ namespace SoundSphere.Tests.Unit.Services
             IsActive = isActive
         };
 
-        private AlbumDto ConvertToDto(Album album) => new AlbumDto
+        private AlbumDto ToDto(Album album) => new AlbumDto
         {
             Id = album.Id,
             Title = album.Title,

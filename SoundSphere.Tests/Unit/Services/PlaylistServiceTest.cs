@@ -5,6 +5,7 @@ using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Tests.Mocks;
@@ -23,10 +24,15 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Playlist _playlist2 = PlaylistMock.GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = PlaylistMock.GetMockedPlaylists();
         private readonly IList<Playlist> _activePlaylists = PlaylistMock.GetMockedActivePlaylists();
+        private readonly IList<Playlist> _paginatedPlaylists = PlaylistMock.GetMockedPaginatedPlaylists();
+        private readonly IList<Playlist> _activePaginatedPlaylists = PlaylistMock.GetMockedActivePaginatedPlaylists();
         private readonly PlaylistDto _playlistDto1 = PlaylistMock.GetMockedPlaylistDto1();
         private readonly PlaylistDto _playlistDto2 = PlaylistMock.GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
         private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
+        private readonly IList<PlaylistDto> _paginatedPlaylistDtos = PlaylistMock.GetMockedPaginatedPlaylistDtos();
+        private readonly IList<PlaylistDto> _activePaginatedPlaylistDtos = PlaylistMock.GetMockedActivePaginatedPlaylistDtos();
+        private readonly PlaylistPaginationRequest _paginationRequest = PlaylistMock.GetMockedPaginationRequest();
         private readonly User _user1 = UserMock.GetMockedUser1();
         private readonly IList<Song> _songs1 = SongMock.GetMockedSongs1();
 
@@ -49,6 +55,18 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _playlistRepositoryMock.Setup(mock => mock.FindAllActive()).Returns(_activePlaylists);
             _playlistService.FindAllActive().Should().BeEquivalentTo(_activePlaylistDtos);
+        }
+
+        [Fact] public void FindAllPagination_Test()
+        {
+            _playlistRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedPlaylists);
+            _playlistService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylistDtos);
+        }
+
+        [Fact] public void FindAllActivePagination_Test()
+        {
+            _playlistRepositoryMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedPlaylists);
+            _playlistService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylistDtos);
         }
 
         [Fact] public void FindById_Test()
@@ -76,7 +94,7 @@ namespace SoundSphere.Tests.Unit.Services
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = _playlist1.IsActive
             };
-            PlaylistDto updatedPlaylistDto = ConvertToDto(updatedPlaylist);
+            PlaylistDto updatedPlaylistDto = ToDto(updatedPlaylist);
             _mapperMock.Setup(mock => mock.Map<PlaylistDto>(updatedPlaylist)).Returns(updatedPlaylistDto);
             _playlistRepositoryMock.Setup(mock => mock.UpdateById(_playlist2, Constants.ValidPlaylistGuid)).Returns(updatedPlaylist);
             _playlistService.UpdateById(_playlistDto2, Constants.ValidPlaylistGuid).Should().Be(updatedPlaylistDto);
@@ -93,13 +111,13 @@ namespace SoundSphere.Tests.Unit.Services
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = false
             };
-            PlaylistDto disabledPlaylistDto = ConvertToDto(disabledPlaylist);
+            PlaylistDto disabledPlaylistDto = ToDto(disabledPlaylist);
             _mapperMock.Setup(mock => mock.Map<PlaylistDto>(disabledPlaylist)).Returns(disabledPlaylistDto);
             _playlistRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidPlaylistGuid)).Returns(disabledPlaylist);
             _playlistService.DisableById(Constants.ValidPlaylistGuid).Should().Be(disabledPlaylistDto);
         }
 
-        private PlaylistDto ConvertToDto(Playlist playlist) => new PlaylistDto
+        private PlaylistDto ToDto(Playlist playlist) => new PlaylistDto
         {
             Id = playlist.Id,
             Title = playlist.Title,

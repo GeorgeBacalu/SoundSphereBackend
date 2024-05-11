@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -21,6 +22,9 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Artist _artist2 = ArtistMock.GetMockedArtist2();
         private readonly IList<Artist> _artists = ArtistMock.GetMockedArtists();
         private readonly IList<Artist> _activeArtists = ArtistMock.GetMockedActiveArtists();
+        private readonly IList<Artist> _paginatedArtists = ArtistMock.GetMockedPaginatedArtists();
+        private readonly IList<Artist> _activePaginatedArtists = ArtistMock.GetMockedActivePaginatedArtists();
+        private readonly ArtistPaginationRequest _paginationRequest = ArtistMock.GetMockedPaginationRequest();
 
         public ArtistRepositoryTest()
         {
@@ -36,6 +40,10 @@ namespace SoundSphere.Tests.Unit.Repositories
         [Fact] public void FindAll_Test() => _artistRepository.FindAll().Should().BeEquivalentTo(_artists);
 
         [Fact] public void FindAllActive_Test() => _artistRepository.FindAllActive().Should().BeEquivalentTo(_activeArtists);
+
+        [Fact] public void FindAllPagination_Test() => _artistRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists);
+
+        [Fact] public void FindAllActivePagination_Test() => _artistRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtists);
 
         [Fact] public void FindById_ValidId_Test() => _artistRepository.FindById(Constants.ValidArtistGuid).Should().Be(_artist1);
 
@@ -53,7 +61,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void UpdateById_ValidId_Test()
         {
-            Artist updatedArtist = CreateTestArtist(_artist2, _artist1.IsActive);
+            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
             _artistRepository.UpdateById(_artist2, Constants.ValidArtistGuid).Should().Be(updatedArtist);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -65,7 +73,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void DisableById_ValidId_Test()
         {
-            Artist disabledArtist = CreateTestArtist(_artist1, false);
+            Artist disabledArtist = GetArtist(_artist1, false);
             _artistRepository.DisableById(Constants.ValidArtistGuid).Should().Be(disabledArtist);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -75,7 +83,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(Constants.ArtistNotFound, Constants.InvalidGuid));
 
-        private Artist CreateTestArtist(Artist artist, bool isActive) => new Artist
+        private Artist GetArtist(Artist artist, bool isActive) => new Artist
         {
             Id = Constants.ValidArtistGuid,
             Name = artist.Name,

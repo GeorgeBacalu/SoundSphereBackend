@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -20,6 +21,8 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Feedback _feedback1 = FeedbackMock.GetMockedFeedback1();
         private readonly Feedback _feedback2 = FeedbackMock.GetMockedFeedback2();
         private readonly IList<Feedback> _feedbacks = FeedbackMock.GetMockedFeedbacks();
+        private readonly IList<Feedback> _paginatedFeedbacks = FeedbackMock.GetMockedPaginatedFeedbacks();
+        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
 
         public FeedbackRepositoryTest()
         {
@@ -33,6 +36,8 @@ namespace SoundSphere.Tests.Unit.Repositories
         }
 
         [Fact] public void FindAll_Test() => _feedbackRepository.FindAll().Should().BeEquivalentTo(_feedbacks);
+
+        [Fact] public void FindAllPagination_Test() => _feedbackRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks);
 
         [Fact] public void FindById_ValidId_Test() => _feedbackRepository.FindById(Constants.ValidFeedbackGuid).Should().Be(_feedback1);
 

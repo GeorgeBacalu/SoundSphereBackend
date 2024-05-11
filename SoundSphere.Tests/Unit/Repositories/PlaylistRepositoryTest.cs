@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -21,6 +22,9 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Playlist _playlist2 = PlaylistMock.GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = PlaylistMock.GetMockedPlaylists();
         private readonly IList<Playlist> _activePlaylists = PlaylistMock.GetMockedActivePlaylists();
+        private readonly IList<Playlist> _paginatedPlaylists = PlaylistMock.GetMockedPaginatedPlaylists();
+        private readonly IList<Playlist> _activePaginatedPlaylists = PlaylistMock.GetMockedActivePaginatedPlaylists();
+        private readonly PlaylistPaginationRequest _paginationRequest = PlaylistMock.GetMockedPaginationRequest();
 
         public PlaylistRepositoryTest()
         {
@@ -36,6 +40,10 @@ namespace SoundSphere.Tests.Unit.Repositories
         [Fact] public void FindAll_Test() => _playlistRepository.FindAll().Should().BeEquivalentTo(_playlists);
 
         [Fact] public void FindAllActive_Test() => _playlistRepository.FindAllActive().Should().BeEquivalentTo(_activePlaylists);
+
+        [Fact] public void FindAllPagination_Test() => _playlistRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists);
+
+        [Fact] public void FindAllActivePagination_Test() => _playlistRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylists);
 
         [Fact] public void FindById_ValidId_Test() => _playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlist1);
 

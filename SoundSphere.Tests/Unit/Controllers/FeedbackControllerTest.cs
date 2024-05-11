@@ -6,6 +6,7 @@ using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Tests.Mocks;
 
 namespace SoundSphere.Tests.Unit.Controllers
@@ -18,6 +19,8 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly FeedbackDto _feedbackDto1 = FeedbackMock.GetMockedFeedbackDto1();
         private readonly FeedbackDto _feedbackDto2 = FeedbackMock.GetMockedFeedbackDto2();
         private readonly IList<FeedbackDto> _feedbackDtos = FeedbackMock.GetMockedFeedbackDtos();
+        private readonly IList<FeedbackDto> _paginatedFeedbackDtos = FeedbackMock.GetMockedPaginatedFeedbackDtos();
+        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
 
         public FeedbackControllerTest() => _feedbackController = new(_feedbackServiceMock.Object);
 
@@ -28,6 +31,15 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().Be(_feedbackDtos);
+        }
+
+        [Fact] public void FindAllPagination_Test()
+        {
+            _feedbackServiceMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedFeedbackDtos);
+            OkObjectResult? result = _feedbackController.FindAllPagination(_paginationRequest) as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().Be(_paginatedFeedbackDtos);
         }
 
         [Fact] public void FindById_Test()

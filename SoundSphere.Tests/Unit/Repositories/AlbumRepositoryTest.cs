@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -21,6 +22,9 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Album _album2 = AlbumMock.GetMockedAlbum2();
         private readonly IList<Album> _albums = AlbumMock.GetMockedAlbums();
         private readonly IList<Album> _activeAlbums = AlbumMock.GetMockedActiveAlbums();
+        private readonly IList<Album> _paginedAlbums = AlbumMock.GetMockedPaginatedAlbums();
+        private readonly IList<Album> _activePaginatedAlbums = AlbumMock.GetMockedActivePaginatedAlbums();
+        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
 
         public AlbumRepositoryTest()
         {
@@ -36,6 +40,10 @@ namespace SoundSphere.Tests.Unit.Repositories
         [Fact] public void FindAll_Test() => _albumRepository.FindAll().Should().BeEquivalentTo(_albums);
 
         [Fact] public void FindAllActive_Test() => _albumRepository.FindAllActive().Should().BeEquivalentTo(_activeAlbums);
+
+        [Fact] public void FindAllPagination_Test() => _albumRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginedAlbums);
+
+        [Fact] public void FindAllActivePagination_Test() => _albumRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbums);
 
         [Fact] public void FindById_ValidId_Test() => _albumRepository.FindById(Constants.ValidAlbumGuid).Should().Be(_album1);
 
@@ -53,7 +61,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void UpdateById_ValidId_Test()
         {
-            Album updatedAlbum = CreateTestAlbum(_album2, _album1.IsActive);
+            Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
             _albumRepository.UpdateById(_album2, Constants.ValidAlbumGuid).Should().Be(updatedAlbum);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -65,7 +73,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void DisableById_ValidId_Test()
         {
-            Album disabledAlbum = CreateTestAlbum(_album1, false);
+            Album disabledAlbum = GetAlbum(_album1, false);
             _albumRepository.DisableById(Constants.ValidAlbumGuid).Should().Be(disabledAlbum);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -75,7 +83,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(Constants.AlbumNotFound, Constants.InvalidGuid));
 
-        private Album CreateTestAlbum(Album album, bool isActive) => new Album
+        private Album GetAlbum(Album album, bool isActive) => new Album
         {
             Id = Constants.ValidAlbumGuid,
             Title = album.Title,
