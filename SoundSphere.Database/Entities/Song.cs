@@ -41,5 +41,5 @@ namespace SoundSphere.Database.Entities
         public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, Genre, ReleaseDate, DurationSeconds, Album, HashCode.Combine(Artists, Playlists, SimilarSongs, IsActive));
     }
 
-    public enum GenreType { Pop, Rock, Rnb, HipHop, Dance, Techno, Latino, Hindi, Reggae, Jazz, Classical, Country }
+    public enum GenreType { Pop, Rock, Rnb, HipHop, Dance, Techno, Latino, Hindi, Reggae, Jazz, Classical, Country, Electronic }
 }
