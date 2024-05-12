@@ -25,6 +25,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Authorities.AddRange(_authorities);
             context.SaveChanges();
             action(authorityRepository, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((authorityRepository, context) => authorityRepository.FindAll().Should().BeEquivalentTo(_authorities));

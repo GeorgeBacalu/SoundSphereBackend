@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
@@ -24,6 +25,18 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with all active artists</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("active")] public IActionResult FindAllActive() => Ok(_artistService.FindAllActive());
+
+        ///<summary>Find artists paginated, sorted and filtered</summary>
+        ///<remarks>Return list with artists paginated, sorted and filtered</remarks>
+        /// <param name="payload">Request body with artists pagination rules</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost("pagination")] public IActionResult FindAllPagination(ArtistPaginationRequest payload) => Ok(_artistService.FindAllPagination(payload));
+
+        ///<summary>Find active artists paginated, sorted and filtered</summary>
+        ///<remarks>Return list with active artists paginated, sorted and filtered</remarks>
+        /// <param name="payload">Request body with artists pagination rules</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost("active/pagination")] public IActionResult FindAllActivePagination(ArtistPaginationRequest payload) => Ok(_artistService.FindAllActivePagination(payload));
 
         /// <summary>Find artist by ID</summary>
         /// <remarks>Return artist with given ID</remarks>

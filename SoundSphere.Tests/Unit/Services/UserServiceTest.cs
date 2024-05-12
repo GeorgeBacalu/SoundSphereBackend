@@ -4,7 +4,8 @@ using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Tests.Mocks;
@@ -23,10 +24,15 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly User _user2 = UserMock.GetMockedUser2();
         private readonly IList<User> _users = UserMock.GetMockedUsers();
         private readonly IList<User> _activeUsers = UserMock.GetMockedActiveUsers();
+        private readonly IList<User> _paginatedUsers = UserMock.GetMockedPaginatedUsers();
+        private readonly IList<User> _activePaginatedUsers = UserMock.GetMockedActivePaginatedUsers();
         private readonly UserDto _userDto1 = UserMock.GetMockedUserDto1();
         private readonly UserDto _userDto2 = UserMock.GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
         private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
+        private readonly IList<UserDto> _paginatedUserDtos = UserMock.GetMockedPaginatedUserDtos();
+        private readonly IList<UserDto> _activePaginatedUserDtos = UserMock.GetMockedActivePaginatedUserDtos();
+        private readonly UserPaginationRequest _paginationRequest = UserMock.GetMockedPaginationRequest();
         private readonly Role _role1 = RoleMock.GetMockedRole1();
         private readonly IList<Authority> _authorities1 = AuthorityMock.GetMockedAuthorities1();
 
@@ -51,6 +57,18 @@ namespace SoundSphere.Tests.Unit.Services
             _userService.FindAllActive().Should().BeEquivalentTo(_activeUserDtos);
         }
 
+        [Fact] public void FindAllPagination_Test()
+        {
+            _userRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedUsers);
+            _userService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos);
+        }
+
+        [Fact] public void FindAllActivePagination_Test()
+        {
+            _userRepositoryMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedUsers);
+            _userService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUserDtos);
+        }
+
         [Fact] public void FindById_Test()
         {
             _userRepositoryMock.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
@@ -67,8 +85,8 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void UpdateById_Test()
         {
-            User updatedUser = CreateTestUser(_user2, _user1.IsActive);
-            UserDto updatedUserDto = ConvertToDto(updatedUser);
+            User updatedUser = GetUser(_user2, _user1.IsActive);
+            UserDto updatedUserDto = ToDto(updatedUser);
             _mapperMock.Setup(mock => mock.Map<UserDto>(updatedUser)).Returns(updatedUserDto);
             _userRepositoryMock.Setup(mock => mock.UpdateById(_user2, Constants.ValidUserGuid)).Returns(updatedUser);
             _userService.UpdateById(_userDto2, Constants.ValidUserGuid).Should().Be(updatedUserDto);
@@ -76,14 +94,14 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void DisableById_Test()
         {
-            User disabledUser = CreateTestUser(_user1, false);
-            UserDto disabledUserDto = ConvertToDto(disabledUser);
+            User disabledUser = GetUser(_user1, false);
+            UserDto disabledUserDto = ToDto(disabledUser);
             _mapperMock.Setup(mock => mock.Map<UserDto>(disabledUser)).Returns(disabledUserDto);
             _userRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidUserGuid)).Returns(disabledUser);
             _userService.DisableById(Constants.ValidUserGuid).Should().Be(disabledUserDto);
         }
 
-        private User CreateTestUser(User user, bool isActive) => new User
+        private User GetUser(User user, bool isActive) => new User
         {
             Id = Constants.ValidUserGuid,
             Name = user.Name,
@@ -98,7 +116,7 @@ namespace SoundSphere.Tests.Unit.Services
             IsActive = isActive
         };
 
-        private UserDto ConvertToDto(User user) => new UserDto
+        private UserDto ToDto(User user) => new UserDto
         {
             Id = user.Id,
             Name = user.Name,

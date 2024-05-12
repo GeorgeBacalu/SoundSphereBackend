@@ -4,7 +4,8 @@ using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Tests.Mocks;
@@ -21,9 +22,12 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Feedback _feedback1 = FeedbackMock.GetMockedFeedback1();
         private readonly Feedback _feedback2 = FeedbackMock.GetMockedFeedback2();
         private readonly IList<Feedback> _feedbacks = FeedbackMock.GetMockedFeedbacks();
+        private readonly IList<Feedback> _paginatedFeedbacks = FeedbackMock.GetMockedPaginatedFeedbacks();
         private readonly FeedbackDto _feedbackDto1 = FeedbackMock.GetMockedFeedbackDto1();
         private readonly FeedbackDto _feedbackDto2 = FeedbackMock.GetMockedFeedbackDto2();
         private readonly IList<FeedbackDto> _feedbackDtos = FeedbackMock.GetMockedFeedbackDtos();
+        private readonly IList<FeedbackDto> _paginatedFeedbackDtos = FeedbackMock.GetMockedPaginatedFeedbackDtos();
+        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
         private readonly User _user1 = UserMock.GetMockedUser1();
 
         public FeedbackServiceTest()
@@ -39,6 +43,12 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _feedbackRepositoryMock.Setup(mock => mock.FindAll()).Returns(_feedbacks);
             _feedbackService.FindAll().Should().BeEquivalentTo(_feedbackDtos);
+        }
+
+        [Fact] public void FindAllPagination_Test()
+        {
+            _feedbackRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedFeedbacks);
+            _feedbackService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos);
         }
 
         [Fact] public void FindById_Test()
@@ -64,7 +74,7 @@ namespace SoundSphere.Tests.Unit.Services
                 Message = _feedback2.Message,
                 SentAt = _feedback1.SentAt
             };
-            FeedbackDto updatedFeedbackDto = ConvertToDto(updatedFeedback);
+            FeedbackDto updatedFeedbackDto = ToDto(updatedFeedback);
             _mapperMock.Setup(mock => mock.Map<FeedbackDto>(updatedFeedback)).Returns(updatedFeedbackDto);
             _feedbackRepositoryMock.Setup(mock => mock.UpdateById(_feedback2, Constants.ValidFeedbackGuid)).Returns(updatedFeedback);
             _feedbackService.UpdateById(_feedbackDto2, Constants.ValidFeedbackGuid).Should().Be(updatedFeedbackDto);
@@ -76,7 +86,7 @@ namespace SoundSphere.Tests.Unit.Services
             _feedbackRepositoryMock.Verify(mock => mock.DeleteById(Constants.ValidFeedbackGuid));
         }
 
-        private FeedbackDto ConvertToDto(Feedback feedback) => new FeedbackDto
+        private FeedbackDto ToDto(Feedback feedback) => new FeedbackDto
         {
             Id = feedback.Id,
             UserId = feedback.User.Id,

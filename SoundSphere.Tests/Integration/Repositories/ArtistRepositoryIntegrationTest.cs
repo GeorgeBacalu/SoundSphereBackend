@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
@@ -16,6 +17,9 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Artist _artist2 = ArtistMock.GetMockedArtist2();
         private readonly IList<Artist> _artists = ArtistMock.GetMockedArtists();
         private readonly IList<Artist> _activeArtists = ArtistMock.GetMockedActiveArtists();
+        private readonly IList<Artist> _paginatedArtists = ArtistMock.GetMockedPaginatedArtists();
+        private readonly IList<Artist> _activePaginatedArtists = ArtistMock.GetMockedActivePaginatedArtists();
+        private readonly ArtistPaginationRequest _paginationRequest = ArtistMock.GetMockedPaginationRequest();
 
         public ArtistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -27,12 +31,17 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Artists.AddRange(_artists);
             context.SaveChanges();
             action(artistRepository, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((artistRepository, context) => artistRepository.FindAll().Should().BeEquivalentTo(_artists));
 
         [Fact] public void FindAllActive_Test() => Execute((artistRepository, context) => artistRepository.FindAllActive().Should().BeEquivalentTo(_activeArtists));
 
+        [Fact] public void FindAllPagination_Test() => Execute((artistRepository, context) => artistRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists));
+
+        [Fact] public void FindAllActivePagination_Test() => Execute((artistRepository, context) => artistRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtists));
+        
         [Fact] public void FindById_ValidId_Test() => Execute((artistRepository, context) => artistRepository.FindById(Constants.ValidArtistGuid).Should().Be(_artist1));
 
         [Fact] public void FindById_InvalidId_Test() => Execute((artistRepository, context) => artistRepository
@@ -42,14 +51,14 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void Save_Test() => Execute((artistRepository, context) =>
         {
-            Artist newArtist = ArtistMock.GetMockedArtist3();
+            Artist newArtist = ArtistMock.GetMockedArtist51();
             artistRepository.Save(newArtist);
             context.Artists.Find(newArtist.Id).Should().Be(newArtist);
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((artistRepository, context) =>
         {
-            Artist updatedArtist = CreateTestArtist(_artist2, _artist1.IsActive);
+            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
             artistRepository.UpdateById(_artist2, Constants.ValidArtistGuid);
             context.Artists.Find(Constants.ValidArtistGuid).Should().Be(updatedArtist);
         });
@@ -61,7 +70,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void DisableById_ValidId_Test() => Execute((artistRepository, context) =>
         {
-            Artist disabledArtist = CreateTestArtist(_artist1, false);
+            Artist disabledArtist = GetArtist(_artist1, false);
             artistRepository.DisableById(Constants.ValidArtistGuid);
             context.Artists.Find(Constants.ValidArtistGuid).Should().Be(disabledArtist);
         });
@@ -71,7 +80,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(Constants.ArtistNotFound, Constants.InvalidGuid)));
 
-        private Artist CreateTestArtist(Artist artist, bool isActive) => new Artist
+        private Artist GetArtist(Artist artist, bool isActive) => new Artist
         {
             Id = Constants.ValidArtistGuid,
             Name = artist.Name,

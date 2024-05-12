@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
 using SoundSphere.Tests.Mocks;
 using System.Net;
@@ -47,8 +47,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync(Constants.ApiAuthority);
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<AuthorityDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_authorityDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<AuthorityDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_authorityDtos);
         });
 
         [Fact] public async Task FindById_Test() => await Execute(async () =>
@@ -56,8 +56,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiAuthority}/{Constants.ValidAuthorityGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<AuthorityDto>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(_authorityDto1);
+            var responseBody = JsonConvert.DeserializeObject<AuthorityDto>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(_authorityDto1);
         });
 
         [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
@@ -65,8 +65,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiAuthority}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AuthorityNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AuthorityNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task Save_Test() => await Execute(async () =>
@@ -74,8 +74,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.PostAsync(Constants.ApiAuthority, new StringContent(JsonConvert.SerializeObject(_authorityDto1)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Internal server error", Status = StatusCodes.Status500InternalServerError, Detail = "Cannot insert duplicate key row in object 'dbo.Authorities' with unique index 'IX_Authorities_Type'. The duplicate key value is (Create)." });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Internal server error", Status = StatusCodes.Status500InternalServerError, Detail = "Cannot insert duplicate key row in object 'dbo.Authorities' with unique index 'IX_Authorities_Type'. The duplicate key value is (Create)." });
         });
     }
 }

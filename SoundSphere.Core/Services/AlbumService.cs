@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -13,45 +15,27 @@ namespace SoundSphere.Core.Services
 
         public AlbumService(IAlbumRepository albumRepository, IMapper mapper) => (_albumRepository, _mapper) = (albumRepository, mapper);
 
-        public IList<AlbumDto> FindAll() => ConvertToDtos(_albumRepository.FindAll());
+        public IList<AlbumDto> FindAll() => _albumRepository.FindAll().ToDtos(_mapper);
 
-        public IList<AlbumDto> FindAllActive() => ConvertToDtos(_albumRepository.FindAllActive());
+        public IList<AlbumDto> FindAllActive() => _albumRepository.FindAllActive().ToDtos(_mapper);
 
-        public AlbumDto FindById(Guid id) => ConvertToDto(_albumRepository.FindById(id));
+        public IList<AlbumDto> FindAllPagination(AlbumPaginationRequest payload) => _albumRepository.FindAllPagination(payload).ToDtos(_mapper);
+
+        public IList<AlbumDto> FindAllActivePagination(AlbumPaginationRequest payload) => _albumRepository.FindAllActivePagination(payload).ToDtos(_mapper);
+
+        public AlbumDto FindById(Guid id) => _albumRepository.FindById(id).ToDto(_mapper);
 
         public AlbumDto Save(AlbumDto albumDto)
         {
-            Album album = ConvertToEntity(albumDto);
+            Album album = albumDto.ToEntity(_mapper);
             if (album.Id == Guid.Empty) album.Id = Guid.NewGuid();
             album.IsActive = true;
             _albumRepository.AddAlbumLink(album);
-            return ConvertToDto(_albumRepository.Save(album));
+            return _albumRepository.Save(album).ToDto(_mapper);
         }
 
-        public AlbumDto UpdateById(AlbumDto albumDto, Guid id) => ConvertToDto(_albumRepository.UpdateById(ConvertToEntity(albumDto), id));
+        public AlbumDto UpdateById(AlbumDto albumDto, Guid id) => _albumRepository.UpdateById(albumDto.ToEntity(_mapper), id).ToDto(_mapper);
 
-        public AlbumDto DisableById(Guid id) => ConvertToDto(_albumRepository.DisableById(id));
-
-        public IList<AlbumDto> ConvertToDtos(IList<Album> albums) => albums.Select(ConvertToDto).ToList();
-
-        public IList<Album> ConvertToEntities(IList<AlbumDto> albumDtos) => albumDtos.Select(ConvertToEntity).ToList();
-
-        public AlbumDto ConvertToDto(Album album)
-        {
-            AlbumDto albumDto = _mapper.Map<AlbumDto>(album);
-            albumDto.SimilarAlbumsIds = album.SimilarAlbums
-                .Select(albumLink => albumLink.SimilarAlbumId)
-                .ToList();
-            return albumDto;
-        }
-
-        public Album ConvertToEntity(AlbumDto albumDto)
-        {
-            Album album = _mapper.Map<Album>(albumDto);
-            album.SimilarAlbums = albumDto.SimilarAlbumsIds
-                .Select(id => new AlbumLink { AlbumId = albumDto.Id, SimilarAlbumId = id })
-                .ToList();
-            return album;
-        }
+        public AlbumDto DisableById(Guid id) => _albumRepository.DisableById(id).ToDto(_mapper);
     }
 }

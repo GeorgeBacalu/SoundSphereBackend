@@ -2,7 +2,7 @@
 using SoundSphere.Database.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace SoundSphere.Database.Dtos
+namespace SoundSphere.Database.Dtos.Common
 {
     public class SongDto
     {
@@ -35,7 +35,7 @@ namespace SoundSphere.Database.Dtos
 
         [MaxLength(15, ErrorMessage = "There can't be more than 15 similar songs")]
         public IList<Guid> SimilarSongsIds { get; set; } = new List<Guid>();
-        
+
         public bool IsActive { get; set; } = true;
 
         public override bool Equals(object? obj) => obj is SongDto songDto &&

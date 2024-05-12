@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -12,38 +14,26 @@ namespace SoundSphere.Core.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IMapper mapper) => 
-            (_notificationRepository, _userRepository, _mapper) = (notificationRepository, userRepository, mapper);
+        public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IMapper mapper) => (_notificationRepository, _userRepository, _mapper) = (notificationRepository, userRepository, mapper);
 
-        public IList<NotificationDto> FindAll() => ConvertToDtos(_notificationRepository.FindAll());
+        public IList<NotificationDto> FindAll() => _notificationRepository.FindAll().ToDtos(_mapper);
 
-        public NotificationDto FindById(Guid id) => ConvertToDto(_notificationRepository.FindById(id));
+        public IList<NotificationDto> FindAllPagination(NotificationPaginationRequest payload) => _notificationRepository.FindAllPagination(payload).ToDtos(_mapper);
+
+        public NotificationDto FindById(Guid id) => _notificationRepository.FindById(id).ToDto(_mapper);
 
         public NotificationDto Save(NotificationDto notificationDto)
         {
-            Notification notification = ConvertToEntity(notificationDto);
+            Notification notification = notificationDto.ToEntity(_userRepository, _mapper);
             if (notification.Id == Guid.Empty) notification.Id = Guid.NewGuid();
             notification.SentAt = DateTime.Now;
             notification.IsRead = false;
             _notificationRepository.LinkNotificationToUser(notification);
-            return ConvertToDto(_notificationRepository.Save(notification));
+            return _notificationRepository.Save(notification).ToDto(_mapper);
         }
 
-        public NotificationDto UpdateById(NotificationDto notificationDto, Guid id) => ConvertToDto(_notificationRepository.UpdateById(ConvertToEntity(notificationDto), id));
+        public NotificationDto UpdateById(NotificationDto notificationDto, Guid id) => _notificationRepository.UpdateById(notificationDto.ToEntity(_userRepository, _mapper), id).ToDto(_mapper);
 
         public void DeleteById(Guid id) => _notificationRepository.DeleteById(id);
-
-        public IList<NotificationDto> ConvertToDtos(IList<Notification> notifications) => notifications.Select(ConvertToDto).ToList();
-
-        public IList<Notification> ConvertToEntities(IList<NotificationDto> notificationDtos) => notificationDtos.Select(ConvertToEntity).ToList();
-
-        public NotificationDto ConvertToDto(Notification notification) => _mapper.Map<NotificationDto>(notification);
-
-        public Notification ConvertToEntity(NotificationDto notificationDto)
-        {
-            Notification notification = _mapper.Map<Notification>(notificationDto);
-            notification.User = _userRepository.FindById(notificationDto.UserId);
-            return notification;
-        }
     }
 }

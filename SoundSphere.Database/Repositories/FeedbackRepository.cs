@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
+using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
 
@@ -14,6 +16,13 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Feedback> FindAll() => _context.Feedbacks
             .Include(feedback => feedback.User)
+            .ToList();
+
+        public IList<Feedback> FindAllPagination(FeedbackPaginationRequest payload) => _context.Feedbacks
+            .Include(feedback => feedback.User)
+            .Filter(payload)
+            .Sort(payload)
+            .Paginate(payload)
             .ToList();
 
         public Feedback FindById(Guid id) => _context.Feedbacks

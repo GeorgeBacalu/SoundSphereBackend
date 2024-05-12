@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SoundSphere.Database.Dtos
+namespace SoundSphere.Database.Dtos.Common
 {
     public class PlaylistDto
     {
@@ -16,9 +16,9 @@ namespace SoundSphere.Database.Dtos
 
         [MaxLength(100, ErrorMessage = "There can't be more than 100 songs in a playlist")]
         public IList<Guid> SongsIds { get; set; } = new List<Guid>();
-        
+
         public DateTime CreatedAt { get; set; }
-        
+
         public bool IsActive { get; set; } = true;
 
         public override bool Equals(object? obj) => obj is PlaylistDto playlistDto &&

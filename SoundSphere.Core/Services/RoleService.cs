@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -13,23 +14,15 @@ namespace SoundSphere.Core.Services
 
         public RoleService(IRoleRepository roleRepository, IMapper mapper) => (_roleRepository, _mapper) = (roleRepository, mapper);
 
-        public IList<RoleDto> FindAll() => ConvertToDtos(_roleRepository.FindAll());
+        public IList<RoleDto> FindAll() => _roleRepository.FindAll().ToDtos(_mapper);
 
-        public RoleDto FindById(Guid id) => ConvertToDto(_roleRepository.FindById(id));
+        public RoleDto FindById(Guid id) => _roleRepository.FindById(id).ToDto(_mapper);
 
         public RoleDto Save(RoleDto roleDto)
         {
-            Role role = ConvertToEntity(roleDto);
+            Role role = roleDto.ToEntity(_mapper);
             if (role.Id == Guid.Empty) role.Id = Guid.NewGuid();
-            return ConvertToDto(_roleRepository.Save(role));
+            return _roleRepository.Save(role).ToDto(_mapper);
         }
-
-        public IList<RoleDto> ConvertToDtos(IList<Role> roles) => roles.Select(ConvertToDto).ToList();
-
-        public IList<Role> ConvertToEntities(IList<RoleDto> roleDtos) => roleDtos.Select(ConvertToEntity).ToList();
-
-        public RoleDto ConvertToDto(Role role) => _mapper.Map<RoleDto>(role);
-
-        public Role ConvertToEntity(RoleDto roleDto) => _mapper.Map<Role>(roleDto);
     }
 }

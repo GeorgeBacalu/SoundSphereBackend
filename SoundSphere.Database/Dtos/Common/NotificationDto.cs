@@ -1,7 +1,7 @@
 ﻿using SoundSphere.Database.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace SoundSphere.Database.Dtos
+namespace SoundSphere.Database.Dtos.Common
 {
     public class NotificationDto
     {
@@ -17,9 +17,9 @@ namespace SoundSphere.Database.Dtos
         [Required(ErrorMessage = "Message is required")]
         [StringLength(500, ErrorMessage = "Message can't be longer than 500 characters")]
         public string Message { get; set; } = null!;
-        
+
         public DateTime SentAt { get; set; }
-        
+
         public bool IsRead { get; set; } = false;
 
         public override bool Equals(object? obj) => obj is NotificationDto notificationDto &&

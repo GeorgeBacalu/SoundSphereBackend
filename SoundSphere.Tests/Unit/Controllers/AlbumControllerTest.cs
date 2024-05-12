@@ -5,7 +5,8 @@ using Moq;
 using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Tests.Mocks;
 
 namespace SoundSphere.Tests.Unit.Controllers
@@ -19,6 +20,9 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
         private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
+        private readonly IList<AlbumDto> _paginatedAlbumDtos = AlbumMock.GetMockedPaginatedAlbumDtos();
+        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = AlbumMock.GetMockedActivePaginatedAlbumDtos();
+        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
 
         public AlbumControllerTest() => _albumController = new(_albumServiceMock.Object);
 
@@ -38,6 +42,24 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().Be(_activeAlbumDtos);
+        }
+
+        [Fact] public void FindAllPagination_Test()
+        {
+            _albumServiceMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedAlbumDtos);
+            OkObjectResult? result = _albumController.FindAllPagination(_paginationRequest) as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().Be(_paginatedAlbumDtos);
+        }
+
+        [Fact] public void FindAllActivePagination_Test()
+        {
+            _albumServiceMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedAlbumDtos);
+            OkObjectResult? result = _albumController.FindAllActivePagination(_paginationRequest) as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().Be(_activePaginatedAlbumDtos);
         }
 
         [Fact] public void FindById_Test()
@@ -60,7 +82,7 @@ namespace SoundSphere.Tests.Unit.Controllers
 
         [Fact] public void UpdateById_Test()
         {
-            AlbumDto updatedAlbumDto = CreateTestAlbumDto(_albumDto2, _albumDto1.IsActive);
+            AlbumDto updatedAlbumDto = GetAlbumDto(_albumDto2, _albumDto1.IsActive);
             _albumServiceMock.Setup(mock => mock.UpdateById(_albumDto2, Constants.ValidAlbumGuid)).Returns(updatedAlbumDto);
             OkObjectResult? result = _albumController.UpdateById(_albumDto2, Constants.ValidAlbumGuid) as OkObjectResult;
             result?.Should().NotBeNull();
@@ -70,7 +92,7 @@ namespace SoundSphere.Tests.Unit.Controllers
 
         [Fact] public void DisableById_Test()
         {
-            AlbumDto disabledAlbumDto = CreateTestAlbumDto(_albumDto1, false);
+            AlbumDto disabledAlbumDto = GetAlbumDto(_albumDto1, false);
             _albumServiceMock.Setup(mock => mock.DisableById(Constants.ValidAlbumGuid)).Returns(disabledAlbumDto);
             OkObjectResult? result = _albumController.DisableById(Constants.ValidAlbumGuid) as OkObjectResult;
             result?.Should().NotBeNull();
@@ -78,7 +100,7 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Value.Should().Be(disabledAlbumDto);
         }
 
-        private AlbumDto CreateTestAlbumDto(AlbumDto albumDto, bool isActive) => new AlbumDto
+        private AlbumDto GetAlbumDto(AlbumDto albumDto, bool isActive) => new AlbumDto
         {
             Id = Constants.ValidAlbumGuid,
             Title = albumDto.Title,

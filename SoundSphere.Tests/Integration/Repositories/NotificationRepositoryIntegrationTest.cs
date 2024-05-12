@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
@@ -15,6 +16,8 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Notification _notification1 = NotificationMock.GetMockedNotification1();
         private readonly Notification _notification2 = NotificationMock.GetMockedNotification2();
         private readonly IList<Notification> _notifications = NotificationMock.GetMockedNotifications();
+        private readonly IList<Notification> _paginatedNotifications = NotificationMock.GetMockedPaginatedNotifications();
+        private readonly NotificationPaginationRequest _paginationRequest = NotificationMock.GetMockedPaginationRequest();
 
         public NotificationRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -26,10 +29,13 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Notifications.AddRange(_notifications);
             context.SaveChanges();
             action(notificationRepository, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((notificationRepository, context) => notificationRepository.FindAll().Should().BeEquivalentTo(_notifications));
 
+        [Fact] public void FindAllPagination_Test() => Execute((notificationRepository, context) => notificationRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotifications));
+        
         [Fact] public void FindById_ValidId_Test() => Execute((notificationRepository, context) => notificationRepository.FindById(Constants.ValidNotificationGuid).Should().Be(_notification1));
 
         [Fact] public void FindById_InvalidId_Test() => Execute((notificationRepository, context) => notificationRepository
@@ -39,7 +45,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void Save_Test() => Execute((notificationRepository, context) =>
         {
-            Notification newNotification = NotificationMock.GetMockedNotification3();
+            Notification newNotification = NotificationMock.GetMockedNotification37();
             notificationRepository.Save(newNotification);
             context.Notifications.Find(newNotification.Id).Should().BeEquivalentTo(newNotification, options => options.Excluding(notification => notification.SentAt));
         });

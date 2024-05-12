@@ -5,7 +5,8 @@ using Moq;
 using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Tests.Mocks;
 
 namespace SoundSphere.Tests.Unit.Controllers
@@ -19,6 +20,9 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly PlaylistDto _playlistDto2 = PlaylistMock.GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
         private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
+        private readonly IList<PlaylistDto> _paginatedPlaylistDtos = PlaylistMock.GetMockedPaginatedPlaylistDtos();
+        private readonly IList<PlaylistDto> _activePaginatedPlaylistDtos = PlaylistMock.GetMockedActivePaginatedPlaylistDtos();
+        private readonly PlaylistPaginationRequest _paginationRequest = PlaylistMock.GetMockedPaginationRequest();
 
         public PlaylistControllerTest() => _playlistController = new(_playlistServiceMock.Object);
 
@@ -38,6 +42,24 @@ namespace SoundSphere.Tests.Unit.Controllers
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(StatusCodes.Status200OK);
             result?.Value.Should().Be(_activePlaylistDtos);
+        }
+
+        [Fact] public void FindAllPagination_Test()
+        {
+            _playlistServiceMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedPlaylistDtos);
+            OkObjectResult? result = _playlistController.FindAllPagination(_paginationRequest) as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().Be(_paginatedPlaylistDtos);
+        }
+
+        [Fact] public void FindAllActivePagination_Test()
+        {
+            _playlistServiceMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedPlaylistDtos);
+            OkObjectResult? result = _playlistController.FindAllActivePagination(_paginationRequest) as OkObjectResult;
+            result?.Should().NotBeNull();
+            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.Value.Should().Be(_activePaginatedPlaylistDtos);
         }
 
         [Fact] public void FindById_Test()

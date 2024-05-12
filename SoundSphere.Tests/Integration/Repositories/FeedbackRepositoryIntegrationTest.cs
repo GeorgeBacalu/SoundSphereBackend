@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
@@ -15,6 +16,8 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Feedback _feedback1 = FeedbackMock.GetMockedFeedback1();
         private readonly Feedback _feedback2 = FeedbackMock.GetMockedFeedback2();
         private readonly IList<Feedback> _feedbacks = FeedbackMock.GetMockedFeedbacks();
+        private readonly IList<Feedback> _paginatedFeedbacks = FeedbackMock.GetMockedPaginatedFeedbacks();
+        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
 
         public FeedbackRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -26,10 +29,13 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Feedbacks.AddRange(_feedbacks);
             context.SaveChanges();
             action(feedbackRepository, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindAll().Should().BeEquivalentTo(_feedbacks));
 
+        [Fact] public void FindAllPagination_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks));
+        
         [Fact] public void FindById_ValidId_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindById(Constants.ValidFeedbackGuid).Should().Be(_feedback1));
 
         [Fact] public void FindById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
@@ -39,7 +45,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void Save_Test() => Execute((feedbackRepository, context) =>
         {
-            Feedback newFeedback = FeedbackMock.GetMockedFeedback3();
+            Feedback newFeedback = FeedbackMock.GetMockedFeedback37();
             feedbackRepository.Save(newFeedback);
             context.Feedbacks.Find(newFeedback.Id).Should().BeEquivalentTo(newFeedback, options => options.Excluding(feedback => feedback.SentAt));
         });

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
@@ -16,6 +17,9 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Playlist _playlist2 = PlaylistMock.GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = PlaylistMock.GetMockedPlaylists();
         private readonly IList<Playlist> _activePlaylists = PlaylistMock.GetMockedActivePlaylists();
+        private readonly IList<Playlist> _paginatedPlaylists = PlaylistMock.GetMockedPaginatedPlaylists();
+        private readonly IList<Playlist> _activePaginatedPlaylists = PlaylistMock.GetMockedActivePaginatedPlaylists();
+        private readonly PlaylistPaginationRequest _paginationRequest = PlaylistMock.GetMockedPaginationRequest();
 
         public PlaylistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -27,12 +31,17 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Playlists.AddRange(_playlists);
             context.SaveChanges();
             action(playlistRepository, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((playlistRepository, context) => playlistRepository.FindAll().Should().BeEquivalentTo(_playlists));
 
         [Fact] public void FindAllActive_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllActive().Should().BeEquivalentTo(_activePlaylists));
 
+        [Fact] public void FindAllPagination_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists));
+
+        [Fact] public void FindAllActivePagination_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylists));
+        
         [Fact] public void FindById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlist1));
 
         [Fact] public void FindById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
@@ -42,7 +51,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void Save_Test() => Execute((playlistRepository, context) =>
         {
-            Playlist newPlaylist = PlaylistMock.GetMockedPlaylist3();
+            Playlist newPlaylist = PlaylistMock.GetMockedPlaylist24();
             playlistRepository.Save(newPlaylist);
             context.Playlists.Find(newPlaylist.Id).Should().BeEquivalentTo(newPlaylist, options => options.Excluding(playlist => playlist.CreatedAt));
         });

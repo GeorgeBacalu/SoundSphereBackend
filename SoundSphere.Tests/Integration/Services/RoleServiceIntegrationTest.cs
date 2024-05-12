@@ -3,7 +3,7 @@ using FluentAssertions;
 using SoundSphere.Core.Services;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Tests.Mocks;
@@ -29,6 +29,7 @@ namespace SoundSphere.Tests.Integration.Services
             context.AddRange(_roles);
             context.SaveChanges();
             action(roleService, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((roleService, context) => roleService.FindAll().Should().BeEquivalentTo(_roleDtos));

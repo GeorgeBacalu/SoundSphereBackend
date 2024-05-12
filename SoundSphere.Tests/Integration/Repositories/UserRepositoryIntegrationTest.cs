@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
@@ -16,6 +17,9 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly User _user2 = UserMock.GetMockedUser2();
         private readonly IList<User> _users = UserMock.GetMockedUsers();
         private readonly IList<User> _activeUsers = UserMock.GetMockedActiveUsers();
+        private readonly IList<User> _paginatedUsers = UserMock.GetMockedPaginatedUsers();
+        private readonly IList<User> _activePaginatedUsers = UserMock.GetMockedActivePaginatedUsers();
+        private readonly UserPaginationRequest _paginationRequest = UserMock.GetMockedPaginationRequest();
 
         public UserRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -27,12 +31,17 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Users.AddRange(_users);
             context.SaveChanges();
             action(userRepository, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((userRepository, context) => userRepository.FindAll().Should().BeEquivalentTo(_users));
 
         [Fact] public void FindAllActive_Test() => Execute((userRepository, context) => userRepository.FindAllActive().Should().BeEquivalentTo(_activeUsers));
 
+        [Fact] public void FindAllPagination_Test() => Execute((userRepository, context) => userRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUsers));
+
+        [Fact] public void FindAllActivePagination_Test() => Execute((userRepository, context) => userRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUsers));
+        
         [Fact] public void FindById_ValidId_Test() => Execute((userRepository, context) => userRepository.FindById(Constants.ValidUserGuid).Should().Be(_user1));
 
         [Fact] public void FindById_InvalidId_Test() => Execute((userRepository, context) => userRepository
@@ -42,14 +51,14 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void Save_Test() => Execute((userRepository, context) =>
         {
-            User newUser = UserMock.GetMockedUser3();
+            User newUser = UserMock.GetMockedUser11();
             userRepository.Save(newUser);
             context.Users.Find(newUser.Id).Should().Be(newUser);
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((userRepository, context) =>
         {
-            User updatedUser = CreateTestUser(_user2, _user1.IsActive);
+            User updatedUser = GetUser(_user2, _user1.IsActive);
             userRepository.UpdateById(_user2, Constants.ValidUserGuid);
             context.Users.Find(Constants.ValidUserGuid).Should().Be(updatedUser);
         });
@@ -61,7 +70,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void DisableById_ValidId_Test() => Execute((userRepository, context) =>
         {
-            User disabledUser = CreateTestUser(_user1, false);
+            User disabledUser = GetUser(_user1, false);
             userRepository.DisableById(Constants.ValidUserGuid);
             context.Users.Find(Constants.ValidUserGuid).Should().Be(disabledUser);
         });
@@ -71,7 +80,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(Constants.UserNotFound, Constants.InvalidGuid)));
 
-        private User CreateTestUser(User user, bool isActive) => new User
+        private User GetUser(User user, bool isActive) => new User
         {
             Id = Constants.ValidUserGuid,
             Name = user.Name,

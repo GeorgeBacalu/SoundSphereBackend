@@ -1,4 +1,5 @@
-﻿using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Database.Repositories.Interfaces
 {
@@ -7,6 +8,10 @@ namespace SoundSphere.Database.Repositories.Interfaces
         IList<User> FindAll();
 
         IList<User> FindAllActive();
+
+        IList<User> FindAllPagination(UserPaginationRequest payload);
+
+        IList<User> FindAllActivePagination(UserPaginationRequest payload);
 
         User FindById(Guid id);
 

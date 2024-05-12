@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Tests.Mocks;
@@ -22,6 +24,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly PlaylistDto _playlistDto2 = PlaylistMock.GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
         private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
+        private readonly IList<PlaylistDto> _paginatedPlaylistDtos = PlaylistMock.GetMockedPaginatedPlaylistDtos();
+        private readonly IList<PlaylistDto> _activePaginatedPlaylistDtos = PlaylistMock.GetMockedActivePaginatedPlaylistDtos();
+        private readonly PlaylistPaginationRequest _paginationRequest = PlaylistMock.GetMockedPaginationRequest();
 
         public PlaylistServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Playlist, PlaylistDto>(); config.CreateMap<PlaylistDto, Playlist>(); }).CreateMapper());
 
@@ -33,17 +38,22 @@ namespace SoundSphere.Tests.Integration.Services
             context.AddRange(_playlists);
             context.SaveChanges();
             action(playlistService, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((playlistService, context) => playlistService.FindAll().Should().BeEquivalentTo(_playlistDtos));
 
         [Fact] public void FindAllActive_Test() => Execute((playlistService, context) => playlistService.FindAllActive().Should().BeEquivalentTo(_activePlaylistDtos));
 
+        [Fact] public void FindAllPagination_Test() => Execute((playlistService, context) => playlistService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylistDtos));
+
+        [Fact] public void FindAllActivePagination_Test() => Execute((playlistService, context) => playlistService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylistDtos));
+        
         [Fact] public void FindById_Test() => Execute((playlistService, context) => playlistService.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlistDto1));
 
         [Fact] public void Save_Test() => Execute((playlistService, context) =>
         {
-            PlaylistDto newPlaylistDto = PlaylistMock.GetMockedPlaylistDto3();
+            PlaylistDto newPlaylistDto = PlaylistMock.GetMockedPlaylistDto24();
             playlistService.Save(newPlaylistDto);
             context.Playlists.Find(newPlaylistDto.Id).Should().BeEquivalentTo(newPlaylistDto, options => options.Excluding(playlist => playlist.CreatedAt));
         });
@@ -59,7 +69,7 @@ namespace SoundSphere.Tests.Integration.Services
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = _playlist1.IsActive
             };
-            PlaylistDto updatedPlaylistDto = playlistService.ConvertToDto(updatedPlaylist);
+            PlaylistDto updatedPlaylistDto = updatedPlaylist.ToDto(_mapper);
             playlistService.UpdateById(_playlistDto2, Constants.ValidPlaylistGuid);
             context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(updatedPlaylist);
         });
@@ -75,7 +85,7 @@ namespace SoundSphere.Tests.Integration.Services
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = false
             };
-            PlaylistDto disabledPlaylistDto = playlistService.ConvertToDto(disabledPlaylist);
+            PlaylistDto disabledPlaylistDto = disabledPlaylist.ToDto(_mapper);
             playlistService.DisableById(Constants.ValidPlaylistGuid);
             context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(disabledPlaylist);
         });

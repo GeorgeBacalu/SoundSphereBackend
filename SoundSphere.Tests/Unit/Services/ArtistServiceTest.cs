@@ -4,7 +4,8 @@ using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Tests.Mocks;
@@ -21,10 +22,15 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Artist _artist2 = ArtistMock.GetMockedArtist2();
         private readonly IList<Artist> _artists = ArtistMock.GetMockedArtists();
         private readonly IList<Artist> _activeArtists = ArtistMock.GetMockedActiveArtists();
+        private readonly IList<Artist> _paginatedArtists = ArtistMock.GetMockedPaginatedArtists();
+        private readonly IList<Artist> _activePaginatedArtists = ArtistMock.GetMockedActivePaginatedArtists();
         private readonly ArtistDto _artistDto1 = ArtistMock.GetMockedArtistDto1();
         private readonly ArtistDto _artistDto2 = ArtistMock.GetMockedArtistDto2();
         private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
         private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
+        private readonly IList<ArtistDto> _paginatedArtistDtos = ArtistMock.GetMockedPaginatedArtistDtos();
+        private readonly IList<ArtistDto> _activePaginatedArtistDtos = ArtistMock.GetMockedActivePaginatedArtistDtos();
+        private readonly ArtistPaginationRequest _paginationRequest = ArtistMock.GetMockedPaginationRequest();
 
         public ArtistServiceTest()
         {
@@ -47,6 +53,18 @@ namespace SoundSphere.Tests.Unit.Services
             _artistService.FindAllActive().Should().BeEquivalentTo(_activeArtistDtos);
         }
 
+        [Fact] public void FindAllPagination_Test()
+        {
+            _artistRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedArtists);
+            _artistService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtistDtos);
+        }
+
+        [Fact] public void FindAllActivePagination_Test()
+        {
+            _artistRepositoryMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedArtists);
+            _artistService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtistDtos);
+        }
+
         [Fact] public void FindById_Test()
         {
             _artistRepositoryMock.Setup(mock => mock.FindById(Constants.ValidArtistGuid)).Returns(_artist1);
@@ -61,8 +79,8 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void UpdateById_Test()
         {
-            Artist updatedArtist = CreateTestArtist(_artist2, _artist1.IsActive);
-            ArtistDto updatedArtistDto = ConvertToDto(updatedArtist);
+            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
+            ArtistDto updatedArtistDto = ToDto(updatedArtist);
             _mapperMock.Setup(mock => mock.Map<ArtistDto>(updatedArtist)).Returns(updatedArtistDto);
             _artistRepositoryMock.Setup(mock => mock.UpdateById(_artist2, Constants.ValidArtistGuid)).Returns(updatedArtist);
             _artistService.UpdateById(_artistDto2, Constants.ValidArtistGuid).Should().Be(updatedArtistDto);
@@ -70,14 +88,14 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void DisableById_Test()
         {
-            Artist disabledArtist = CreateTestArtist(_artist1, false);
-            ArtistDto disabledArtistDto = ConvertToDto(disabledArtist);
+            Artist disabledArtist = GetArtist(_artist1, false);
+            ArtistDto disabledArtistDto = ToDto(disabledArtist);
             _mapperMock.Setup(mock => mock.Map<ArtistDto>(disabledArtist)).Returns(disabledArtistDto);
             _artistRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidArtistGuid)).Returns(disabledArtist);
             _artistService.DisableById(Constants.ValidArtistGuid).Should().Be(disabledArtistDto);
         }
 
-        private Artist CreateTestArtist(Artist artist, bool isActive) => new Artist
+        private Artist GetArtist(Artist artist, bool isActive) => new Artist
         {
             Id = Constants.ValidArtistGuid,
             Name = artist.Name,
@@ -87,7 +105,7 @@ namespace SoundSphere.Tests.Unit.Services
             IsActive = isActive
         };
 
-        private ArtistDto ConvertToDto(Artist artist) => new ArtistDto
+        private ArtistDto ToDto(Artist artist) => new ArtistDto
         {
             Id = artist.Id,
             Name = artist.Name,

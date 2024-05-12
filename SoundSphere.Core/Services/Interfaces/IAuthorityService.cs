@@ -1,5 +1,4 @@
-﻿using SoundSphere.Database.Dtos;
-using SoundSphere.Database.Entities;
+﻿using SoundSphere.Database.Dtos.Common;
 
 namespace SoundSphere.Core.Services.Interfaces
 {
@@ -10,13 +9,5 @@ namespace SoundSphere.Core.Services.Interfaces
         AuthorityDto FindById(Guid id);
 
         AuthorityDto Save(AuthorityDto authorityDto);
-
-        IList<AuthorityDto> ConvertToDtos(IList<Authority> authorities);
-
-        IList<Authority> ConvertToEntities(IList<AuthorityDto> authorityDtos);
-
-        AuthorityDto ConvertToDto(Authority authority);
-
-        Authority ConvertToEntity(AuthorityDto authorityDto);
     }
 }

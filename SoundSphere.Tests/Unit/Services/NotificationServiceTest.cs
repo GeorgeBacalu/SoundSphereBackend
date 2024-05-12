@@ -4,7 +4,8 @@ using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database;
-using SoundSphere.Database.Dtos;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Tests.Mocks;
@@ -21,9 +22,12 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Notification _notification1 = NotificationMock.GetMockedNotification1();
         private readonly Notification _notification2 = NotificationMock.GetMockedNotification2();
         private readonly IList<Notification> _notifications = NotificationMock.GetMockedNotifications();
+        private readonly IList<Notification> _paginatedNotifications = NotificationMock.GetMockedPaginatedNotifications();
         private readonly NotificationDto _notificationDto1 = NotificationMock.GetMockedNotificationDto1();
         private readonly NotificationDto _notificationDto2 = NotificationMock.GetMockedNotificationDto2();
         private readonly IList<NotificationDto> _notificationDtos = NotificationMock.GetMockedNotificationDtos();
+        private readonly IList<NotificationDto> _paginatedNotificationDtos = NotificationMock.GetMockedPaginatedNotificationDtos();
+        private readonly NotificationPaginationRequest _paginationRequest = NotificationMock.GetMockedPaginationRequest();
         private readonly User _user1 = UserMock.GetMockedUser1();
 
         public NotificationServiceTest()
@@ -39,6 +43,12 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _notificationRepositoryMock.Setup(mock => mock.FindAll()).Returns(_notifications);
             _notificationService.FindAll().Should().BeEquivalentTo(_notificationDtos);
+        }
+
+        [Fact] public void FindAllPagination_Test()
+        {
+            _notificationRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedNotifications);
+            _notificationService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos);
         }
 
         [Fact] public void FindById_Test()
@@ -65,7 +75,7 @@ namespace SoundSphere.Tests.Unit.Services
                 SentAt = _notification1.SentAt,
                 IsRead = _notification2.IsRead
             };
-            NotificationDto updatedNotificationDto = ConvertToDto(updatedNotification);
+            NotificationDto updatedNotificationDto = ToDto(updatedNotification);
             _mapperMock.Setup(mock => mock.Map<NotificationDto>(updatedNotification)).Returns(updatedNotificationDto);
             _notificationRepositoryMock.Setup(mock => mock.UpdateById(_notification2, Constants.ValidNotificationGuid)).Returns(updatedNotification);
             _notificationService.UpdateById(_notificationDto2, Constants.ValidNotificationGuid).Should().Be(updatedNotificationDto);
@@ -77,7 +87,7 @@ namespace SoundSphere.Tests.Unit.Services
             _notificationRepositoryMock.Verify(mock => mock.DeleteById(Constants.ValidNotificationGuid));
         }
 
-        private NotificationDto ConvertToDto(Notification notification) => new NotificationDto
+        private NotificationDto ToDto(Notification notification) => new NotificationDto
         {
             Id = notification.Id,
             UserId = notification.User.Id,

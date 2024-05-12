@@ -1,4 +1,7 @@
-﻿using SoundSphere.Database.Dtos;
+﻿using Microsoft.Data.SqlClient;
+using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Tests.Mocks
@@ -7,111 +10,231 @@ namespace SoundSphere.Tests.Mocks
     {
         private UserMock() { }
 
-        public static IList<User> GetMockedUsers() => new List<User> { GetMockedUser1(), GetMockedUser2() };
+        public static IList<User> GetMockedUsers() => new List<User> { GetMockedUser1(), GetMockedUser2(), GetMockedUser3(), GetMockedUser4(), GetMockedUser5(), GetMockedUser6(), GetMockedUser7(), GetMockedUser8(), GetMockedUser9(), GetMockedUser10() };
 
-        public static IList<UserDto> GetMockedUserDtos() => new List<UserDto> { GetMockedUserDto1(), GetMockedUserDto2() };
+        public static IList<UserDto> GetMockedUserDtos() => GetMockedUsers().Select(ToDto).ToList();
 
         public static IList<User> GetMockedActiveUsers() => GetMockedUsers().Where(user => user.IsActive).ToList();
 
         public static IList<UserDto> GetMockedActiveUserDtos() => GetMockedUserDtos().Where(user => user.IsActive).ToList();
 
+        public static IList<User> GetMockedPaginatedUsers() => new List<User> { GetMockedUser5(), GetMockedUser6(), GetMockedUser7(), GetMockedUser8(), GetMockedUser9(), GetMockedUser10() };
+        
+        public static IList<UserDto> GetMockedPaginatedUserDtos() => new List<UserDto> { GetMockedUserDto5(), GetMockedUserDto6(), GetMockedUserDto7(), GetMockedUserDto8(), GetMockedUserDto9(), GetMockedUserDto10() };
+
+        public static IList<User> GetMockedActivePaginatedUsers() => GetMockedPaginatedUsers().Where(user => user.IsActive).ToList();
+
+        public static IList<UserDto> GetMockedActivePaginatedUserDtos() => GetMockedPaginatedUserDtos().Where(user => user.IsActive).ToList();
+
+        public static UserPaginationRequest GetMockedPaginationRequest() => new UserPaginationRequest
+        {
+            SortCriteria = new Dictionary<UserSortCriterion, SortOrder> { { UserSortCriterion.ByName, SortOrder.Ascending }, { UserSortCriterion.ByEmail, SortOrder.Ascending } },
+            SearchCriteria = new List<UserSearchCriterion> { UserSearchCriterion.ByName, UserSearchCriterion.ByEmail, UserSearchCriterion.ByBirthdayRange, UserSearchCriterion.ByRole },
+            Name = "A",
+            Email = "A",
+            DateRange = new DateRange { StartDate = new DateOnly(1950, 1, 1), EndDate = new DateOnly(2024, 1, 1) },
+            RoleType = RoleType.Listener
+        };
+
         public static User GetMockedUser1() => new User
         {
             Id = Guid.Parse("0a9e546f-38b4-4dbf-a482-24a82169890e"),
-            Name = "user_name1",
-            Email = "user_email1@email.com",
-            Password = "user_password1",
-            Mobile = "+407000000",
-            Address = "user_address1",
-            Birthday = new DateOnly(2000, 1, 1),
-            Avatar = "https://user_avatar1.jpg",
+            Name = "John Doe",
+            Email = "john.doe@email.com",
+            Password = "#John_Doe_Password0",
+            Mobile = "+40721543701",
+            Address = "123 Main St, Boston, USA",
+            Birthday = new DateOnly(1980, 2, 15),
+            Avatar = "https://john-doe-avatar.jpg",
             Role = RoleMock.GetMockedRole1(),
-            Authorities = AuthorityMock.GetMockedAuthorities1(),
+            Authorities = AuthorityMock.GetMockedAuthorities(),
             IsActive = true
         };
 
         public static User GetMockedUser2() => new User
         {
-            Id = Guid.Parse("31a088bd-6fe8-4226-bd03-f4af698abe83"),
-            Name = "user_name2",
-            Email = "user_email2@email.com",
-            Password = "user_password2",
-            Mobile = "+407000001",
-            Address = "user_address2",
-            Birthday = new DateOnly(2000, 1, 2),
-            Avatar = "https://user_avatar2.jpg",
-            Role = RoleMock.GetMockedRole2(),
-            Authorities = AuthorityMock.GetMockedAuthorities2(),
-            IsActive = false
+            Id = Guid.Parse("7eb88892-549b-4cae-90be-c52088354643"),
+            Name = "Jane Smith",
+            Email = "jane.smith@email.com",
+            Password = "#Jane_Smith_Password0",
+            Mobile = "+40756321802",
+            Address = "456 Oak St, London, UK",
+            Birthday = new DateOnly(1982, 7, 10),
+            Avatar = "https://jane-smith-avatar.jpg",
+            Role = RoleMock.GetMockedRole1(),
+            Authorities = AuthorityMock.GetMockedAuthorities(),
+            IsActive = true
         };
 
         public static User GetMockedUser3() => new User
         {
-            Id = Guid.Parse("b3692c1c-384a-47ef-a258-106bceb73f0c"),
-            Name = "user_name3",
-            Email = "user_email3@email.com",
-            Password = "user_password3",
-            Mobile = "+407000002",
-            Address = "user_address3",
-            Birthday = new DateOnly(2000, 1, 3),
-            Avatar = "https://user_avatar3.jpg",
+            Id = Guid.Parse("36712aa4-77f0-4510-8425-cf53dad54840"),
+            Name = "Michael Johnson",
+            Email = "michael.johnson@email.com",
+            Password = "#Michael_Johnson_Password0",
+            Mobile = "+40789712303",
+            Address = "789 Pine St, Madrid, Spain",
+            Birthday = new DateOnly(1990, 11, 20),
+            Avatar = "https://michael-johnson-avatar.jpg",
+            Role = RoleMock.GetMockedRole1(),
+            Authorities = AuthorityMock.GetMockedAuthorities(),
+            IsActive = true
+        };
+
+        public static User GetMockedUser4() => new User
+        {
+            Id = Guid.Parse("cb83d524-2016-4ce3-965b-223af9e7ba99"),
+            Name = "Laura Brown",
+            Email = "laura.brown@email.com",
+            Password = "#Laura_Brown_Password0",
+            Mobile = "+40734289604",
+            Address = "333 Elm St, Paris, France",
+            Birthday = new DateOnly(1985, 8, 25),
+            Avatar = "https://laura-brown-avatar.jpg",
+            Role = RoleMock.GetMockedRole2(),
+            Authorities = AuthorityMock.GetMockedAuthorities2(),
+            IsActive = true
+        };
+
+        public static User GetMockedUser5() => new User
+        {
+            Id = Guid.Parse("9c6a5f06-b1f0-4507-b2f8-955156a8bed6"),
+            Name = "Robert Davis",
+            Email = "robert.davis@email.com",
+            Password = "#Robert_Davis_Password0",
+            Mobile = "+40754321805",
+            Address = "555 Oak St, Berlin, Germany",
+            Birthday = new DateOnly(1988, 5, 12),
+            Avatar = "https://robert-davis-avatar.jpg",
+            Role = RoleMock.GetMockedRole2(),
+            Authorities = AuthorityMock.GetMockedAuthorities2(),
+            IsActive = true
+        };
+
+        public static User GetMockedUser6() => new User
+        {
+            Id = Guid.Parse("ff3dd044-ebfb-4e1d-9050-b6dcfe684a1a"),
+            Name = "Emily Wilson",
+            Email = "emily.wilson@email.com",
+            Password = "#Emily_Wilson_Password0",
+            Mobile = "+40789012606",
+            Address = "777 Pine St, Sydney, Australia",
+            Birthday = new DateOnly(1995, 9, 8),
+            Avatar = "https://emily-wilson-avatar.jpg",
+            Role = RoleMock.GetMockedRole2(),
+            Authorities = AuthorityMock.GetMockedAuthorities2(),
+            IsActive = true
+        };
+
+        public static User GetMockedUser7() => new User
+        {
+            Id = Guid.Parse("f2a1edb1-332f-4c2f-af59-6b5508eafbec"),
+            Name = "Michaela Taylor",
+            Email = "michaela.taylor@email.com",
+            Password = "#Michaela_Taylor_Password0",
+            Mobile = "+40723145607",
+            Address = "999 Elm St, Rome, Italy",
+            Birthday = new DateOnly(1983, 12, 7),
+            Avatar = "https://michaela-taylor-avatar.jpg",
+            Role = RoleMock.GetMockedRole2(),
+            Authorities = AuthorityMock.GetMockedAuthorities2(),
+            IsActive = true
+        };
+
+        public static User GetMockedUser8() => new User
+        {
+            Id = Guid.Parse("14a3d4c4-fb21-4153-9096-d96bda62ee59"),
+            Name = "David Anderson",
+            Email = "david.anderson@email.com",
+            Password = "#David_Anderson_Password0",
+            Mobile = "+40787654308",
+            Address = "111 Oak St, Moscow, Russia",
+            Birthday = new DateOnly(1992, 4, 23),
+            Avatar = "https://david-anderson-avatar.jpg",
             Role = RoleMock.GetMockedRole3(),
             Authorities = AuthorityMock.GetMockedAuthorities1(),
             IsActive = true
         };
 
-        public static UserDto GetMockedUserDto1() => new UserDto
+        public static User GetMockedUser9() => new User
         {
-            Id = Guid.Parse("0a9e546f-38b4-4dbf-a482-24a82169890e"),
-            Name = "user_name1",
-            Email = "user_email1@email.com",
-            Mobile = "+407000000",
-            Address = "user_address1",
-            Birthday = new DateOnly(2000, 1, 1),
-            Avatar = "https://user_avatar1.jpg",
-            RoleId = Guid.Parse("deaf35ba-fe71-4c21-8a3c-d8e5b32a06fe"),
-            AuthoritiesIds = new List<Guid>
-            {
-                Guid.Parse("75e924c3-34e7-46ef-b521-7331e36caadd"),
-                Guid.Parse("362b20cf-3636-49ed-9489-d2700339efce")
-            },
+            Id = Guid.Parse("978d41ee-1f38-4c84-8826-8e62bc5ba109"),
+            Name = "Sophia Garcia",
+            Email = "sophia.garcia@email.com",
+            Password = "#Sophia_Garcia_Password0",
+            Mobile = "+40754321809",
+            Address = "333 Pine St, Athens, Greece",
+            Birthday = new DateOnly(1998, 7, 30),
+            Avatar = "https://sophia-garcia-avatar.jpg",
+            Role = RoleMock.GetMockedRole3(),
+            Authorities = AuthorityMock.GetMockedAuthorities1(),
             IsActive = true
         };
 
-        public static UserDto GetMockedUserDto2() => new UserDto
+        public static User GetMockedUser10() => new User
         {
-            Id = Guid.Parse("31a088bd-6fe8-4226-bd03-f4af698abe83"),
-            Name = "user_name2",
-            Email = "user_email2@email.com",
-            Mobile = "+407000001",
-            Address = "user_address2",
-            Birthday = new DateOnly(2000, 1, 2),
-            Avatar = "https://user_avatar2.jpg",
-            RoleId = Guid.Parse("2fc8f207-5af0-402f-84d0-e1c7fa7336a6"),
-            AuthoritiesIds = new List<Guid>
-            {
-                Guid.Parse("3cc47e2d-b14e-472f-9868-fbb90b15f18e"),
-                Guid.Parse("59525baa-6eaa-42d8-b213-9094af0d604b")
-            },
-            IsActive = false
+            Id = Guid.Parse("da189940-d09e-4587-9665-8efdf10684dd"),
+            Name = "Joseph Wilson",
+            Email = "joseph.wilson@email.com",
+            Password = "#Joseph_Wilson_Password0",
+            Mobile = "+40789012610",
+            Address = "555 Elm St, Madrid, Spain",
+            Birthday = new DateOnly(1991, 3, 14),
+            Avatar = "https://joseph-wilson-avatar.jpg",
+            Role = RoleMock.GetMockedRole3(),
+            Authorities = AuthorityMock.GetMockedAuthorities1(),
+            IsActive = true
         };
 
-        public static UserDto GetMockedUserDto3() => new UserDto
+        public static User GetMockedUser11() => new User
         {
-            Id = Guid.Parse("b3692c1c-384a-47ef-a258-106bceb73f0c"),
-            Name = "user_name3",
-            Email = "user_email3@email.com",
-            Mobile = "+407000002",
-            Address = "user_address3",
-            Birthday = new DateOnly(2000, 1, 3),
-            Avatar = "https://user_avatar3.jpg",
-            RoleId = Guid.Parse("61ee6dda-e18a-4eb9-a736-3f95ba5537f7"),
-            AuthoritiesIds = new List<Guid>
-            {
-                Guid.Parse("75e924c3-34e7-46ef-b521-7331e36caadd"),
-                Guid.Parse("362b20cf-3636-49ed-9489-d2700339efce")
-            },
+            Id = Guid.Parse("a3daa48b-ece1-430e-a609-32e6c79c232f"),
+            Name = "Olivia Martinez",
+            Email = "olivia.martinez@email.com",
+            Password = "#Olivia_Martinez_Password0",
+            Mobile = "+40723145611",
+            Address = "777 Oak St, Tokyo, Japan",
+            Birthday = new DateOnly(1999, 10, 17),
+            Avatar = "https://olivia-martinez-avatar.jpg",
+            Role = RoleMock.GetMockedRole3(),
+            Authorities = AuthorityMock.GetMockedAuthorities1(),
             IsActive = true
+        };
+
+        public static UserDto GetMockedUserDto1() => ToDto(GetMockedUser1());
+
+        public static UserDto GetMockedUserDto2() => ToDto(GetMockedUser2());
+
+        public static UserDto GetMockedUserDto3() => ToDto(GetMockedUser3());
+
+        public static UserDto GetMockedUserDto4() => ToDto(GetMockedUser4());
+
+        public static UserDto GetMockedUserDto5() => ToDto(GetMockedUser5());
+
+        public static UserDto GetMockedUserDto6() => ToDto(GetMockedUser6());
+
+        public static UserDto GetMockedUserDto7() => ToDto(GetMockedUser7());
+
+        public static UserDto GetMockedUserDto8() => ToDto(GetMockedUser8());
+
+        public static UserDto GetMockedUserDto9() => ToDto(GetMockedUser9());
+
+        public static UserDto GetMockedUserDto10() => ToDto(GetMockedUser10());
+
+        public static UserDto GetMockedUserDto11() => ToDto(GetMockedUser11());
+
+        private static UserDto ToDto(User user) => new UserDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Mobile = user.Mobile,
+            Address = user.Address,
+            Birthday = user.Birthday,
+            Avatar = user.Avatar,
+            RoleId = user.Role.Id,
+            AuthoritiesIds = user.Authorities.Select(authority => authority.Id).ToList(),
+            IsActive = user.IsActive
         };
     }
 }
