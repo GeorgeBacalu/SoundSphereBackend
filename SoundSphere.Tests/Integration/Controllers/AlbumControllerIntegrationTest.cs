@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Tests.Mocks;
 using System.Net;
@@ -25,6 +26,9 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
         private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
+        private readonly IList<AlbumDto> _paginatedAlbumDtos = AlbumMock.GetMockedPaginatedAlbumDtos();
+        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = AlbumMock.GetMockedActivePaginatedAlbumDtos();
+        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
 
         public AlbumControllerIntegrationTest()
         {
@@ -52,8 +56,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync(Constants.ApiAlbum);
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_albumDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_albumDtos);
         });
 
         [Fact] public async Task FindAllActive_Test() => await Execute(async () =>
@@ -61,8 +65,26 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiAlbum}/active");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_activeAlbumDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_activeAlbumDtos);
+        });
+
+        [Fact] public async Task FindAllPagination_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.PostAsync($"{Constants.ApiAlbum}/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_paginatedAlbumDtos);
+        });
+
+        [Fact] public async Task FindAllActivePagination_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.PostAsync($"{Constants.ApiAlbum}/active/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_activePaginatedAlbumDtos);
         });
 
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
@@ -70,8 +92,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<AlbumDto>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(_albumDto1);
+            var responseBody = JsonConvert.DeserializeObject<AlbumDto>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(_albumDto1);
         });
 
         [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
@@ -79,41 +101,41 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task Save_Test() => await Execute(async () =>
         {
-            AlbumDto newAlbumDto = AlbumMock.GetMockedAlbumDto3();
+            AlbumDto newAlbumDto = AlbumMock.GetMockedAlbumDto51();
             var saveResponse = await _httpClient.PostAsync(Constants.ApiAlbum, new StringContent(JsonConvert.SerializeObject(newAlbumDto)));
             saveResponse.Should().NotBeNull();
             saveResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            var saveResult = JsonConvert.DeserializeObject<AlbumDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResult.Should().Be(newAlbumDto);
+            var saveResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await saveResponse.Content.ReadAsStringAsync());
+            saveResponseBody.Should().Be(newAlbumDto);
 
             var getAllResponse = await _httpClient.GetAsync(Constants.ApiAlbum);
             getAllResponse.Should().NotBeNull();
             getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getAllResult = JsonConvert.DeserializeObject<IList<AlbumDto>>(await getAllResponse.Content.ReadAsStringAsync());
-            getAllResult.Should().Contain(newAlbumDto);
+            var getAllResponseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await getAllResponse.Content.ReadAsStringAsync());
+            getAllResponseBody.Should().Contain(newAlbumDto);
         });
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
-            Album updatedAlbum = CreateTestAlbum(_album2, _album1.IsActive);
-            AlbumDto updatedAlbumDto = ConvertToDto(updatedAlbum);
+            Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
+            AlbumDto updatedAlbumDto = ToDto(updatedAlbum);
             var updateResponse = await _httpClient.PutAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}", new StringContent(JsonConvert.SerializeObject(updatedAlbumDto)));
             updateResponse.Should().NotBeNull();
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var updateResult = JsonConvert.DeserializeObject<AlbumDto>(await updateResponse.Content.ReadAsStringAsync());
-            updateResult.Should().Be(updatedAlbumDto);
+            var updateResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await updateResponse.Content.ReadAsStringAsync());
+            updateResponseBody.Should().Be(updatedAlbumDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
             getResponse.Should().NotBeNull();
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = JsonConvert.DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().Be(updatedAlbumDto);
+            var getResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(updatedAlbumDto);
         });
 
         [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
@@ -121,25 +143,25 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.PutAsync($"{Constants.ApiAlbum}/{Constants.InvalidGuid}", new StringContent(JsonConvert.SerializeObject(_albumDto2)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task DisableById_ValidId_Test() => await Execute(async () =>
         {
-            Album disabledAlbum = CreateTestAlbum(_album1, false);
-            AlbumDto disabledAlbumDto = ConvertToDto(disabledAlbum);
-            var disableResponse = await _httpClient.DeleteAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
-            disableResponse.Should().NotBeNull();
-            disableResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var disableResult = JsonConvert.DeserializeObject<AlbumDto>(await disableResponse.Content.ReadAsStringAsync());
-            disableResult.Should().Be(disabledAlbumDto);
+            Album disabledAlbum = GetAlbum(_album1, false);
+            AlbumDto disabledAlbumDto = ToDto(disabledAlbum);
+            var deleteResponse = await _httpClient.DeleteAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
+            deleteResponse.Should().NotBeNull();
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var deleteResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await deleteResponse.Content.ReadAsStringAsync());
+            deleteResponseBody.Should().Be(disabledAlbumDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
             getResponse.Should().NotBeNull();
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = JsonConvert.DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().Be(disabledAlbumDto);
+            var getResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(disabledAlbumDto);
         });
 
         [Fact] public async Task DisableById_InvalidId_Test() => await Execute(async () =>
@@ -147,11 +169,11 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.DeleteAsync($"{Constants.ApiAlbum}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
         });
 
-        private Album CreateTestAlbum(Album album, bool isActive) => new Album
+        private Album GetAlbum(Album album, bool isActive) => new Album
         {
             Id = Constants.ValidAlbumGuid,
             Title = album.Title,
@@ -161,7 +183,7 @@ namespace SoundSphere.Tests.Integration.Controllers
             IsActive = isActive
         };
 
-        private AlbumDto ConvertToDto(Album album) => new AlbumDto
+        private AlbumDto ToDto(Album album) => new AlbumDto
         {
             Id = album.Id,
             Title = album.Title,

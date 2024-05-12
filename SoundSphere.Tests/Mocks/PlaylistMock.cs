@@ -14,7 +14,7 @@ namespace SoundSphere.Tests.Mocks
         { 
             GetMockedPlaylist1(), GetMockedPlaylist2(), GetMockedPlaylist3(), GetMockedPlaylist4(), GetMockedPlaylist5(), GetMockedPlaylist6(), GetMockedPlaylist7(), GetMockedPlaylist8(), GetMockedPlaylist9(), GetMockedPlaylist10(),
             GetMockedPlaylist11(), GetMockedPlaylist12(), GetMockedPlaylist13(), GetMockedPlaylist14(), GetMockedPlaylist15(), GetMockedPlaylist16(), GetMockedPlaylist17(), GetMockedPlaylist18(), GetMockedPlaylist19(), GetMockedPlaylist20(),
-            GetMockedPlaylist21(), GetMockedPlaylist22(), GetMockedPlaylist23(), GetMockedPlaylist24(), GetMockedPlaylist25(), GetMockedPlaylist26()
+            GetMockedPlaylist21(), GetMockedPlaylist22(), GetMockedPlaylist23()
         };
 
         public static IList<PlaylistDto> GetMockedPlaylistDtos() => GetMockedPlaylists().Select(ToDto).ToList();
@@ -23,9 +23,9 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<PlaylistDto> GetMockedActivePlaylistDtos() => GetMockedPlaylistDtos().Where(playlist => playlist.IsActive).ToList();
 
-        public static IList<Playlist> GetMockedPaginatedPlaylists() => new List<Playlist> { GetMockedPlaylist21(), GetMockedPlaylist22(), GetMockedPlaylist23(), GetMockedPlaylist24(), GetMockedPlaylist25(), GetMockedPlaylist26() };
+        public static IList<Playlist> GetMockedPaginatedPlaylists() => new List<Playlist> { GetMockedPlaylist18(), GetMockedPlaylist19(), GetMockedPlaylist20(), GetMockedPlaylist21(), GetMockedPlaylist22() };
 
-        public static IList<PlaylistDto> GetMockedPaginatedPlaylistDtos() => new List<PlaylistDto> { GetMockedPlaylistDto21(), GetMockedPlaylistDto22(), GetMockedPlaylistDto23(), GetMockedPlaylistDto24(), GetMockedPlaylistDto25(), GetMockedPlaylistDto26() };
+        public static IList<PlaylistDto> GetMockedPaginatedPlaylistDtos() => new List<PlaylistDto> { GetMockedPlaylistDto18(), GetMockedPlaylistDto19(), GetMockedPlaylistDto20(), GetMockedPlaylistDto21(), GetMockedPlaylistDto22() };
 
         public static IList<Playlist> GetMockedActivePaginatedPlaylists() => GetMockedPaginatedPlaylists().Where(playlist => playlist.IsActive).ToList();
 
@@ -273,31 +273,11 @@ namespace SoundSphere.Tests.Mocks
 
         public static Playlist GetMockedPlaylist24() => new Playlist
         {
-            Id = Guid.Parse("cd410a0f-e3dc-4cd9-99b8-ecbd540bb19c"),
+            Id = Guid.Parse("78b11337-713d-4994-8e49-42b06bde9010"),
             Title = "Playlist 24",
             User = UserMock.GetMockedUser4(),
-            Songs = SongMock.GetMockedSongs24(),
-            CreatedAt = new DateTime(2024, 4, 14),
-            IsActive = false
-        };
-
-        public static Playlist GetMockedPlaylist25() => new Playlist
-        {
-            Id = Guid.Parse("933bcf9a-a898-40d3-9780-e579a4addc1e"),
-            Title = "Playlist 25",
-            User = UserMock.GetMockedUser5(),
-            Songs = SongMock.GetMockedSongs25(),
-            CreatedAt = new DateTime(2024, 4, 13),
-            IsActive = false
-        };
-
-        public static Playlist GetMockedPlaylist26() => new Playlist
-        {
-            Id = Guid.Parse("78b11337-713d-4994-8e49-42b06bde9010"),
-            Title = "Playlist 26",
-            User = UserMock.GetMockedUser6(),
             Songs = SongMock.GetMockedSongs1(),
-            CreatedAt = new DateTime(2024, 4, 12),
+            CreatedAt = new DateTime(2024, 4, 14),
             IsActive = true
         };
 
@@ -348,10 +328,6 @@ namespace SoundSphere.Tests.Mocks
         public static PlaylistDto GetMockedPlaylistDto23() => ToDto(GetMockedPlaylist23());
 
         public static PlaylistDto GetMockedPlaylistDto24() => ToDto(GetMockedPlaylist24());
-
-        public static PlaylistDto GetMockedPlaylistDto25() => ToDto(GetMockedPlaylist25());
-
-        public static PlaylistDto GetMockedPlaylistDto26() => ToDto(GetMockedPlaylist26());
 
         private static PlaylistDto ToDto(Playlist playlist) => new PlaylistDto
         {

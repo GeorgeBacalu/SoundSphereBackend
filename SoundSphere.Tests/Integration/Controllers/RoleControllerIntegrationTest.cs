@@ -47,8 +47,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync(Constants.ApiRole);
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<RoleDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_roleDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<RoleDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_roleDtos);
         });
 
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
@@ -56,8 +56,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiRole}/{_roleDto1.Id}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<RoleDto>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(_roleDto1);
+            var responseBody = JsonConvert.DeserializeObject<RoleDto>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(_roleDto1);
         });
 
         [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
@@ -65,8 +65,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiRole}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.RoleNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.RoleNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task Save_Test() => await Execute(async () =>
@@ -74,8 +74,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.PostAsync(Constants.ApiRole, new StringContent(JsonConvert.SerializeObject(_roleDto1)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Internal server error", Status = StatusCodes.Status400BadRequest, Detail = "Cannot insert duplicate key row in object 'dbo.Roles' with unique index 'IX_Roles_Type'. The duplicate key value is (Create)." });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Internal server error", Status = StatusCodes.Status400BadRequest, Detail = "Cannot insert duplicate key row in object 'dbo.Roles' with unique index 'IX_Roles_Type'. The duplicate key value is (Create)." });
         });
     }
 }

@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Tests.Mocks;
@@ -22,6 +24,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly UserDto _userDto2 = UserMock.GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
         private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
+        private readonly IList<UserDto> _paginatedUserDtos = UserMock.GetMockedPaginatedUserDtos();
+        private readonly IList<UserDto> _activePaginatedUserDtos = UserMock.GetMockedActivePaginatedUserDtos();
+        private readonly UserPaginationRequest _paginationRequest = UserMock.GetMockedPaginationRequest();
 
         public UserServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<User, UserDto>(); config.CreateMap<UserDto, User>(); }).CreateMapper());
 
@@ -33,38 +38,43 @@ namespace SoundSphere.Tests.Integration.Services
             context.AddRange(_users);
             context.SaveChanges();
             action(userService, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((userService, context) => userService.FindAll().Should().BeEquivalentTo(_userDtos));
 
         [Fact] public void FindAllActive_Test() => Execute((userService, context) => userService.FindAllActive().Should().BeEquivalentTo(_activeUserDtos));
 
+        [Fact] public void FindAllPagination_Test() => Execute((userService, context) => userService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos));
+
+        [Fact] public void FindAllActivePagination_Test() => Execute((userService, context) => userService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUserDtos));
+        
         [Fact] public void FindById_Test() => Execute((userService, context) => userService.FindById(Constants.ValidUserGuid).Should().Be(_userDto1));
 
         [Fact] public void Save_Test() => Execute((userService, context) =>
         {
-            UserDto newUserDto = UserMock.GetMockedUserDto3();
+            UserDto newUserDto = UserMock.GetMockedUserDto11();
             userService.Save(newUserDto);
             context.Users.Find(newUserDto.Id).Should().Be(newUserDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((userService, context) =>
         {
-            User updatedUser = CreateTestUser(_user2, _user1.IsActive);
-            UserDto updatedUserDto = userService.ConvertToDto(updatedUser);
+            User updatedUser = GetUser(_user2, _user1.IsActive);
+            UserDto updatedUserDto = updatedUser.ToDto(_mapper);
             userService.UpdateById(_userDto2, Constants.ValidUserGuid);
             context.Users.Find(Constants.ValidUserGuid).Should().Be(updatedUser);
         });
 
         [Fact] public void DisableById_Test() => Execute((userService, context) =>
         {
-            User disabledUser = CreateTestUser(_user1, false);
-            UserDto disabledUserDto = userService.ConvertToDto(disabledUser);
+            User disabledUser = GetUser(_user1, false);
+            UserDto disabledUserDto = disabledUser.ToDto(_mapper);
             userService.DisableById(Constants.ValidUserGuid);
             context.Users.Find(Constants.ValidUserGuid).Should().Be(disabledUser);
         });
 
-        private User CreateTestUser(User user, bool isActive) => new User
+        private User GetUser(User user, bool isActive) => new User
         {
             Id = Constants.ValidUserGuid,
             Name = user.Name,

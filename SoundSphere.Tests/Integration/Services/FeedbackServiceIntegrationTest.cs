@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Tests.Mocks;
@@ -21,6 +23,8 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly FeedbackDto _feedbackDto1 = FeedbackMock.GetMockedFeedbackDto1();
         private readonly FeedbackDto _feedbackDto2 = FeedbackMock.GetMockedFeedbackDto2();
         private readonly IList<FeedbackDto> _feedbackDtos = FeedbackMock.GetMockedFeedbackDtos();
+        private readonly IList<FeedbackDto> _paginatedFeedbackDtos = FeedbackMock.GetMockedPaginatedFeedbackDtos();
+        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
 
         public FeedbackServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Feedback, FeedbackDto>(); config.CreateMap<FeedbackDto, Feedback>(); }).CreateMapper());
 
@@ -32,15 +36,18 @@ namespace SoundSphere.Tests.Integration.Services
             context.AddRange(_feedbacks);
             context.SaveChanges();
             action(feedbackService, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((feedbackService, context) => feedbackService.FindAll().Should().BeEquivalentTo(_feedbackDtos));
+
+        [Fact] public void FindAllPagination_Test() => Execute((feedbackService, context) => feedbackService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos));
 
         [Fact] public void FindById_Test() => Execute((feedbackService, context) => feedbackService.FindById(Constants.ValidFeedbackGuid).Should().Be(_feedbackDto1));
 
         [Fact] public void Save_Test() => Execute((feedbackService, context) =>
         {
-            FeedbackDto newFeedbackDto = FeedbackMock.GetMockedFeedbackDto3();
+            FeedbackDto newFeedbackDto = FeedbackMock.GetMockedFeedbackDto37();
             feedbackService.Save(newFeedbackDto);
             context.Feedbacks.Find(newFeedbackDto.Id).Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.SentAt));
         });
@@ -55,7 +62,7 @@ namespace SoundSphere.Tests.Integration.Services
                 Message = _feedback2.Message,
                 SentAt = _feedback1.SentAt
             };
-            FeedbackDto updatedFeedbackDto = feedbackService.ConvertToDto(updatedFeedback);
+            FeedbackDto updatedFeedbackDto = updatedFeedback.ToDto(_mapper);
             feedbackService.UpdateById(_feedbackDto2, Constants.ValidFeedbackGuid);
             context.Feedbacks.Find(Constants.ValidFeedbackGuid).Should().Be(updatedFeedback);
         });

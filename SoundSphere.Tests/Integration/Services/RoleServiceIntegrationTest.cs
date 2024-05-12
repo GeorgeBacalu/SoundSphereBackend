@@ -29,6 +29,7 @@ namespace SoundSphere.Tests.Integration.Services
             context.AddRange(_roles);
             context.SaveChanges();
             action(roleService, context);
+            transaction.Rollback();
         }
 
         [Fact] public void FindAll_Test() => Execute((roleService, context) => roleService.FindAll().Should().BeEquivalentTo(_roleDtos));

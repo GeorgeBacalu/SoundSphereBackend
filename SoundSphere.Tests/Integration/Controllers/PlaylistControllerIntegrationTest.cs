@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Tests.Mocks;
 using System.Net;
@@ -25,6 +26,9 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly PlaylistDto _playlistDto2 = PlaylistMock.GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = PlaylistMock.GetMockedPlaylistDtos();
         private readonly IList<PlaylistDto> _activePlaylistDtos = PlaylistMock.GetMockedActivePlaylistDtos();
+        private readonly IList<PlaylistDto> _paginatedPlaylistDtos = PlaylistMock.GetMockedPaginatedPlaylistDtos();
+        private readonly IList<PlaylistDto> _activePaginatedPlaylistDtos = PlaylistMock.GetMockedActivePaginatedPlaylistDtos();
+        private readonly PlaylistPaginationRequest _paginationRequest = PlaylistMock.GetMockedPaginationRequest();
         private readonly IList<User> _users = UserMock.GetMockedUsers();
         private readonly IList<Song> _songs = SongMock.GetMockedSongs();
 
@@ -57,8 +61,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync(Constants.ApiPlaylist);
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_playlistDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_playlistDtos);
         });
 
         [Fact] public async Task FindAllActive_Test() => await Execute(async () =>
@@ -66,8 +70,26 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiPlaylist}/active");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_activePlaylistDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_activePlaylistDtos);
+        });
+
+        [Fact] public async Task FindAllPagination_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.PostAsync($"{Constants.ApiPlaylist}/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_paginatedPlaylistDtos);
+        });
+
+        [Fact] public async Task FindAllActivePagination_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.PostAsync($"{Constants.ApiPlaylist}/active/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_activePaginatedPlaylistDtos);
         });
 
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
@@ -75,8 +97,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiPlaylist}/{Constants.ValidPlaylistGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<PlaylistDto>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(_playlistDto1);
+            var responseBody = JsonConvert.DeserializeObject<PlaylistDto>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(_playlistDto1);
         });
 
         [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
@@ -84,8 +106,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiPlaylist}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task Save_Test() => await Execute(async () =>
@@ -94,14 +116,14 @@ namespace SoundSphere.Tests.Integration.Controllers
             var saveResponse = await _httpClient.PostAsync(Constants.ApiPlaylist, new StringContent(JsonConvert.SerializeObject(newPlaylistDto)));
             saveResponse.Should().NotBeNull();
             saveResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            var saveResult = JsonConvert.DeserializeObject<PlaylistDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResult.Should().BeEquivalentTo(newPlaylistDto, options => options.Excluding(playlist => playlist.CreatedAt));
+            var saveResponseBody = JsonConvert.DeserializeObject<PlaylistDto>(await saveResponse.Content.ReadAsStringAsync());
+            saveResponseBody.Should().BeEquivalentTo(newPlaylistDto, options => options.Excluding(playlist => playlist.CreatedAt));
 
             var getAllResponse = await _httpClient.GetAsync(Constants.ApiPlaylist);
             getAllResponse.Should().NotBeNull();
             getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getAllResult = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await getAllResponse.Content.ReadAsStringAsync());
-            getAllResult.Should().Contain(newPlaylistDto);
+            var getAllResponseBody = JsonConvert.DeserializeObject<IList<PlaylistDto>>(await getAllResponse.Content.ReadAsStringAsync());
+            getAllResponseBody.Should().Contain(newPlaylistDto);
         });
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
@@ -115,18 +137,18 @@ namespace SoundSphere.Tests.Integration.Controllers
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = _playlist1.IsActive
             };
-            PlaylistDto updatedPlaylistDto = ConvertToDto(updatedPlaylist);
+            PlaylistDto updatedPlaylistDto = ToDto(updatedPlaylist);
             var updateResponse = await _httpClient.PutAsync($"{Constants.ApiPlaylist}/{Constants.ValidPlaylistGuid}", new StringContent(JsonConvert.SerializeObject(updatedPlaylistDto)));
             updateResponse.Should().NotBeNull();
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var updateResult = JsonConvert.DeserializeObject<PlaylistDto>(await updateResponse.Content.ReadAsStringAsync());
-            updateResult.Should().Be(updatedPlaylistDto);
+            var updateResponseBody = JsonConvert.DeserializeObject<PlaylistDto>(await updateResponse.Content.ReadAsStringAsync());
+            updateResponseBody.Should().Be(updatedPlaylistDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiPlaylist}/{Constants.ValidPlaylistGuid}");
             getResponse.Should().NotBeNull();
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = JsonConvert.DeserializeObject<PlaylistDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().Be(updatedPlaylistDto);
+            var getResponseBody = JsonConvert.DeserializeObject<PlaylistDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(updatedPlaylistDto);
         });
 
         [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
@@ -134,8 +156,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.PutAsync($"{Constants.ApiPlaylist}/{Constants.InvalidGuid}", new StringContent(JsonConvert.SerializeObject(_playlistDto2)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task DisableById_ValidId_Test() => await Execute(async () =>
@@ -149,18 +171,18 @@ namespace SoundSphere.Tests.Integration.Controllers
                 CreatedAt = _playlist1.CreatedAt,
                 IsActive = false
             };
-            PlaylistDto disabledPlaylistDto = ConvertToDto(disabledPlaylist);
-            var disableResponse = await _httpClient.DeleteAsync($"{Constants.ApiPlaylist}/{Constants.ValidPlaylistGuid}");
-            disableResponse.Should().NotBeNull();
-            disableResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var disableResult = JsonConvert.DeserializeObject<PlaylistDto>(await disableResponse.Content.ReadAsStringAsync());
-            disableResult.Should().Be(disabledPlaylistDto);
+            PlaylistDto disabledPlaylistDto = ToDto(disabledPlaylist);
+            var deleteResponse = await _httpClient.DeleteAsync($"{Constants.ApiPlaylist}/{Constants.ValidPlaylistGuid}");
+            deleteResponse.Should().NotBeNull();
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var deleteResponseBody = JsonConvert.DeserializeObject<PlaylistDto>(await deleteResponse.Content.ReadAsStringAsync());
+            deleteResponseBody.Should().Be(disabledPlaylistDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiPlaylist}/{Constants.ValidPlaylistGuid}");
             getResponse.Should().NotBeNull();
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = JsonConvert.DeserializeObject<PlaylistDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().Be(disabledPlaylistDto);
+            var getResponseBody = JsonConvert.DeserializeObject<PlaylistDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(disabledPlaylistDto);
         });
 
         [Fact] public async Task DisableById_InvalidId_Test() => await Execute(async () =>
@@ -168,11 +190,11 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.DeleteAsync($"{Constants.ApiPlaylist}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid) });
         });
 
-        private PlaylistDto ConvertToDto(Playlist playlist) => new PlaylistDto
+        private PlaylistDto ToDto(Playlist playlist) => new PlaylistDto
         {
             Id = playlist.Id,
             Title = playlist.Title,

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Tests.Mocks;
 using System.Net;
@@ -25,6 +26,9 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly ArtistDto _artistDto2 = ArtistMock.GetMockedArtistDto2();
         private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
         private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
+        private readonly IList<ArtistDto> _paginatedArtistDtos = ArtistMock.GetMockedPaginatedArtistDtos();
+        private readonly IList<ArtistDto> _activePaginatedArtistDtos = ArtistMock.GetMockedActivePaginatedArtistDtos();
+        private readonly ArtistPaginationRequest _paginationRequest = ArtistMock.GetMockedPaginationRequest();
 
         public ArtistControllerIntegrationTest()
         {
@@ -52,8 +56,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync(Constants.ApiArtist);
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_artistDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_artistDtos);
         });
 
         [Fact] public async Task FindAllActive_Test() => await Execute(async () =>
@@ -61,8 +65,26 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiArtist}/active");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
-            result.Should().BeEquivalentTo(_activeArtistDtos);
+            var responseBody = JsonConvert.DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_activeArtistDtos);
+        });
+
+        [Fact] public async Task FindAllPagination_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.PostAsync($"{Constants.ApiArtist}/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = JsonConvert.DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_paginatedArtistDtos);
+        });
+
+        [Fact] public async Task FindAllActivePagination_Test() => await Execute(async () =>
+        {
+            var response = await _httpClient.PostAsync($"{Constants.ApiArtist}/active/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
+            response.Should().NotBeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var responseBody = JsonConvert.DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().BeEquivalentTo(_activePaginatedArtistDtos);
         });
 
         [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
@@ -70,8 +92,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiArtist}/{Constants.ValidArtistGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = JsonConvert.DeserializeObject<ArtistDto>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(_artistDto1);
+            var responseBody = JsonConvert.DeserializeObject<ArtistDto>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(_artistDto1);
         });
 
         [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
@@ -79,41 +101,41 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.GetAsync($"{Constants.ApiArtist}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.ArtistNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.ArtistNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task Save_Test() => await Execute(async () =>
         {
-            ArtistDto newArtistDto = ArtistMock.GetMockedArtistDto3();
+            ArtistDto newArtistDto = ArtistMock.GetMockedArtistDto51();
             var saveResponse = await _httpClient.PostAsync(Constants.ApiArtist, new StringContent(JsonConvert.SerializeObject(newArtistDto)));
             saveResponse.Should().NotBeNull();
             saveResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            var saveResult = JsonConvert.DeserializeObject<ArtistDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResult.Should().Be(newArtistDto);
+            var saveResponseBody = JsonConvert.DeserializeObject<ArtistDto>(await saveResponse.Content.ReadAsStringAsync());
+            saveResponseBody.Should().Be(newArtistDto);
 
             var getAllResponse = await _httpClient.GetAsync(Constants.ApiArtist);
             getAllResponse.Should().NotBeNull();
             getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getAllResult = JsonConvert.DeserializeObject<IList<ArtistDto>>(await getAllResponse.Content.ReadAsStringAsync());
-            getAllResult.Should().Contain(newArtistDto);
+            var getAllResponseBody = JsonConvert.DeserializeObject<IList<ArtistDto>>(await getAllResponse.Content.ReadAsStringAsync());
+            getAllResponseBody.Should().Contain(newArtistDto);
         });
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
-            Artist updatedArtist = CreateTestArtist(_artist2, _artist1.IsActive);
-            ArtistDto updatedArtistDto = ConvertToDto(updatedArtist);
+            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
+            ArtistDto updatedArtistDto = ToDto(updatedArtist);
             var updateResponse = await _httpClient.PutAsync($"{Constants.ApiArtist}/{Constants.ValidArtistGuid}", new StringContent(JsonConvert.SerializeObject(updatedArtistDto)));
             updateResponse.Should().NotBeNull();
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var updateResult = JsonConvert.DeserializeObject<ArtistDto>(await updateResponse.Content.ReadAsStringAsync());
-            updateResult.Should().Be(updatedArtistDto);
+            var updateResponseBody = JsonConvert.DeserializeObject<ArtistDto>(await updateResponse.Content.ReadAsStringAsync());
+            updateResponseBody.Should().Be(updatedArtistDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiArtist}/{Constants.ValidArtistGuid}");
             getResponse.Should().NotBeNull();
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = JsonConvert.DeserializeObject<ArtistDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().Be(updatedArtistDto);
+            var getResponseBody = JsonConvert.DeserializeObject<ArtistDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(updatedArtistDto);
         });
 
         [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
@@ -121,25 +143,25 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.PutAsync($"{Constants.ApiArtist}/{Constants.InvalidGuid}", new StringContent(JsonConvert.SerializeObject(_artistDto2)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.ArtistNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.ArtistNotFound, Constants.InvalidGuid) });
         });
 
         [Fact] public async Task DisableById_ValidId_Test() => await Execute(async () =>
         {
-            Artist disabledArtist = CreateTestArtist(_artist1, false);
-            ArtistDto disabledArtistDto = ConvertToDto(disabledArtist);
-            var disableResponse = await _httpClient.DeleteAsync($"{Constants.ApiArtist}/{Constants.ValidArtistGuid}");
-            disableResponse.Should().NotBeNull();
-            disableResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var disableResult = JsonConvert.DeserializeObject<ArtistDto>(await disableResponse.Content.ReadAsStringAsync());
-            disableResult.Should().Be(disabledArtistDto);
+            Artist disabledArtist = GetArtist(_artist1, false);
+            ArtistDto disabledArtistDto = ToDto(disabledArtist);
+            var deleteResponse = await _httpClient.DeleteAsync($"{Constants.ApiArtist}/{Constants.ValidArtistGuid}");
+            deleteResponse.Should().NotBeNull();
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var deleteResponseBody = JsonConvert.DeserializeObject<ArtistDto>(await deleteResponse.Content.ReadAsStringAsync());
+            deleteResponseBody.Should().Be(disabledArtistDto);
 
             var getResponse = await _httpClient.GetAsync($"{Constants.ApiArtist}/{Constants.ValidArtistGuid}");
             getResponse.Should().NotBeNull();
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = JsonConvert.DeserializeObject<ArtistDto>(await getResponse.Content.ReadAsStringAsync());
-            getResult.Should().Be(disabledArtistDto);
+            var getResponseBody = JsonConvert.DeserializeObject<ArtistDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(disabledArtistDto);
         });
 
         [Fact] public async Task DisableById_InvalidId_Test() => await Execute(async () =>
@@ -147,11 +169,11 @@ namespace SoundSphere.Tests.Integration.Controllers
             var response = await _httpClient.DeleteAsync($"{Constants.ApiArtist}/{Constants.InvalidGuid}");
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var result = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            result.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.ArtistNotFound, Constants.InvalidGuid) });
+            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.ArtistNotFound, Constants.InvalidGuid) });
         });
 
-        private Artist CreateTestArtist(Artist artist, bool isActive) => new Artist
+        private Artist GetArtist(Artist artist, bool isActive) => new Artist
         {
             Id = Constants.ValidArtistGuid,
             Name = artist.Name,
@@ -161,7 +183,7 @@ namespace SoundSphere.Tests.Integration.Controllers
             IsActive = isActive
         };
 
-        private ArtistDto ConvertToDto(Artist artist) => new ArtistDto
+        private ArtistDto ToDto(Artist artist) => new ArtistDto
         {
             Id = artist.Id,
             Name = artist.Name,
