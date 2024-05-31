@@ -14,9 +14,12 @@ public class Program
     static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddDbContext<SoundSphereDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions => sqlOptions.MigrationsAssembly("SoundSphere.Api")));
+        builder.Services.AddDbContext<SoundSphereDbContext>(
+            options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), 
+            sqlOptions => sqlOptions.MigrationsAssembly("SoundSphere.Api")));
         builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
         builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(SoundSphere.Core.Mappings.AutoMapperProfile).Assembly);
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
         builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
@@ -38,8 +41,7 @@ public class Program
         builder.Services.AddScoped<IRoleService, RoleService>();
         builder.Services.AddScoped<ISongService, SongService>();
         builder.Services.AddScoped<IUserService, UserService>();
-
-        builder.Services.AddEndpointsApiExplorer();
+        
         builder.Services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "SoundSphere API", Description = "This is a sample REST API documentation for a music streaming service.", Version = "1.0" });
@@ -51,7 +53,7 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-            ExecuteSql(app.Services, Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.sql"));
+            //ExecuteSql(app.Services, Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.sql"));
         }
         app.UseHttpsRedirection();
         app.UseMiddleware<GlobalExceptionHandlingMiddleware>();

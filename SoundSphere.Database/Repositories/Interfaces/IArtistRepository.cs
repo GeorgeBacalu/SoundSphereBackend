@@ -5,21 +5,21 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IArtistRepository
     {
-        IList<Artist> FindAll();
+        IList<Artist> GetAll();
 
-        IList<Artist> FindAllActive();
+        IList<Artist> GetAllActive();
 
-        IList<Artist> FindAllPagination(ArtistPaginationRequest payload);
+        IList<Artist> GetAllPagination(ArtistPaginationRequest payload);
 
-        IList<Artist> FindAllActivePagination(ArtistPaginationRequest payload);
+        IList<Artist> GetAllActivePagination(ArtistPaginationRequest payload);
 
-        Artist FindById(Guid id);
+        Artist GetById(Guid id);
 
-        Artist Save(Artist artist);
+        Artist Add(Artist artist);
 
         Artist UpdateById(Artist artist, Guid id);
 
-        Artist DisableById(Guid id);
+        Artist DeleteById(Guid id);
 
         void AddArtistLink(Artist artist);
 

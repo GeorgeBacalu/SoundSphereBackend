@@ -16,7 +16,7 @@ namespace SoundSphere.Core.Mappings
         public static Feedback ToEntity(this FeedbackDto feedbackDto, IUserRepository userRepository, IMapper mapper)
         {
             Feedback feedback = mapper.Map<Feedback>(feedbackDto);
-            feedback.User = userRepository.FindById(feedbackDto.UserId);
+            feedback.User = userRepository.GetById(feedbackDto.UserId);
             return feedback;
         }
     }

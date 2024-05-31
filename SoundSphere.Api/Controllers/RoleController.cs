@@ -15,27 +15,27 @@ namespace SoundSphere.Api.Controllers
 
         public RoleController(IRoleService roleService) => _roleService = roleService;
 
-        /// <summary>Find all roles</summary>
+        /// <summary>Get all roles</summary>
         /// <remarks>Return list with all roles</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult FindAll() => Ok(_roleService.FindAll());
+        [HttpGet] public IActionResult GetAll() => Ok(_roleService.GetAll());
 
-        /// <summary>Find role by ID</summary>
+        /// <summary>Get role by ID</summary>
         /// <remarks>Return role with given ID</remarks>
         /// <param name="id">Role fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult FindById(Guid id) => Ok(_roleService.FindById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_roleService.GetById(id));
 
-        /// <summary>Save role</summary>
-        /// <remarks>Save new role</remarks>
-        /// <param name="roleDto">Role to save</param>
+        /// <summary>Add role</summary>
+        /// <remarks>Add new role</remarks>
+        /// <param name="roleDto">Role to add</param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost] public IActionResult Save(RoleDto roleDto)
+        [HttpPost] public IActionResult Add(RoleDto roleDto)
         {
-            RoleDto savedRoleDto = _roleService.Save(roleDto);
-            return CreatedAtAction(nameof(FindById), new { id = savedRoleDto.Id }, savedRoleDto);
+            RoleDto addedRoleDto = _roleService.Add(roleDto);
+            return CreatedAtAction(nameof(GetById), new { id = addedRoleDto.Id }, addedRoleDto);
         }
     }
 }

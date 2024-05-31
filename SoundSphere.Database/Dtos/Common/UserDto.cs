@@ -16,6 +16,10 @@ namespace SoundSphere.Database.Dtos.Common
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; } = null!;
 
+        [Required(ErrorMessage = "Password is required")]
+        [RegularExpression(@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+-=()])(?=\S+$).{8,30}$", ErrorMessage = "Invalid password format")]
+        public string Password { get; set; } = null!;
+
         [Required(ErrorMessage = "Mobile is required")]
         [RegularExpression(@"^(00|\+?40|0)(7\d{2}|\d{2}[13]|[2-37]\d|8[02-9]|9[0-2])\s?\d{3}\s?\d{3}$", ErrorMessage = "Invalid mobile format")]
         public string Mobile { get; set; } = null!;
@@ -44,6 +48,7 @@ namespace SoundSphere.Database.Dtos.Common
             Id.Equals(userDto.Id) &&
             Name.Equals(userDto.Name) &&
             Email.Equals(userDto.Email) &&
+            Password.Equals(userDto.Password) &&
             Mobile.Equals(userDto.Mobile) &&
             Address.Equals(userDto.Address) &&
             Birthday.Equals(userDto.Birthday) &&

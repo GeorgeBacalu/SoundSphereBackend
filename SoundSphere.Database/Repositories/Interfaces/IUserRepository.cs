@@ -5,21 +5,21 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        IList<User> FindAll();
+        IList<User> GetAll();
 
-        IList<User> FindAllActive();
+        IList<User> GetAllActive();
 
-        IList<User> FindAllPagination(UserPaginationRequest payload);
+        IList<User> GetAllPagination(UserPaginationRequest payload);
 
-        IList<User> FindAllActivePagination(UserPaginationRequest payload);
+        IList<User> GetAllActivePagination(UserPaginationRequest payload);
 
-        User FindById(Guid id);
+        User GetById(Guid id);
 
-        User Save(User user);
+        User Add(User user);
 
         User UpdateById(User user, Guid id);
 
-        User DisableById(Guid id);
+        User DeleteById(Guid id);
 
         void LinkUserToRole(User user);
 

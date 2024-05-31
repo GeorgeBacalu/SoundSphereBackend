@@ -16,7 +16,7 @@ namespace SoundSphere.Core.Mappings
         public static Notification ToEntity(this NotificationDto notificationDto, IUserRepository userRepository, IMapper mapper)
         {
             Notification notification = mapper.Map<Notification>(notificationDto);
-            notification.User = userRepository.FindById(notificationDto.UserId);
+            notification.User = userRepository.GetById(notificationDto.UserId);
             return notification;
         }
     }

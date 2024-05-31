@@ -4,10 +4,10 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IRoleService
     {
-        IList<RoleDto> FindAll();
+        IList<RoleDto> GetAll();
 
-        RoleDto FindById(Guid id);
+        RoleDto GetById(Guid id);
 
-        RoleDto Save(RoleDto roleDto);
+        RoleDto Add(RoleDto roleDto);
     }
 }

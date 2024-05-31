@@ -5,13 +5,13 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IFeedbackService
     {
-        IList<FeedbackDto> FindAll();
+        IList<FeedbackDto> GetAll();
 
-        IList<FeedbackDto> FindAllPagination(FeedbackPaginationRequest payload);
+        IList<FeedbackDto> GetAllPagination(FeedbackPaginationRequest payload);
 
-        FeedbackDto FindById(Guid id);
+        FeedbackDto GetById(Guid id);
 
-        FeedbackDto Save(FeedbackDto feedbackDto);
+        FeedbackDto Add(FeedbackDto feedbackDto);
 
         FeedbackDto UpdateById(FeedbackDto feedbackDto, Guid id);
 

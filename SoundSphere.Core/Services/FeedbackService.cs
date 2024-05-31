@@ -16,19 +16,17 @@ namespace SoundSphere.Core.Services
 
         public FeedbackService(IFeedbackRepository feedbackRepository, IUserRepository userRepository, IMapper mapper) => (_feedbackRepository, _userRepository, _mapper) = (feedbackRepository, userRepository, mapper);
 
-        public IList<FeedbackDto> FindAll() => _feedbackRepository.FindAll().ToDtos(_mapper);
+        public IList<FeedbackDto> GetAll() => _feedbackRepository.GetAll().ToDtos(_mapper);
 
-        public IList<FeedbackDto> FindAllPagination(FeedbackPaginationRequest payload) => _feedbackRepository.FindAllPagination(payload).ToDtos(_mapper);
+        public IList<FeedbackDto> GetAllPagination(FeedbackPaginationRequest payload) => _feedbackRepository.GetAllPagination(payload).ToDtos(_mapper);
 
-        public FeedbackDto FindById(Guid id) => _feedbackRepository.FindById(id).ToDto(_mapper);
+        public FeedbackDto GetById(Guid id) => _feedbackRepository.GetById(id).ToDto(_mapper);
 
-        public FeedbackDto Save(FeedbackDto feedbackDto)
+        public FeedbackDto Add(FeedbackDto feedbackDto)
         {
             Feedback feedback = feedbackDto.ToEntity(_userRepository, _mapper);
-            if (feedback.Id == Guid.Empty) feedback.Id = Guid.NewGuid();
-            feedback.SentAt = DateTime.Now;
             _feedbackRepository.LinkFeedbackToUser(feedback);
-            return _feedbackRepository.Save(feedback).ToDto(_mapper);
+            return _feedbackRepository.Add(feedback).ToDto(_mapper);
         }
 
         public FeedbackDto UpdateById(FeedbackDto feedbackDto, Guid id) => _feedbackRepository.UpdateById(feedbackDto.ToEntity(_userRepository, _mapper), id).ToDto(_mapper);

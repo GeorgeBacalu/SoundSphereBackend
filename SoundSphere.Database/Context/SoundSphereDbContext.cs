@@ -32,25 +32,19 @@ namespace SoundSphere.Database.Context
                 entity.HasIndex(user => user.Name).IsUnique();
                 entity.HasIndex(user => user.Email).IsUnique();
             });
-
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.HasIndex(role => role.Type).IsUnique();
                 entity.Property(role => role.Type).HasConversion(new EnumToStringConverter<RoleType>());
             });
-
             modelBuilder.Entity<Authority>(entity =>
             {
                 entity.HasIndex(authority => authority.Type).IsUnique();
                 entity.Property(authority => authority.Type).HasConversion(new EnumToStringConverter<AuthorityType>());
             });
-
             modelBuilder.Entity<Feedback>(entity => entity.Property(feedback => feedback.Type).HasConversion(new EnumToStringConverter<FeedbackType>()));
-
             modelBuilder.Entity<Notification>(entity => entity.Property(notification => notification.Type).HasConversion(new EnumToStringConverter<NotificationType>()));
-
             modelBuilder.Entity<Song>(entity => entity.Property(song => song.Genre).HasConversion(new EnumToStringConverter<GenreType>()));
-
             modelBuilder.Entity<SongLink>(entity =>
             {
                 entity.HasKey(song => new { song.SongId, song.SimilarSongId });
@@ -63,7 +57,6 @@ namespace SoundSphere.Database.Context
                     .HasForeignKey(song => song.SimilarSongId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-
             modelBuilder.Entity<ArtistLink>(entity =>
             {
                 entity.HasKey(artist => new { artist.ArtistId, artist.SimilarArtistId });
@@ -76,7 +69,6 @@ namespace SoundSphere.Database.Context
                     .HasForeignKey(artist => artist.SimilarArtistId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-
             modelBuilder.Entity<AlbumLink>(entity =>
             {
                 entity.HasKey(album => new { album.AlbumId, album.SimilarAlbumId });
@@ -89,7 +81,6 @@ namespace SoundSphere.Database.Context
                     .HasForeignKey(album => album.SimilarAlbumId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-
             modelBuilder.Entity<UserSong>(entity =>
             {
                 entity.HasKey(userSong => new { userSong.UserId, userSong.SongId });
@@ -100,7 +91,6 @@ namespace SoundSphere.Database.Context
                     .WithMany()
                     .HasForeignKey(userSong => userSong.SongId);
             });
-
             modelBuilder.Entity<UserArtist>(entity =>
             {
                 entity.HasKey(userArtist => new { userArtist.UserId, userArtist.ArtistId });

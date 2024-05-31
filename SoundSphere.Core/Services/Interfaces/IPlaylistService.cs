@@ -5,20 +5,20 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IPlaylistService
     {
-        IList<PlaylistDto> FindAll();
+        IList<PlaylistDto> GetAll();
 
-        IList<PlaylistDto> FindAllActive();
+        IList<PlaylistDto> GetAllActive();
 
-        IList<PlaylistDto> FindAllPagination(PlaylistPaginationRequest payload);
+        IList<PlaylistDto> GetAllPagination(PlaylistPaginationRequest payload);
 
-        IList<PlaylistDto> FindAllActivePagination(PlaylistPaginationRequest payload);
+        IList<PlaylistDto> GetAllActivePagination(PlaylistPaginationRequest payload);
 
-        PlaylistDto FindById(Guid id);
+        PlaylistDto GetById(Guid id);
 
-        PlaylistDto Save(PlaylistDto playlistDto);
+        PlaylistDto Add(PlaylistDto playlistDto);
 
         PlaylistDto UpdateById(PlaylistDto playlistDto, Guid id);
 
-        PlaylistDto DisableById(Guid id);
+        PlaylistDto DeleteById(Guid id);
     }
 }

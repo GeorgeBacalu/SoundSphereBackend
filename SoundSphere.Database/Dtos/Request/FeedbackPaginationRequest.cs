@@ -3,14 +3,13 @@ using SoundSphere.Database.Dtos.Request.Models;
 
 namespace SoundSphere.Database.Dtos.Request
 {
-    public class FeedbackPaginationRequest : PaginationRequest
-    {
-        public IDictionary<FeedbackSortCriterion, SortOrder>? SortCriteria { get; set; }
-        public IList<FeedbackSearchCriterion>? SearchCriteria { get; set; }
-        public string? Message { get; set; }
-        public DateTimeRange? DateRange { get; set; }
-        public string? UserName { get; set; }
-    }
+    public record FeedbackPaginationRequest(
+        IDictionary<FeedbackSortCriterion, SortOrder>? SortCriteria,
+        IList<FeedbackSearchCriterion>? SearchCriteria,
+        string? Message,
+        DateTimeRange? DateRange,
+        string? UserName
+        ) : PaginationRequest;
 
     public enum FeedbackSortCriterion { BySendDate = 10, ByMessage = 20, ByUserName = 30 }
 

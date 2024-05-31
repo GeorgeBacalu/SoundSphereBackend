@@ -4,10 +4,10 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IAuthorityService
     {
-        IList<AuthorityDto> FindAll();
+        IList<AuthorityDto> GetAll();
 
-        AuthorityDto FindById(Guid id);
+        AuthorityDto GetById(Guid id);
 
-        AuthorityDto Save(AuthorityDto authorityDto);
+        AuthorityDto Add(AuthorityDto authorityDto);
     }
 }

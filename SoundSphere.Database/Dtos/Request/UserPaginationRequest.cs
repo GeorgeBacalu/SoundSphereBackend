@@ -4,15 +4,14 @@ using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Database.Dtos.Request
 {
-    public class UserPaginationRequest : PaginationRequest
-    {
-        public IDictionary<UserSortCriterion, SortOrder>? SortCriteria { get; set; }
-        public IList<UserSearchCriterion>? SearchCriteria { get; set; }
-        public string? Name { get; set; }
-        public string? Email {  get; set; }
-        public DateRange? DateRange { get; set; }
-        public RoleType RoleType { get; set; }
-    }
+    public record UserPaginationRequest(
+        IDictionary<UserSortCriterion, SortOrder>? SortCriteria,
+        IList<UserSearchCriterion>? SearchCriteria,
+        string? Name,
+        string? Email,
+        DateRange? DateRange,
+        RoleType RoleType
+        ) : PaginationRequest;
 
     public enum UserSortCriterion { ByName = 10, ByEmail = 20 }
 

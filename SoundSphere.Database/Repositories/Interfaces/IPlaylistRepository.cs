@@ -5,21 +5,21 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IPlaylistRepository
     {
-        IList<Playlist> FindAll();
+        IList<Playlist> GetAll();
 
-        IList<Playlist> FindAllActive();
+        IList<Playlist> GetAllActive();
 
-        IList<Playlist> FindAllPagination(PlaylistPaginationRequest payload);
+        IList<Playlist> GetAllPagination(PlaylistPaginationRequest payload);
 
-        IList<Playlist> FindAllActivePagination(PlaylistPaginationRequest payload);
+        IList<Playlist> GetAllActivePagination(PlaylistPaginationRequest payload);
 
-        Playlist FindById(Guid id);
+        Playlist GetById(Guid id);
 
-        Playlist Save(Playlist playlist);
+        Playlist Add(Playlist playlist);
 
         Playlist UpdateById(Playlist playlist, Guid id);
 
-        Playlist DisableById(Guid id);
+        Playlist DeleteById(Guid id);
 
         void LinkPlaylistToUser(Playlist playlist);
     }

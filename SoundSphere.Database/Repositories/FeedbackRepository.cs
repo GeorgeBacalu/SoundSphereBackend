@@ -5,6 +5,7 @@ using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -14,24 +15,26 @@ namespace SoundSphere.Database.Repositories
 
         public FeedbackRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Feedback> FindAll() => _context.Feedbacks
+        public IList<Feedback> GetAll() => _context.Feedbacks
             .Include(feedback => feedback.User)
             .ToList();
 
-        public IList<Feedback> FindAllPagination(FeedbackPaginationRequest payload) => _context.Feedbacks
+        public IList<Feedback> GetAllPagination(FeedbackPaginationRequest payload) => _context.Feedbacks
             .Include(feedback => feedback.User)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
             .ToList();
 
-        public Feedback FindById(Guid id) => _context.Feedbacks
+        public Feedback GetById(Guid id) => _context.Feedbacks
             .Include(feedback => feedback.User)
             .FirstOrDefault(feedback => feedback.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(Constants.FeedbackNotFound, id));
+            ?? throw new ResourceNotFoundException(string.Format(FeedbackNotFound, id));
 
-        public Feedback Save(Feedback feedback)
+        public Feedback Add(Feedback feedback)
         {
+            if (feedback.Id == Guid.Empty) feedback.Id = Guid.NewGuid();
+            feedback.SentAt = DateTime.Now;
             _context.Feedbacks.Add(feedback);
             _context.SaveChanges();
             return feedback;
@@ -39,7 +42,7 @@ namespace SoundSphere.Database.Repositories
 
         public Feedback UpdateById(Feedback feedback, Guid id)
         {
-            Feedback feedbackToUpdate = FindById(id);
+            Feedback feedbackToUpdate = GetById(id);
             feedbackToUpdate.Type = feedback.Type;
             feedbackToUpdate.Message = feedback.Message;
             _context.SaveChanges();
@@ -48,7 +51,7 @@ namespace SoundSphere.Database.Repositories
 
         public void DeleteById(Guid id)
         {
-            Feedback feedbackToDelete = FindById(id);
+            Feedback feedbackToDelete = GetById(id);
             _context.Feedbacks.Remove(feedbackToDelete);
             _context.SaveChanges();
         }

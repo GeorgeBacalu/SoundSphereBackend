@@ -5,6 +5,7 @@ using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -14,23 +15,23 @@ namespace SoundSphere.Database.Repositories
 
         public ArtistRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Artist> FindAll() => _context.Artists
+        public IList<Artist> GetAll() => _context.Artists
             .Include(artist => artist.SimilarArtists)
             .ToList();
 
-        public IList<Artist> FindAllActive() => _context.Artists
+        public IList<Artist> GetAllActive() => _context.Artists
             .Include(artist => artist.SimilarArtists)
             .Where(artist => artist.IsActive)
             .ToList();
 
-        public IList<Artist> FindAllPagination(ArtistPaginationRequest payload) => _context.Artists
+        public IList<Artist> GetAllPagination(ArtistPaginationRequest payload) => _context.Artists
             .Include(artist => artist.SimilarArtists)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
             .ToList();
 
-        public IList<Artist> FindAllActivePagination(ArtistPaginationRequest payload) => _context.Artists
+        public IList<Artist> GetAllActivePagination(ArtistPaginationRequest payload) => _context.Artists
             .Include (artist => artist.SimilarArtists)
             .Where(artist => artist.IsActive)
             .Filter(payload)
@@ -38,14 +39,16 @@ namespace SoundSphere.Database.Repositories
             .Paginate(payload)
             .ToList();
 
-        public Artist FindById(Guid id) => _context.Artists
+        public Artist GetById(Guid id) => _context.Artists
             .Include(artist => artist.SimilarArtists)
             .Where(artist => artist.IsActive)
             .FirstOrDefault(artist => artist.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(Constants.ArtistNotFound, id));
+            ?? throw new ResourceNotFoundException(string.Format(ArtistNotFound, id));
 
-        public Artist Save(Artist artist)
+        public Artist Add(Artist artist)
         {
+            if (artist.Id == Guid.Empty) artist.Id = Guid.NewGuid();
+            artist.IsActive = true;
             _context.Artists.Add(artist);
             _context.SaveChanges();
             return artist;
@@ -53,7 +56,7 @@ namespace SoundSphere.Database.Repositories
 
         public Artist UpdateById(Artist artist, Guid id)
         {
-            Artist artistToUpdate = FindById(id);
+            Artist artistToUpdate = GetById(id);
             artistToUpdate.Name = artist.Name;
             artistToUpdate.ImageUrl = artist.ImageUrl;
             artistToUpdate.Bio = artist.Bio;
@@ -62,12 +65,12 @@ namespace SoundSphere.Database.Repositories
             return artistToUpdate;
         }
 
-        public Artist DisableById(Guid id)
+        public Artist DeleteById(Guid id)
         {
-            Artist artistToDisable = FindById(id);
-            artistToDisable.IsActive = false;
+            Artist artistToDelete = GetById(id);
+            artistToDelete.IsActive = false;
             _context.SaveChanges();
-            return artistToDisable;
+            return artistToDelete;
         }
 
         public void AddArtistLink(Artist artist) => artist.SimilarArtists = artist.SimilarArtists

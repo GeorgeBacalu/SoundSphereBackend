@@ -5,6 +5,7 @@ using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -14,23 +15,23 @@ namespace SoundSphere.Database.Repositories
 
         public PlaylistRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Playlist> FindAll() => _context.Playlists
+        public IList<Playlist> GetAll() => _context.Playlists
             .Include(playlist => playlist.User)
             .ToList();
 
-        public IList<Playlist> FindAllActive() => _context.Playlists
+        public IList<Playlist> GetAllActive() => _context.Playlists
             .Include(playlist => playlist.User)
             .Where(playlist => playlist.IsActive)
             .ToList();
 
-        public IList<Playlist> FindAllPagination(PlaylistPaginationRequest payload) => _context.Playlists
+        public IList<Playlist> GetAllPagination(PlaylistPaginationRequest payload) => _context.Playlists
             .Include(playlist => playlist.User)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
             .ToList();
 
-        public IList<Playlist> FindAllActivePagination(PlaylistPaginationRequest payload) => _context.Playlists
+        public IList<Playlist> GetAllActivePagination(PlaylistPaginationRequest payload) => _context.Playlists
             .Include(playlist => playlist.User)
             .Where(playlist => playlist.IsActive)
             .Filter(payload)
@@ -38,14 +39,17 @@ namespace SoundSphere.Database.Repositories
             .Paginate(payload)
             .ToList();
 
-        public Playlist FindById(Guid id) => _context.Playlists
+        public Playlist GetById(Guid id) => _context.Playlists
             .Include(playlist => playlist.User)
             .Where(playlist => playlist.IsActive)
             .FirstOrDefault(playlist => playlist.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(Constants.PlaylistNotFound, id));
+            ?? throw new ResourceNotFoundException(string.Format(PlaylistNotFound, id));
 
-        public Playlist Save(Playlist playlist)
+        public Playlist Add(Playlist playlist)
         {
+            if (playlist.Id == Guid.Empty) playlist.Id = Guid.NewGuid();
+            playlist.IsActive = true;
+            playlist.CreatedAt = DateTime.Now;
             _context.Playlists.Add(playlist);
             _context.SaveChanges();
             return playlist;
@@ -53,18 +57,18 @@ namespace SoundSphere.Database.Repositories
 
         public Playlist UpdateById(Playlist playlist, Guid id)
         {
-            Playlist playlistToUpdate = FindById(id);
+            Playlist playlistToUpdate = GetById(id);
             playlistToUpdate.Title = playlist.Title;
             _context.SaveChanges();
             return playlistToUpdate;
         }
 
-        public Playlist DisableById(Guid id)
+        public Playlist DeleteById(Guid id)
         {
-            Playlist playlistToDisable = FindById(id);
-            playlistToDisable.IsActive = false;
+            Playlist playlistToDelete = GetById(id);
+            playlistToDelete.IsActive = false;
             _context.SaveChanges();
-            return playlistToDisable;
+            return playlistToDelete;
         }
 
         public void LinkPlaylistToUser(Playlist playlist)

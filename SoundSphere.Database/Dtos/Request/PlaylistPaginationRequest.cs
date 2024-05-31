@@ -3,15 +3,14 @@ using SoundSphere.Database.Dtos.Request.Models;
 
 namespace SoundSphere.Database.Dtos.Request
 {
-    public class PlaylistPaginationRequest : PaginationRequest
-    {
-        public IDictionary<PlaylistSortCriterion, SortOrder>? SortCriteria { get; set; }
-        public IList<PlaylistSearchCriterion>? SearchCriteria { get; set; }
-        public string? Title { get; set; }
-        public DateTimeRange? DateRange { get; set; }
-        public string? UserName { get; set; }
-        public Guid SongId { get; set; }
-    }
+    public record PlaylistPaginationRequest(
+        IDictionary<PlaylistSortCriterion, SortOrder>? SortCriteria,
+        IList<PlaylistSearchCriterion>? SearchCriteria,
+        string? Title,
+        DateTimeRange? DateRange,
+        string? UserName,
+        Guid SongId
+        ) : PaginationRequest;
 
     public enum PlaylistSortCriterion { ByCreatedDate = 10, ByTitle = 20 }
 

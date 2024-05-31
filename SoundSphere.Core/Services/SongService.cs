@@ -18,30 +18,28 @@ namespace SoundSphere.Core.Services
         public SongService(ISongRepository songRepository, IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper) => 
             (_songRepository, _albumRepository, _artistRepository, _mapper) = (songRepository, albumRepository, artistRepository, mapper);
 
-        public IList<SongDto> FindAll() => _songRepository.FindAll().ToDtos(_mapper);
+        public IList<SongDto> GetAll() => _songRepository.GetAll().ToDtos(_mapper);
 
-        public IList<SongDto> FindAllActive() => _songRepository.FindAllActive().ToDtos(_mapper);
+        public IList<SongDto> GetAllActive() => _songRepository.GetAllActive().ToDtos(_mapper);
 
-        public IList<SongDto> FindAllPagination(SongPaginationRequest payload) => _songRepository.FindAllPagination(payload).ToDtos(_mapper);
+        public IList<SongDto> GetAllPagination(SongPaginationRequest payload) => _songRepository.GetAllPagination(payload).ToDtos(_mapper);
 
-        public IList<SongDto> FindAllActivePagination(SongPaginationRequest payload) => _songRepository.FindAllActivePagination(payload).ToDtos(_mapper);
+        public IList<SongDto> GetAllActivePagination(SongPaginationRequest payload) => _songRepository.GetAllActivePagination(payload).ToDtos(_mapper);
 
-        public SongDto FindById(Guid id) => _songRepository.FindById(id).ToDto(_mapper);
+        public SongDto GetById(Guid id) => _songRepository.GetById(id).ToDto(_mapper);
 
-        public SongDto Save(SongDto songDto)
+        public SongDto Add(SongDto songDto)
         {
             Song song = songDto.ToEntity(_albumRepository, _artistRepository, _mapper);
-            if (song.Id == Guid.Empty) song.Id = Guid.NewGuid();
-            song.IsActive = true;
             _songRepository.LinkSongToAlbum(song);
             _songRepository.LinkSongToArtists(song);
             _songRepository.AddSongLink(song);
             _songRepository.AddUserSong(song);
-            return _songRepository.Save(song).ToDto(_mapper);
+            return _songRepository.Add(song).ToDto(_mapper);
         }
 
         public SongDto UpdateById(SongDto songDto, Guid id) => _songRepository.UpdateById(songDto.ToEntity(_albumRepository, _artistRepository, _mapper), id).ToDto(_mapper);
 
-        public SongDto DisableById(Guid id) => _songRepository.DisableById(id).ToDto(_mapper);
+        public SongDto DeleteById(Guid id) => _songRepository.DeleteById(id).ToDto(_mapper);
     }
 }

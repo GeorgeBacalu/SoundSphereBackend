@@ -4,10 +4,10 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IRoleRepository
     {
-        IList<Role> FindAll();
+        IList<Role> GetAll();
 
-        Role FindById(Guid id);
+        Role GetById(Guid id);
 
-        Role Save(Role role);
+        Role Add(Role role);
     }
 }

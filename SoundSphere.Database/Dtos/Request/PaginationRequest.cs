@@ -1,8 +1,4 @@
 ﻿namespace SoundSphere.Database.Dtos.Request
 {
-    public class PaginationRequest
-    {
-        public int Page { get; set; } = 0;
-        public int Size { get; set; } = 10;
-    }
+    public record PaginationRequest(int Page = 0, int Size = 10);
 }

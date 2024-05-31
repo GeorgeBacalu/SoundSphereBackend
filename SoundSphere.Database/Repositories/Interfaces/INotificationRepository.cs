@@ -5,13 +5,13 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface INotificationRepository
     {
-        IList<Notification> FindAll();
+        IList<Notification> GetAll();
 
-        IList<Notification> FindAllPagination(NotificationPaginationRequest payload);
+        IList<Notification> GetAllPagination(NotificationPaginationRequest payload);
 
-        Notification FindById(Guid id);
+        Notification GetById(Guid id);
 
-        Notification Save(Notification notification);
+        Notification Add(Notification notification);
 
         Notification UpdateById(Notification notification, Guid id);
 

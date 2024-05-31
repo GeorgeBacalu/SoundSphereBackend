@@ -5,21 +5,21 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IAlbumRepository
     {
-        IList<Album> FindAll();
+        IList<Album> GetAll();
 
-        IList<Album> FindAllActive();
+        IList<Album> GetAllActive();
 
-        IList<Album> FindAllPagination(AlbumPaginationRequest payload);
+        IList<Album> GetAllPagination(AlbumPaginationRequest payload);
 
-        IList<Album> FindAllActivePagination(AlbumPaginationRequest payload);
+        IList<Album> GetAllActivePagination(AlbumPaginationRequest payload);
 
-        Album FindById(Guid id);
+        Album GetById(Guid id);
 
-        Album Save(Album album);
+        Album Add(Album album);
 
         Album UpdateById(Album album, Guid id);
 
-        Album DisableById(Guid id);
+        Album DeleteById(Guid id);
 
         void AddAlbumLink(Album album);
     }

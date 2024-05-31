@@ -5,6 +5,7 @@ using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -14,18 +15,18 @@ namespace SoundSphere.Database.Repositories
 
         public UserRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<User> FindAll() => _context.Users
+        public IList<User> GetAll() => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
             .ToList();
 
-        public IList<User> FindAllActive() => _context.Users
+        public IList<User> GetAllActive() => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
             .Where(user => user.IsActive)
             .ToList();
 
-        public IList<User> FindAllPagination(UserPaginationRequest payload) => _context.Users
+        public IList<User> GetAllPagination(UserPaginationRequest payload) => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
             .Filter(payload)
@@ -33,7 +34,7 @@ namespace SoundSphere.Database.Repositories
             .Paginate(payload)
             .ToList();
 
-        public IList<User> FindAllActivePagination(UserPaginationRequest payload) => _context.Users
+        public IList<User> GetAllActivePagination(UserPaginationRequest payload) => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
             .Where(user => user.IsActive)
@@ -42,14 +43,14 @@ namespace SoundSphere.Database.Repositories
             .Paginate(payload)
             .ToList();
 
-        public User FindById(Guid id) => _context.Users
+        public User GetById(Guid id) => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
             .Where(user => user.IsActive)
             .FirstOrDefault(user => user.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(Constants.UserNotFound, id));
+            ?? throw new ResourceNotFoundException(string.Format(UserNotFound, id));
 
-        public User Save(User user)
+        public User Add(User user)
         {
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -58,7 +59,7 @@ namespace SoundSphere.Database.Repositories
 
         public User UpdateById(User user, Guid id)
         {
-            User userToUpdate = FindById(id);
+            User userToUpdate = GetById(id);
             userToUpdate.Name = user.Name;
             userToUpdate.Email = user.Email;
             userToUpdate.Password = user.Password;
@@ -72,12 +73,12 @@ namespace SoundSphere.Database.Repositories
             return userToUpdate;
         }
 
-        public User DisableById(Guid id)
+        public User DeleteById(Guid id)
         {
-            User userToDisable = FindById(id);
-            userToDisable.IsActive = false;
+            User userToDelete = GetById(id);
+            userToDelete.IsActive = false;
             _context.SaveChanges();
-            return userToDisable;
+            return userToDelete;
         }
 
         public void LinkUserToRole(User user)
