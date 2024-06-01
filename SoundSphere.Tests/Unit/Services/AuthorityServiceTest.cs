@@ -3,11 +3,11 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.AuthorityMock;
 
 namespace SoundSphere.Tests.Unit.Services
 {
@@ -17,16 +17,16 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly IAuthorityService _authorityService;
 
-        private readonly Authority _authority1 = AuthorityMock.GetMockedAuthority1();
-        private readonly Authority _authority2 = AuthorityMock.GetMockedAuthority2();
-        private readonly Authority _authority3 = AuthorityMock.GetMockedAuthority3();
-        private readonly Authority _authority4 = AuthorityMock.GetMockedAuthority4();
-        private readonly IList<Authority> _authorities = AuthorityMock.GetMockedAuthorities();
-        private readonly AuthorityDto _authorityDto1 = AuthorityMock.GetMockedAuthorityDto1();
-        private readonly AuthorityDto _authorityDto2 = AuthorityMock.GetMockedAuthorityDto2();
-        private readonly AuthorityDto _authorityDto3 = AuthorityMock.GetMockedAuthorityDto3();
-        private readonly AuthorityDto _authorityDto4 = AuthorityMock.GetMockedAuthorityDto4();
-        private readonly IList<AuthorityDto> _authorityDtos = AuthorityMock.GetMockedAuthorityDtos();
+        private readonly Authority _authority1 = GetMockedAuthority1();
+        private readonly Authority _authority2 = GetMockedAuthority2();
+        private readonly Authority _authority3 = GetMockedAuthority3();
+        private readonly Authority _authority4 = GetMockedAuthority4();
+        private readonly IList<Authority> _authorities = GetMockedAuthorities();
+        private readonly AuthorityDto _authorityDto1 = GetMockedAuthorityDto1();
+        private readonly AuthorityDto _authorityDto2 = GetMockedAuthorityDto2();
+        private readonly AuthorityDto _authorityDto3 = GetMockedAuthorityDto3();
+        private readonly AuthorityDto _authorityDto4 = GetMockedAuthorityDto4();
+        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtos();
 
         public AuthorityServiceTest()
         {
@@ -41,22 +41,22 @@ namespace SoundSphere.Tests.Unit.Services
             _authorityService = new AuthorityService(_authorityRepositoryMock.Object, _mapperMock.Object);
         }
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _authorityRepositoryMock.Setup(mock => mock.FindAll()).Returns(_authorities);
-            _authorityService.FindAll().Should().BeEquivalentTo(_authorityDtos);
+            _authorityRepositoryMock.Setup(mock => mock.GetAll()).Returns(_authorities);
+            _authorityService.GetAll().Should().BeEquivalentTo(_authorityDtos);
         }
 
-        [Fact] public void FindById_Test()
+        [Fact] public void GetById_Test()
         {
-            _authorityRepositoryMock.Setup(mock => mock.FindById(Constants.ValidAuthorityGuid)).Returns(_authority1);
-            _authorityService.FindById(Constants.ValidAuthorityGuid).Should().Be(_authorityDto1);
+            _authorityRepositoryMock.Setup(mock => mock.GetById(ValidAuthorityGuid)).Returns(_authority1);
+            _authorityService.GetById(ValidAuthorityGuid).Should().Be(_authorityDto1);
         }
 
-        [Fact] public void Save_Test()
+        [Fact] public void Add_Test()
         {
-            _authorityRepositoryMock.Setup(mock => mock.Save(_authority1)).Returns(_authority1);
-            _authorityService.Save(_authorityDto1).Should().Be(_authorityDto1);
+            _authorityRepositoryMock.Setup(mock => mock.Add(_authority1)).Returns(_authority1);
+            _authorityService.Add(_authorityDto1).Should().Be(_authorityDto1);
         }
     }
 }

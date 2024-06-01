@@ -1,13 +1,13 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.RoleMock;
 
 namespace SoundSphere.Tests.Unit.Repositories
 {
@@ -17,8 +17,8 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly IRoleRepository _roleRepository;
 
-        private readonly Role _role1 = RoleMock.GetMockedRole1();
-        private readonly IList<Role> _roles = RoleMock.GetMockedRoles();
+        private readonly Role _role1 = GetMockedRole1();
+        private readonly IList<Role> _roles = GetMockedRoles();
 
         public RoleRepositoryTest()
         {
@@ -31,18 +31,18 @@ namespace SoundSphere.Tests.Unit.Repositories
             _roleRepository = new RoleRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void FindAll_Test() => _roleRepository.FindAll().Should().BeEquivalentTo(_roles);
+        [Fact] public void GetAll_Test() => _roleRepository.GetAll().Should().BeEquivalentTo(_roles);
 
-        [Fact] public void FindById_ValidId_Test() => _roleRepository.FindById(Constants.ValidRoleGuid).Should().Be(_role1);
+        [Fact] public void GetById_ValidId_Test() => _roleRepository.GetById(ValidRoleGuid).Should().Be(_role1);
 
-        [Fact] public void FindById_InvalidId_Test() => _roleRepository
-            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+        [Fact] public void GetById_InvalidId_Test() => _roleRepository
+            .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.RoleNotFound, Constants.InvalidGuid));
+            .WithMessage(string.Format(RoleNotFound, InvalidGuid));
 
-        [Fact] public void Save_Test()
+        [Fact] public void Add_Test()
         {
-            _roleRepository.Save(_role1).Should().Be(_role1);
+            _roleRepository.Add(_role1).Should().Be(_role1);
             _dbSetMock.Verify(mock => mock.Add(It.IsAny<Role>()));
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }

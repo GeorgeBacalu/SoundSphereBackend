@@ -41,7 +41,6 @@ namespace SoundSphere.Database.Repositories
 
         public Album GetById(Guid id) => _context.Albums
             .Include(album => album.SimilarAlbums)
-            .Where(album => album.IsActive)
             .FirstOrDefault(album => album.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(AlbumNotFound, id));
 

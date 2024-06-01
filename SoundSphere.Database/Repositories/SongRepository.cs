@@ -51,7 +51,6 @@ namespace SoundSphere.Database.Repositories
             .Include(song => song.Album)
             .Include(song => song.Artists)
             .Include(song => song.SimilarSongs)
-            .Where(song => song.IsActive)
             .FirstOrDefault(song => song.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(SongNotFound, id));
 

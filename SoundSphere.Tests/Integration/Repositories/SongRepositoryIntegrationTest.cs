@@ -1,11 +1,11 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.SongMock;
 
 namespace SoundSphere.Tests.Integration.Repositories
 {
@@ -13,13 +13,13 @@ namespace SoundSphere.Tests.Integration.Repositories
     {
         private readonly DbFixture _fixture;
 
-        private readonly Song _song1 = SongMock.GetMockedSong1();
-        private readonly Song _song2 = SongMock.GetMockedSong2();
-        private readonly IList<Song> _songs = SongMock.GetMockedSongs();
-        private readonly IList<Song> _activeSongs = SongMock.GetMockedActiveSongs();
-        private readonly IList<Song> _paginatedSongs = SongMock.GetMockedPaginatedSongs();
-        private readonly IList<Song> _activePaginatedSongs = SongMock.GetMockedActivePaginatedSongs();
-        private readonly SongPaginationRequest _paginationRequest = SongMock.GetMockedPaginationRequest();
+        private readonly Song _song1 = GetMockedSong1();
+        private readonly Song _song2 = GetMockedSong2();
+        private readonly IList<Song> _songs = GetMockedSongs();
+        private readonly IList<Song> _activeSongs = GetMockedActiveSongs();
+        private readonly IList<Song> _paginatedSongs = GetMockedPaginatedSongs();
+        private readonly IList<Song> _activePaginatedSongs = GetMockedActivePaginatedSongs();
+        private readonly SongPaginationRequest _paginationRequest = GetMockedSongsPaginationRequest();
 
         public SongRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -34,55 +34,55 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((songRepository, context) => songRepository.FindAll().Should().BeEquivalentTo(_songs));
+        [Fact] public void GetAll_Test() => Execute((songRepository, context) => songRepository.GetAll().Should().BeEquivalentTo(_songs));
 
-        [Fact] public void FindAllActive_Test() => Execute((songRepository, context) => songRepository.FindAllActive().Should().BeEquivalentTo(_activeSongs));
+        [Fact] public void GetAllActive_Test() => Execute((songRepository, context) => songRepository.GetAllActive().Should().BeEquivalentTo(_activeSongs));
 
-        [Fact] public void FindAllPagination_Test() => Execute((songRepository, context) => songRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedSongs));
+        [Fact] public void GetAllPagination_Test() => Execute((songRepository, context) => songRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedSongs));
 
-        [Fact] public void FindAllActivePagination_Test() => Execute((songRepository, context) => songRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedSongs));
+        [Fact] public void GetAllActivePagination_Test() => Execute((songRepository, context) => songRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedSongs));
         
-        [Fact] public void FindById_ValidId_Test() => Execute((songRepository, context) => songRepository.FindById(Constants.ValidSongGuid).Should().Be(_song1));
+        [Fact] public void GetById_ValidId_Test() => Execute((songRepository, context) => songRepository.GetById(ValidSongGuid).Should().Be(_song1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((songRepository, context) => songRepository
-            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+        [Fact] public void GetById_InvalidId_Test() => Execute((songRepository, context) => songRepository
+            .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(SongNotFound, InvalidGuid)));
 
-        [Fact] public void Save_Test() => Execute((songRepository, context) =>
+        [Fact] public void Add_Test() => Execute((songRepository, context) =>
         {
-            Song newSong = SongMock.GetMockedSong90();
-            songRepository.Save(newSong);
+            Song newSong = GetMockedSong90();
+            songRepository.Add(newSong);
             context.Songs.Find(newSong.Id).Should().Be(newSong);
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((songRepository, context) =>
         {
             Song updatedSong = GetSong(_song2, _song1.IsActive);
-            songRepository.UpdateById(_song2, Constants.ValidSongGuid);
-            context.Songs.Find(Constants.ValidSongGuid).Should().Be(updatedSong);
+            songRepository.UpdateById(_song2, ValidSongGuid);
+            context.Songs.Find(ValidSongGuid).Should().Be(updatedSong);
         });
 
         [Fact] public void UpdateById_InvalidId_Test() => Execute((songRepository, context) => songRepository
-            .Invoking(repository => repository.UpdateById(_song2, Constants.InvalidGuid))
+            .Invoking(repository => repository.UpdateById(_song2, InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(SongNotFound, InvalidGuid)));
 
-        [Fact] public void DisableById_ValidId_Test() => Execute((songRepository, context) =>
+        [Fact] public void DeleteById_ValidId_Test() => Execute((songRepository, context) =>
         {
-            Song disabledSong = GetSong(_song1, false);
-            songRepository.DisableById(Constants.ValidSongGuid);
-            context.Songs.Find(Constants.ValidSongGuid).Should().Be(disabledSong);
+            Song deletedSong = GetSong(_song1, false);
+            songRepository.DeleteById(ValidSongGuid);
+            context.Songs.Find(ValidSongGuid).Should().Be(deletedSong);
         });
 
-        [Fact] public void DisableById_InvalidId_Test() => Execute((songRepository, context) => songRepository
-            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+        [Fact] public void DeleteById_InvalidId_Test() => Execute((songRepository, context) => songRepository
+            .Invoking(repository => repository.DeleteById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.SongNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(SongNotFound, InvalidGuid)));
 
         private Song GetSong(Song song, bool isActive) => new Song
         {
-            Id = Constants.ValidSongGuid,
+            Id = ValidSongGuid,
             Title = song.Title,
             ImageUrl = song.ImageUrl,
             Genre = song.Genre,

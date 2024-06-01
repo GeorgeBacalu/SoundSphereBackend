@@ -1,14 +1,14 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.AlbumMock;
 
 namespace SoundSphere.Tests.Unit.Repositories
 {
@@ -18,13 +18,13 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly IAlbumRepository _albumRepository;
 
-        private readonly Album _album1 = AlbumMock.GetMockedAlbum1();
-        private readonly Album _album2 = AlbumMock.GetMockedAlbum2();
-        private readonly IList<Album> _albums = AlbumMock.GetMockedAlbums();
-        private readonly IList<Album> _activeAlbums = AlbumMock.GetMockedActiveAlbums();
-        private readonly IList<Album> _paginedAlbums = AlbumMock.GetMockedPaginatedAlbums();
-        private readonly IList<Album> _activePaginatedAlbums = AlbumMock.GetMockedActivePaginatedAlbums();
-        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
+        private readonly Album _album1 = GetMockedAlbum1();
+        private readonly Album _album2 = GetMockedAlbum2();
+        private readonly IList<Album> _albums = GetMockedAlbums();
+        private readonly IList<Album> _activeAlbums = GetMockedActiveAlbums();
+        private readonly IList<Album> _paginedAlbums = GetMockedPaginatedAlbums();
+        private readonly IList<Album> _activePaginatedAlbums = GetMockedActivePaginatedAlbums();
+        private readonly AlbumPaginationRequest _paginationRequest = GetMockedAlbumsPaginationRequest();
 
         public AlbumRepositoryTest()
         {
@@ -37,24 +37,24 @@ namespace SoundSphere.Tests.Unit.Repositories
             _albumRepository = new AlbumRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void FindAll_Test() => _albumRepository.FindAll().Should().BeEquivalentTo(_albums);
+        [Fact] public void GetAll_Test() => _albumRepository.GetAll().Should().BeEquivalentTo(_albums);
 
-        [Fact] public void FindAllActive_Test() => _albumRepository.FindAllActive().Should().BeEquivalentTo(_activeAlbums);
+        [Fact] public void GetAllActive_Test() => _albumRepository.GetAllActive().Should().BeEquivalentTo(_activeAlbums);
 
-        [Fact] public void FindAllPagination_Test() => _albumRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginedAlbums);
+        [Fact] public void GetAllPagination_Test() => _albumRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginedAlbums);
 
-        [Fact] public void FindAllActivePagination_Test() => _albumRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbums);
+        [Fact] public void GetAllActivePagination_Test() => _albumRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbums);
 
-        [Fact] public void FindById_ValidId_Test() => _albumRepository.FindById(Constants.ValidAlbumGuid).Should().Be(_album1);
+        [Fact] public void GetById_ValidId_Test() => _albumRepository.GetById(ValidAlbumGuid).Should().Be(_album1);
 
-        [Fact] public void FindById_InvalidId_Test() => _albumRepository
-            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+        [Fact] public void GetById_InvalidId_Test() => _albumRepository
+            .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.AlbumNotFound, Constants.InvalidGuid));
+            .WithMessage(string.Format(AlbumNotFound, InvalidGuid));
 
-        [Fact] public void Save_Test()
+        [Fact] public void Add_Test()
         {
-            _albumRepository.Save(_album1).Should().Be(_album1);
+            _albumRepository.Add(_album1).Should().Be(_album1);
             _dbSetMock.Verify(mock => mock.Add(It.IsAny<Album>()));
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -62,30 +62,30 @@ namespace SoundSphere.Tests.Unit.Repositories
         [Fact] public void UpdateById_ValidId_Test()
         {
             Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
-            _albumRepository.UpdateById(_album2, Constants.ValidAlbumGuid).Should().Be(updatedAlbum);
+            _albumRepository.UpdateById(_album2, ValidAlbumGuid).Should().Be(updatedAlbum);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
         [Fact] public void UpdateById_InvalidId_Test() => _albumRepository
-            .Invoking(repository => repository.UpdateById(_album2, Constants.InvalidGuid))
+            .Invoking(repository => repository.UpdateById(_album2, InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.AlbumNotFound, Constants.InvalidGuid));
+            .WithMessage(string.Format(AlbumNotFound, InvalidGuid));
 
-        [Fact] public void DisableById_ValidId_Test()
+        [Fact] public void DeleteById_ValidId_Test()
         {
-            Album disabledAlbum = GetAlbum(_album1, false);
-            _albumRepository.DisableById(Constants.ValidAlbumGuid).Should().Be(disabledAlbum);
+            Album deletedAlbum = GetAlbum(_album1, false);
+            _albumRepository.DeleteById(ValidAlbumGuid).Should().Be(deletedAlbum);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
 
-        [Fact] public void DisableById_InvalidId_Test() => _albumRepository
-            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+        [Fact] public void DeleteById_InvalidId_Test() => _albumRepository
+            .Invoking(repository => repository.DeleteById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.AlbumNotFound, Constants.InvalidGuid));
+            .WithMessage(string.Format(AlbumNotFound, InvalidGuid));
 
         private Album GetAlbum(Album album, bool isActive) => new Album
         {
-            Id = Constants.ValidAlbumGuid,
+            Id = ValidAlbumGuid,
             Title = album.Title,
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,

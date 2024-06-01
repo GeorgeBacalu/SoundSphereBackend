@@ -32,13 +32,11 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<ArtistDto> GetMockedActivePaginatedArtistDtos() => GetMockedPaginatedArtistDtos().Where(artist => artist.IsActive).ToList();
 
-        public static ArtistPaginationRequest GetMockedPaginationRequest() => new ArtistPaginationRequest
-        {
-            SortCriteria = new Dictionary<ArtistSortCriterion, SortOrder> { { ArtistSortCriterion.ByName, SortOrder.Ascending } },
-            SearchCriteria = new List<ArtistSearchCriterion>() { ArtistSearchCriterion.ByName },
-            Name = "A"
-        };
-        
+        public static ArtistPaginationRequest GetMockedArtistsPaginationRequest() => new ArtistPaginationRequest(
+            SortCriteria: new Dictionary<ArtistSortCriterion, SortOrder> { { ArtistSortCriterion.ByName, SortOrder.Ascending } },
+            SearchCriteria: new List<ArtistSearchCriterion>() { ArtistSearchCriterion.ByName },
+            Name: "A");
+
         public static Artist GetMockedArtist1() => new Artist
         {
             Id = Guid.Parse("4e75ecdd-aafe-4c35-836b-1b83fc7b8f88"),

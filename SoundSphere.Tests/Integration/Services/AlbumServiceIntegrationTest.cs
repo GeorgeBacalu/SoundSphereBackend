@@ -2,13 +2,13 @@
 using FluentAssertions;
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.AlbumMock;
 
 namespace SoundSphere.Tests.Integration.Services
 {
@@ -17,16 +17,16 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly DbFixture _fixture;
         private readonly IMapper _mapper;
 
-        private readonly Album _album1 = AlbumMock.GetMockedAlbum1();
-        private readonly Album _album2 = AlbumMock.GetMockedAlbum2();
-        private readonly IList<Album> _albums = AlbumMock.GetMockedAlbums();
-        private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
-        private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
-        private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
-        private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
-        private readonly IList<AlbumDto> _paginatedAlbumDtos = AlbumMock.GetMockedPaginatedAlbumDtos();
-        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = AlbumMock.GetMockedActivePaginatedAlbumDtos();
-        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
+        private readonly Album _album1 = GetMockedAlbum1();
+        private readonly Album _album2 = GetMockedAlbum2();
+        private readonly IList<Album> _albums = GetMockedAlbums();
+        private readonly AlbumDto _albumDto1 = GetMockedAlbumDto1();
+        private readonly AlbumDto _albumDto2 = GetMockedAlbumDto2();
+        private readonly IList<AlbumDto> _albumDtos = GetMockedAlbumDtos();
+        private readonly IList<AlbumDto> _activeAlbumDtos = GetMockedActiveAlbumDtos();
+        private readonly IList<AlbumDto> _paginatedAlbumDtos = GetMockedPaginatedAlbumDtos();
+        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = GetMockedActivePaginatedAlbumDtos();
+        private readonly AlbumPaginationRequest _paginationRequest = GetMockedAlbumsPaginationRequest();
 
         public AlbumServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Album, AlbumDto>(); config.CreateMap<AlbumDto, Album>(); }).CreateMapper());
 
@@ -41,42 +41,45 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((albumService, context) => albumService.FindAll().Should().BeEquivalentTo(_albumDtos));
+        [Fact] public void GetAll_Test() => Execute((albumService, context) => albumService.GetAll().Should().BeEquivalentTo(_albumDtos));
 
-        [Fact] public void FindAllActive_Test() => Execute((albumService, context) => albumService.FindAllActive().Should().BeEquivalentTo(_activeAlbumDtos));
+        [Fact] public void GetAllActive_Test() => Execute((albumService, context) => albumService.GetAllActive().Should().BeEquivalentTo(_activeAlbumDtos));
 
-        [Fact] public void FindAllPagination_Test() => Execute((albumService, context) => albumService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedAlbumDtos));
+        [Fact] public void GetAllPagination_Test() => Execute((albumService, context) => albumService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedAlbumDtos));
 
-        [Fact] public void FindAllActivePagination_Test() => Execute((albumService, context) => albumService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbumDtos));
+        [Fact] public void GetAllActivePagination_Test() => Execute((albumService, context) => albumService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbumDtos));
         
-        [Fact] public void FindById_Test() => Execute((albumService, context) => albumService.FindById(Constants.ValidAlbumGuid).Should().Be(_albumDto1));
+        [Fact] public void GetById_Test() => Execute((albumService, context) => albumService.GetById(ValidAlbumGuid).Should().Be(_albumDto1));
 
-        [Fact] public void Save_Test() => Execute((albumService, context) =>
+        [Fact] public void Add_Test() => Execute((albumService, context) =>
         {
-            AlbumDto newAlbumDto = AlbumMock.GetMockedAlbumDto51();
-            albumService.Save(newAlbumDto);
+            AlbumDto newAlbumDto = GetMockedAlbumDto51();
+            AlbumDto result = albumService.Add(newAlbumDto);
             context.Albums.Find(newAlbumDto.Id).Should().Be(newAlbumDto);
+            result.Should().Be(newAlbumDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((albumService, context) =>
         {
             Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
             AlbumDto updatedAlbumDto = updatedAlbum.ToDto(_mapper);
-            albumService.UpdateById(_albumDto2, Constants.ValidAlbumGuid);
-            context.Albums.Find(Constants.ValidAlbumGuid).Should().Be(updatedAlbum);
+            AlbumDto result = albumService.UpdateById(_albumDto2, ValidAlbumGuid);
+            context.Albums.Find(ValidAlbumGuid).Should().Be(updatedAlbum);
+            result.Should().Be(updatedAlbumDto);
         });
 
-        [Fact] public void DisableById_Test() => Execute((albumService, context) =>
+        [Fact] public void DeleteById_Test() => Execute((albumService, context) =>
         {
-            Album disabledAlbum = GetAlbum(_album1, false);
-            AlbumDto disabledAlbumDto = disabledAlbum.ToDto(_mapper);
-            albumService.DisableById(Constants.ValidAlbumGuid);
-            context.Albums.Find(Constants.ValidAlbumGuid).Should().Be(disabledAlbum);
+            Album deletedAlbum = GetAlbum(_album1, false);
+            AlbumDto deletedAlbumDto = deletedAlbum.ToDto(_mapper);
+            AlbumDto result = albumService.DeleteById(ValidAlbumGuid);
+            context.Albums.Find(ValidAlbumGuid).Should().Be(deletedAlbum);
+            result.Should().Be(deletedAlbumDto);
         });
 
         private Album GetAlbum(Album album, bool isActive) => new Album
         {
-            Id = Constants.ValidAlbumGuid,
+            Id = ValidAlbumGuid,
             Title = album.Title,
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,

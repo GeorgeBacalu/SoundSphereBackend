@@ -41,7 +41,6 @@ namespace SoundSphere.Database.Repositories
 
         public Playlist GetById(Guid id) => _context.Playlists
             .Include(playlist => playlist.User)
-            .Where(playlist => playlist.IsActive)
             .FirstOrDefault(playlist => playlist.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(PlaylistNotFound, id));
 

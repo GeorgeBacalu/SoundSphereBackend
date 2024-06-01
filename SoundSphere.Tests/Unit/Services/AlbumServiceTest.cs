@@ -3,12 +3,12 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.AlbumMock;
 
 namespace SoundSphere.Tests.Unit.Services
 {
@@ -18,19 +18,19 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly IAlbumService _albumService;
 
-        private readonly Album _album1 = AlbumMock.GetMockedAlbum1();
-        private readonly Album _album2 = AlbumMock.GetMockedAlbum2();
-        private readonly IList<Album> _albums = AlbumMock.GetMockedAlbums();
-        private readonly IList<Album> _activeAlbums = AlbumMock.GetMockedActiveAlbums();
-        private readonly IList<Album> _paginatedAlbums = AlbumMock.GetMockedPaginatedAlbums();
-        private readonly IList<Album> _activePaginatedAlbums = AlbumMock.GetMockedActivePaginatedAlbums();
-        private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
-        private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
-        private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
-        private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
-        private readonly IList<AlbumDto> _paginatedAlbumDtos = AlbumMock.GetMockedPaginatedAlbumDtos();
-        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = AlbumMock.GetMockedActivePaginatedAlbumDtos();
-        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
+        private readonly Album _album1 = GetMockedAlbum1();
+        private readonly Album _album2 = GetMockedAlbum2();
+        private readonly IList<Album> _albums = GetMockedAlbums();
+        private readonly IList<Album> _activeAlbums = GetMockedActiveAlbums();
+        private readonly IList<Album> _paginatedAlbums = GetMockedPaginatedAlbums();
+        private readonly IList<Album> _activePaginatedAlbums = GetMockedActivePaginatedAlbums();
+        private readonly AlbumDto _albumDto1 = GetMockedAlbumDto1();
+        private readonly AlbumDto _albumDto2 = GetMockedAlbumDto2();
+        private readonly IList<AlbumDto> _albumDtos = GetMockedAlbumDtos();
+        private readonly IList<AlbumDto> _activeAlbumDtos = GetMockedActiveAlbumDtos();
+        private readonly IList<AlbumDto> _paginatedAlbumDtos = GetMockedPaginatedAlbumDtos();
+        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = GetMockedActivePaginatedAlbumDtos();
+        private readonly AlbumPaginationRequest _paginationRequest = GetMockedAlbumsPaginationRequest();
 
         public AlbumServiceTest()
         {
@@ -41,40 +41,40 @@ namespace SoundSphere.Tests.Unit.Services
             _albumService = new AlbumService(_albumRepositoryMock.Object, _mapperMock.Object);
         }
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _albumRepositoryMock.Setup(mock => mock.FindAll()).Returns(_albums);
-            _albumService.FindAll().Should().BeEquivalentTo(_albumDtos);
+            _albumRepositoryMock.Setup(mock => mock.GetAll()).Returns(_albums);
+            _albumService.GetAll().Should().BeEquivalentTo(_albumDtos);
         }
 
-        [Fact] public void FindAllActive_Test()
+        [Fact] public void GetAllActive_Test()
         {
-            _albumRepositoryMock.Setup(mock => mock.FindAllActive()).Returns(_activeAlbums);
-            _albumService.FindAllActive().Should().BeEquivalentTo(_activeAlbumDtos);
+            _albumRepositoryMock.Setup(mock => mock.GetAllActive()).Returns(_activeAlbums);
+            _albumService.GetAllActive().Should().BeEquivalentTo(_activeAlbumDtos);
         }
 
-        [Fact] public void FindAllPagination_Test()
+        [Fact] public void GetAllPagination_Test()
         {
-            _albumRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedAlbums);
-            _albumService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedAlbumDtos);
+            _albumRepositoryMock.Setup(mock => mock.GetAllPagination(_paginationRequest)).Returns(_paginatedAlbums);
+            _albumService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedAlbumDtos);
         }
 
-        [Fact] public void FindAllActivePagination_Test()
+        [Fact] public void GetAllActivePagination_Test()
         {
-            _albumRepositoryMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedAlbums);
-            _albumService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbumDtos);
+            _albumRepositoryMock.Setup(mock => mock.GetAllActivePagination(_paginationRequest)).Returns(_activePaginatedAlbums);
+            _albumService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbumDtos);
         }
 
-        [Fact] public void FindById_Test()
+        [Fact] public void GetById_Test()
         {
-            _albumRepositoryMock.Setup(mock => mock.FindById(Constants.ValidAlbumGuid)).Returns(_album1);
-            _albumService.FindById(Constants.ValidAlbumGuid).Should().Be(_albumDto1);
+            _albumRepositoryMock.Setup(mock => mock.GetById(ValidAlbumGuid)).Returns(_album1);
+            _albumService.GetById(ValidAlbumGuid).Should().Be(_albumDto1);
         }
             
-        [Fact] public void Save_Test()
+        [Fact] public void Add_Test()
         {
-            _albumRepositoryMock.Setup(mock => mock.Save(_album1)).Returns(_album1);
-            _albumService.Save(_albumDto1).Should().Be(_albumDto1);
+            _albumRepositoryMock.Setup(mock => mock.Add(_album1)).Returns(_album1);
+            _albumService.Add(_albumDto1).Should().Be(_albumDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -82,22 +82,22 @@ namespace SoundSphere.Tests.Unit.Services
             Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
             AlbumDto updatedAlbumDto = ToDto(updatedAlbum);
             _mapperMock.Setup(mock => mock.Map<AlbumDto>(updatedAlbum)).Returns(updatedAlbumDto);
-            _albumRepositoryMock.Setup(mock => mock.UpdateById(_album2, Constants.ValidAlbumGuid)).Returns(updatedAlbum);
-            _albumService.UpdateById(_albumDto2, Constants.ValidAlbumGuid).Should().Be(updatedAlbumDto);
+            _albumRepositoryMock.Setup(mock => mock.UpdateById(_album2, ValidAlbumGuid)).Returns(updatedAlbum);
+            _albumService.UpdateById(_albumDto2, ValidAlbumGuid).Should().Be(updatedAlbumDto);
         }
 
-        [Fact] public void DisableById_Test()
+        [Fact] public void DeleteById_Test()
         {
-            Album disabledAlbum = GetAlbum(_album1, false);
-            AlbumDto disabledAlbumDto = ToDto(disabledAlbum);
-            _mapperMock.Setup(mock => mock.Map<AlbumDto>(disabledAlbum)).Returns(disabledAlbumDto);
-            _albumRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidAlbumGuid)).Returns(disabledAlbum);
-            _albumService.DisableById(Constants.ValidAlbumGuid).Should().Be(disabledAlbumDto);
+            Album deletedAlbum = GetAlbum(_album1, false);
+            AlbumDto deletedAlbumDto = ToDto(deletedAlbum);
+            _mapperMock.Setup(mock => mock.Map<AlbumDto>(deletedAlbum)).Returns(deletedAlbumDto);
+            _albumRepositoryMock.Setup(mock => mock.DeleteById(ValidAlbumGuid)).Returns(deletedAlbum);
+            _albumService.DeleteById(ValidAlbumGuid).Should().Be(deletedAlbumDto);
         }
 
         private Album GetAlbum(Album album, bool isActive) => new Album
         {
-            Id = Constants.ValidAlbumGuid,
+            Id = ValidAlbumGuid,
             Title = album.Title,
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,

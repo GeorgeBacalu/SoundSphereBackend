@@ -1,11 +1,11 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.ArtistMock;
 
 namespace SoundSphere.Tests.Integration.Repositories
 {
@@ -13,13 +13,13 @@ namespace SoundSphere.Tests.Integration.Repositories
     {
         private readonly DbFixture _fixture;
 
-        private readonly Artist _artist1 = ArtistMock.GetMockedArtist1();
-        private readonly Artist _artist2 = ArtistMock.GetMockedArtist2();
-        private readonly IList<Artist> _artists = ArtistMock.GetMockedArtists();
-        private readonly IList<Artist> _activeArtists = ArtistMock.GetMockedActiveArtists();
-        private readonly IList<Artist> _paginatedArtists = ArtistMock.GetMockedPaginatedArtists();
-        private readonly IList<Artist> _activePaginatedArtists = ArtistMock.GetMockedActivePaginatedArtists();
-        private readonly ArtistPaginationRequest _paginationRequest = ArtistMock.GetMockedPaginationRequest();
+        private readonly Artist _artist1 = GetMockedArtist1();
+        private readonly Artist _artist2 = GetMockedArtist2();
+        private readonly IList<Artist> _artists = GetMockedArtists();
+        private readonly IList<Artist> _activeArtists = GetMockedActiveArtists();
+        private readonly IList<Artist> _paginatedArtists = GetMockedPaginatedArtists();
+        private readonly IList<Artist> _activePaginatedArtists = GetMockedActivePaginatedArtists();
+        private readonly ArtistPaginationRequest _paginationRequest = GetMockedArtistsPaginationRequest();
 
         public ArtistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -34,55 +34,55 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((artistRepository, context) => artistRepository.FindAll().Should().BeEquivalentTo(_artists));
+        [Fact] public void GetAll_Test() => Execute((artistRepository, context) => artistRepository.GetAll().Should().BeEquivalentTo(_artists));
 
-        [Fact] public void FindAllActive_Test() => Execute((artistRepository, context) => artistRepository.FindAllActive().Should().BeEquivalentTo(_activeArtists));
+        [Fact] public void GetAllActive_Test() => Execute((artistRepository, context) => artistRepository.GetAllActive().Should().BeEquivalentTo(_activeArtists));
 
-        [Fact] public void FindAllPagination_Test() => Execute((artistRepository, context) => artistRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists));
+        [Fact] public void GetAllPagination_Test() => Execute((artistRepository, context) => artistRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists));
 
-        [Fact] public void FindAllActivePagination_Test() => Execute((artistRepository, context) => artistRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtists));
+        [Fact] public void GetAllActivePagination_Test() => Execute((artistRepository, context) => artistRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtists));
         
-        [Fact] public void FindById_ValidId_Test() => Execute((artistRepository, context) => artistRepository.FindById(Constants.ValidArtistGuid).Should().Be(_artist1));
+        [Fact] public void GetById_ValidId_Test() => Execute((artistRepository, context) => artistRepository.GetById(ValidArtistGuid).Should().Be(_artist1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((artistRepository, context) => artistRepository
-            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+        [Fact] public void GetById_InvalidId_Test() => Execute((artistRepository, context) => artistRepository
+            .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.ArtistNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(ArtistNotFound, InvalidGuid)));
 
-        [Fact] public void Save_Test() => Execute((artistRepository, context) =>
+        [Fact] public void Add_Test() => Execute((artistRepository, context) =>
         {
-            Artist newArtist = ArtistMock.GetMockedArtist51();
-            artistRepository.Save(newArtist);
+            Artist newArtist = GetMockedArtist51();
+            artistRepository.Add(newArtist);
             context.Artists.Find(newArtist.Id).Should().Be(newArtist);
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((artistRepository, context) =>
         {
             Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
-            artistRepository.UpdateById(_artist2, Constants.ValidArtistGuid);
-            context.Artists.Find(Constants.ValidArtistGuid).Should().Be(updatedArtist);
+            artistRepository.UpdateById(_artist2, ValidArtistGuid);
+            context.Artists.Find(ValidArtistGuid).Should().Be(updatedArtist);
         });
 
         [Fact] public void UpdateById_InvalidId_Test() => Execute((artistRepository, context) => artistRepository
-            .Invoking(repository => repository.UpdateById(_artist2, Constants.InvalidGuid))
+            .Invoking(repository => repository.UpdateById(_artist2, InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.ArtistNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(ArtistNotFound, InvalidGuid)));
 
-        [Fact] public void DisableById_ValidId_Test() => Execute((artistRepository, context) =>
+        [Fact] public void DeleteById_ValidId_Test() => Execute((artistRepository, context) =>
         {
-            Artist disabledArtist = GetArtist(_artist1, false);
-            artistRepository.DisableById(Constants.ValidArtistGuid);
-            context.Artists.Find(Constants.ValidArtistGuid).Should().Be(disabledArtist);
+            Artist deletedArtist = GetArtist(_artist1, false);
+            artistRepository.DeleteById(ValidArtistGuid);
+            context.Artists.Find(ValidArtistGuid).Should().Be(deletedArtist);
         });
 
-        [Fact] public void DisableById_InvalidId_Test() => Execute((artistRepository, context) => artistRepository
-            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+        [Fact] public void DeleteById_InvalidId_Test() => Execute((artistRepository, context) => artistRepository
+            .Invoking(repository => repository.DeleteById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.ArtistNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(ArtistNotFound, InvalidGuid)));
 
         private Artist GetArtist(Artist artist, bool isActive) => new Artist
         {
-            Id = Constants.ValidArtistGuid,
+            Id = ValidArtistGuid,
             Name = artist.Name,
             ImageUrl = artist.ImageUrl,
             Bio = artist.Bio,

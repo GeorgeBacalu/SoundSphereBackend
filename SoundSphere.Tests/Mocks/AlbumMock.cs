@@ -33,13 +33,11 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<AlbumDto> GetMockedActivePaginatedAlbumDtos() => GetMockedPaginatedAlbumDtos().Where(album => album.IsActive).ToList();
 
-        public static AlbumPaginationRequest GetMockedPaginationRequest() => new AlbumPaginationRequest
-        {
-            SortCriteria = new Dictionary<AlbumSortCriterion, SortOrder> { { AlbumSortCriterion.ByTitle, SortOrder.Ascending }, { AlbumSortCriterion.ByReleaseDate, SortOrder.Ascending } },
-            SearchCriteria = new List<AlbumSearchCriterion> { AlbumSearchCriterion.ByTitle, AlbumSearchCriterion.ByReleaseDateRange },
-            Title = "A",
-            DateRange = new DateRange { StartDate = new DateOnly(1950, 1, 1), EndDate = new DateOnly(2024, 1, 1) }
-        };
+        public static AlbumPaginationRequest GetMockedAlbumsPaginationRequest() => new AlbumPaginationRequest(
+            SortCriteria: new Dictionary<AlbumSortCriterion, SortOrder> { { AlbumSortCriterion.ByTitle, SortOrder.Ascending }, { AlbumSortCriterion.ByReleaseDate, SortOrder.Ascending } },
+            SearchCriteria: new List<AlbumSearchCriterion> { AlbumSearchCriterion.ByTitle, AlbumSearchCriterion.ByReleaseDateRange },
+            Title: "A",
+            DateRange: new DateRange(new DateOnly(1950, 1, 1), new DateOnly(2024, 5, 31)));
 
         public static Album GetMockedAlbum1() => new Album
         {

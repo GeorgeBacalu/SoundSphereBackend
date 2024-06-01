@@ -46,7 +46,6 @@ namespace SoundSphere.Database.Repositories
         public User GetById(Guid id) => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
-            .Where(user => user.IsActive)
             .FirstOrDefault(user => user.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(UserNotFound, id));
 

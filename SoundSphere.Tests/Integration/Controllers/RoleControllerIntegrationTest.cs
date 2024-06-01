@@ -1,14 +1,14 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
-using SoundSphere.Tests.Mocks;
-using System.Net;
+using static Microsoft.AspNetCore.Http.StatusCodes;
+using static Newtonsoft.Json.JsonConvert;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.RoleMock;
+using static System.Net.HttpStatusCode;
 
 namespace SoundSphere.Tests.Integration.Controllers
 {
@@ -18,9 +18,9 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly CustomWebAppFactory _factory;
         private readonly HttpClient _httpClient;
 
-        private readonly IList<Role> _roles = RoleMock.GetMockedRoles();
-        private readonly RoleDto _roleDto1 = RoleMock.GetMockedRoleDto1();
-        private readonly IList<RoleDto> _roleDtos = RoleMock.GetMockedRoleDtos();
+        private readonly IList<Role> _roles = GetMockedRoles();
+        private readonly RoleDto _roleDto1 = GetMockedRoleDto1();
+        private readonly IList<RoleDto> _roleDtos = GetMockedRoleDtos();
 
         public RoleControllerIntegrationTest()
         {
@@ -42,40 +42,40 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
-        [Fact] public async Task FindAll_Test() => await Execute(async () =>
+        [Fact] public async Task GetAll_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(Constants.ApiRole);
+            var response = await _httpClient.GetAsync(ApiRole);
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<IList<RoleDto>>(await response.Content.ReadAsStringAsync());
+            response.StatusCode.Should().Be(OK);
+            var responseBody = DeserializeObject<IList<RoleDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_roleDtos);
         });
 
-        [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
+        [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync($"{Constants.ApiRole}/{_roleDto1.Id}");
+            var response = await _httpClient.GetAsync($"{ApiRole}/{_roleDto1.Id}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<RoleDto>(await response.Content.ReadAsStringAsync());
+            response.StatusCode.Should().Be(OK);
+            var responseBody = DeserializeObject<RoleDto>(await response.Content.ReadAsStringAsync());
             responseBody.Should().Be(_roleDto1);
         });
 
-        [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
+        [Fact] public async Task GetById_InvalidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync($"{Constants.ApiRole}/{Constants.InvalidGuid}");
+            var response = await _httpClient.GetAsync($"{ApiRole}/{InvalidGuid}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.RoleNotFound, Constants.InvalidGuid) });
+            response.StatusCode.Should().Be(NotFound);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(RoleNotFound, InvalidGuid) });
         });
 
-        [Fact] public async Task Save_Test() => await Execute(async () =>
+        [Fact] public async Task Add_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.PostAsync(Constants.ApiRole, new StringContent(JsonConvert.SerializeObject(_roleDto1)));
+            var response = await _httpClient.PostAsync(ApiRole, new StringContent(SerializeObject(_roleDto1)));
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Internal server error", Status = StatusCodes.Status400BadRequest, Detail = "Cannot insert duplicate key row in object 'dbo.Roles' with unique index 'IX_Roles_Type'. The duplicate key value is (Create)." });
+            response.StatusCode.Should().Be(BadRequest);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Internal server error", Status = Status400BadRequest, Detail = "Cannot insert duplicate key row in object 'dbo.Roles' with unique index 'IX_Roles_Type'. The duplicate key value is (Create)." });
         });
     }
 }
