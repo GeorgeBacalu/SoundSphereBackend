@@ -3,12 +3,14 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.SongMock;
+using static SoundSphere.Tests.Mocks.AlbumMock;
+using static SoundSphere.Tests.Mocks.ArtistMock;
 
 namespace SoundSphere.Tests.Unit.Services
 {
@@ -20,21 +22,17 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly ISongService _songService;
 
-        private readonly Song _song1 = SongMock.GetMockedSong1();
-        private readonly Song _song2 = SongMock.GetMockedSong2();
-        private readonly IList<Song> _songs = SongMock.GetMockedSongs();
-        private readonly IList<Song> _activeSongs = SongMock.GetMockedActiveSongs();
-        private readonly IList<Song> _paginatedSongs = SongMock.GetMockedPaginatedSongs();
-        private readonly IList<Song> _activePaginatedSongs = SongMock.GetMockedActivePaginatedSongs();
-        private readonly SongDto _songDto1 = SongMock.GetMockedSongDto1();
-        private readonly SongDto _songDto2 = SongMock.GetMockedSongDto2();
-        private readonly IList<SongDto> _songDtos = SongMock.GetMockedSongDtos();
-        private readonly IList<SongDto> _activeSongDtos = SongMock.GetMockedActiveSongDtos();
-        private readonly IList<SongDto> _paginatedSongDtos = SongMock.GetMockedPaginatedSongDtos();
-        private readonly IList<SongDto> _activePaginatedSongDtos = SongMock.GetMockedActivePaginatedSongDtos();
-        private readonly SongPaginationRequest _paginationRequest = SongMock.GetMockedPaginationRequest();
-        private readonly Album _album1 = AlbumMock.GetMockedAlbum1();
-        private readonly IList<Artist> _artists1 = new List<Artist> { ArtistMock.GetMockedArtist1() };
+        private readonly Song _song1 = GetMockedSong1();
+        private readonly Song _song2 = GetMockedSong2();
+        private readonly IList<Song> _songs = GetMockedSongs();
+        private readonly IList<Song> _paginatedSongs = GetMockedPaginatedSongs();
+        private readonly SongDto _songDto1 = GetMockedSongDto1();
+        private readonly SongDto _songDto2 = GetMockedSongDto2();
+        private readonly IList<SongDto> _songDtos = GetMockedSongDtos();
+        private readonly IList<SongDto> _paginatedSongDtos = GetMockedPaginatedSongDtos();
+        private readonly SongPaginationRequest _paginationRequest = GetMockedSongsPaginationRequest();
+        private readonly Album _album1 = GetMockedAlbum1();
+        private readonly IList<Artist> _artists1 = new List<Artist> { GetMockedArtist1() };
 
         public SongServiceTest()
         {
@@ -45,65 +43,47 @@ namespace SoundSphere.Tests.Unit.Services
             _songService = new SongService(_songRepositoryMock.Object, _albumRepositoryMock.Object, _artistRepositoryMock.Object, _mapperMock.Object);
         }
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _songRepositoryMock.Setup(mock => mock.FindAll()).Returns(_songs);
-            _songService.FindAll().Should().BeEquivalentTo(_songDtos);
+            _songRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedSongs);
+            _songService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedSongDtos);
         }
 
-        [Fact] public void FindAllActive_Test()
+        [Fact] public void GetById_Test()
         {
-            _songRepositoryMock.Setup(mock => mock.FindAllActive()).Returns(_activeSongs);
-            _songService.FindAllActive().Should().BeEquivalentTo(_activeSongDtos);
+            _songRepositoryMock.Setup(mock => mock.GetById(ValidSongGuid)).Returns(_song1);
+            _songService.GetById(ValidSongGuid).Should().Be(_songDto1);
         }
 
-        [Fact] public void FindAllPagination_Test()
+        [Fact] public void Add_Test()
         {
-            _songRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedSongs);
-            _songService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedSongDtos);
-        }
-
-        [Fact] public void FindAllActivePagination_Test()
-        {
-            _songRepositoryMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedSongs);
-            _songService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedSongDtos);
-        }
-
-        [Fact] public void FindById_Test()
-        {
-            _songRepositoryMock.Setup(mock => mock.FindById(Constants.ValidSongGuid)).Returns(_song1);
-            _songService.FindById(Constants.ValidSongGuid).Should().Be(_songDto1);
-        }
-
-        [Fact] public void Save_Test()
-        {
-            _songDto1.ArtistsIds.ToList().ForEach(id => _artistRepositoryMock.Setup(mock => mock.FindById(id)).Returns(_artists1.First(artist => artist.Id == id)));
-            _albumRepositoryMock.Setup(mock => mock.FindById(Constants.ValidAlbumGuid)).Returns(_album1);
-            _songRepositoryMock.Setup(mock => mock.Save(_song1)).Returns(_song1);
-            _songService.Save(_songDto1).Should().Be(_songDto1);
+            _songDto1.ArtistsIds.ToList().ForEach(id => _artistRepositoryMock.Setup(mock => mock.GetById(id)).Returns(_artists1.First(artist => artist.Id == id)));
+            _albumRepositoryMock.Setup(mock => mock.GetById(ValidAlbumGuid)).Returns(_album1);
+            _songRepositoryMock.Setup(mock => mock.Add(_song1)).Returns(_song1);
+            _songService.Add(_songDto1).Should().Be(_songDto1);
         }
 
         [Fact] public void UpdateById_Test()
         {
-            Song updatedSong = GetSong(_song2, _song1.IsActive);
+            Song updatedSong = GetSong(_song2, true);
             SongDto updatedSongDto = ToDto(updatedSong);
             _mapperMock.Setup(mock => mock.Map<SongDto>(updatedSong)).Returns(updatedSongDto);
-            _songRepositoryMock.Setup(mock => mock.UpdateById(_song2, Constants.ValidSongGuid)).Returns(updatedSong);
-            _songService.UpdateById(_songDto2, Constants.ValidSongGuid).Should().Be(updatedSongDto);
+            _songRepositoryMock.Setup(mock => mock.UpdateById(_song2, ValidSongGuid)).Returns(updatedSong);
+            _songService.UpdateById(_songDto2, ValidSongGuid).Should().Be(updatedSongDto);
         }
 
-        [Fact] public void DisableById_Test()
+        [Fact] public void DeleteById_Test()
         {
-            Song disabledSong = GetSong(_song1, false);
-            SongDto disabledSongDto = ToDto(disabledSong);
-            _mapperMock.Setup(mock => mock.Map<SongDto>(disabledSong)).Returns(disabledSongDto);
-            _songRepositoryMock.Setup(mock => mock.DisableById(Constants.ValidSongGuid)).Returns(disabledSong);
-            _songService.DisableById(Constants.ValidSongGuid).Should().Be(disabledSongDto);
+            Song deletedSong = GetSong(_song1, false);
+            SongDto deletedSongDto = ToDto(deletedSong);
+            _mapperMock.Setup(mock => mock.Map<SongDto>(deletedSong)).Returns(deletedSongDto);
+            _songRepositoryMock.Setup(mock => mock.DeleteById(ValidSongGuid)).Returns(deletedSong);
+            _songService.DeleteById(ValidSongGuid).Should().Be(deletedSongDto);
         }
 
         private Song GetSong(Song song, bool isActive) => new Song
         {
-            Id = Constants.ValidSongGuid,
+            Id = ValidSongGuid,
             Title = song.Title,
             ImageUrl = song.ImageUrl,
             Genre = song.Genre,
@@ -111,8 +91,7 @@ namespace SoundSphere.Tests.Unit.Services
             DurationSeconds = song.DurationSeconds,
             Album = song.Album,
             Artists = song.Artists,
-            SimilarSongs = song.SimilarSongs,
-            IsActive = isActive
+            SimilarSongs = song.SimilarSongs
         };
 
         private SongDto ToDto(Song song) => new SongDto
@@ -126,7 +105,9 @@ namespace SoundSphere.Tests.Unit.Services
             AlbumId = song.Album.Id,
             ArtistsIds = song.Artists.Select(artist => artist.Id).ToList(),
             SimilarSongsIds = song.SimilarSongs.Select(songLink => songLink.SimilarSongId).ToList(),
-            IsActive = song.IsActive
+            CreatedAt = song.CreatedAt,
+            UpdatedAt = song.UpdatedAt,
+            DeletedAt = song.DeletedAt
         };
     }
 }

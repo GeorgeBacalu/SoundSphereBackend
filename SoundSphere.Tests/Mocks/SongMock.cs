@@ -3,6 +3,8 @@ using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
+using static SoundSphere.Tests.Mocks.AlbumMock;
+using static SoundSphere.Tests.Mocks.ArtistMock;
 
 namespace SoundSphere.Tests.Mocks
 {
@@ -25,17 +27,9 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<SongDto> GetMockedSongDtos() => GetMockedSongs().Select(ToDto).ToList();
 
-        public static IList<Song> GetMockedActiveSongs() => GetMockedSongs().Where(song => song.IsActive).ToList();
+        public static IList<Song> GetMockedPaginatedSongs() => GetMockedSongs().Where(song => song.DeletedAt == null).Take(10).ToList();
 
-        public static IList<SongDto> GetMockedActiveSongDtos() => GetMockedSongDtos().Where(song => song.IsActive).ToList();
-
-        public static IList<Song> GetMockedPaginatedSongs() => new List<Song> { GetMockedSong84(), GetMockedSong85(), GetMockedSong86(), GetMockedSong87(), GetMockedSong88(), GetMockedSong89() };
-
-        public static IList<SongDto> GetMockedPaginatedSongDtos() => new List<SongDto> { GetMockedSongDto84(), GetMockedSongDto85(), GetMockedSongDto86(), GetMockedSongDto87(), GetMockedSongDto88(), GetMockedSongDto89() };
-
-        public static IList<Song> GetMockedActivePaginatedSongs() => GetMockedPaginatedSongs().Where(song => song.IsActive).ToList();
-
-        public static IList<SongDto> GetMockedActivePaginatedSongDtos() => GetMockedPaginatedSongDtos().Where(song => song.IsActive).ToList();
+        public static IList<SongDto> GetMockedPaginatedSongDtos() => GetMockedPaginatedSongs().Select(ToDto).ToList();
 
         public static IList<Song> GetMockedSongs1() => new List<Song> { GetMockedSong1(), GetMockedSong2(), GetMockedSong3(), GetMockedSong4() };
 
@@ -129,17 +123,15 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<SongDto> GetMockedSongDtos23() => new List<SongDto> { GetMockedSongDto87(), GetMockedSongDto88(), GetMockedSongDto89() };
 
-        public static SongPaginationRequest GetMockedPaginationRequest() => new SongPaginationRequest
-        {
-            SortCriteria = new Dictionary<SongSortCriterion, SortOrder> { { SongSortCriterion.ByTitle, SortOrder.Ascending }, { SongSortCriterion.ByReleaseDate, SortOrder.Ascending } },
-            SearchCriteria = new List<SongSearchCriterion> { SongSearchCriterion.ByTitle, SongSearchCriterion.ByGenre, SongSearchCriterion.ByReleaseDateRange, SongSearchCriterion.ByDurationSecondsRange, SongSearchCriterion.ByAlbumTitle, SongSearchCriterion.ByArtistName },
-            Title = "A",
-            Genre = GenreType.Pop,
-            DateRange = new DateRange { StartDate = new DateOnly(1950, 1, 1), EndDate = new DateOnly(2024, 1, 1) },
-            DurationRange = new DurationRange { MinSeconds = 150, MaxSeconds = 250 },
-            AlbumTitle = "A",
-            ArtistId = Guid.Parse("4e75ecdd-aafe-4c35-836b-1b83fc7b8f88")
-        };
+        public static SongPaginationRequest GetMockedSongsPaginationRequest() => new SongPaginationRequest(
+            SortCriteria: new Dictionary<SongSortCriterion, SortOrder> { { SongSortCriterion.ByTitle, SortOrder.Ascending }, { SongSortCriterion.ByReleaseDate, SortOrder.Ascending } },
+            SearchCriteria: new List<SongSearchCriterion> { SongSearchCriterion.ByTitle, SongSearchCriterion.ByGenre, SongSearchCriterion.ByReleaseDateRange, SongSearchCriterion.ByDurationSecondsRange, SongSearchCriterion.ByAlbumTitle, SongSearchCriterion.ByArtistName },
+            Title: "A",
+            Genre: GenreType.Pop,
+            DateRange: new DateRange(new DateOnly(1950, 1, 1), new DateOnly(2024, 5, 31)),
+            DurationRange: new DurationRange(150, 250),
+            AlbumTitle: "A",
+            ArtistName: "The Weeknd");
 
         public static Song GetMockedSong1() => new Song
         {
@@ -149,14 +141,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2016, 11, 26),
             DurationSeconds = 221,
-            Album = AlbumMock.GetMockedAlbum19(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist1() },
+            Album = GetMockedAlbum19(),
+            Artists = new List<Artist> { GetMockedArtist1() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8"), SimilarSongId = Guid.Parse("278cfa5a-6f44-420e-9930-07da6c43a6ad") },
                 new SongLink { SongId = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8"), SimilarSongId = Guid.Parse("7ef7351b-912e-4a64-ba6d-cfdfcb7d56af") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong2() => new Song
@@ -167,14 +161,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2016, 11, 28),
             DurationSeconds = 199,
-            Album = AlbumMock.GetMockedAlbum19(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist1() },
+            Album = GetMockedAlbum19(),
+            Artists = new List<Artist> { GetMockedArtist1() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("278cfa5a-6f44-420e-9930-07da6c43a6ad"), SimilarSongId = Guid.Parse("7ef7351b-912e-4a64-ba6d-cfdfcb7d56af") },
                 new SongLink { SongId = Guid.Parse("278cfa5a-6f44-420e-9930-07da6c43a6ad"), SimilarSongId = Guid.Parse("03b3fb9f-38af-4074-8ab5-b9644ab44397") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong3() => new Song
@@ -185,14 +181,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2016, 11, 25),
             DurationSeconds = 205,
-            Album = AlbumMock.GetMockedAlbum19(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist1() },
+            Album = GetMockedAlbum19(),
+            Artists = new List<Artist> { GetMockedArtist1() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("7ef7351b-912e-4a64-ba6d-cfdfcb7d56af"), SimilarSongId = Guid.Parse("03b3fb9f-38af-4074-8ab5-b9644ab44397") },
                 new SongLink { SongId = Guid.Parse("7ef7351b-912e-4a64-ba6d-cfdfcb7d56af"), SimilarSongId = Guid.Parse("3aff8c17-3c98-44ed-a849-1976d2c4a91a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong4() => new Song
@@ -203,14 +201,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2012, 1, 27),
             DurationSeconds = 240,
-            Album = AlbumMock.GetMockedAlbum3(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
+            Album = GetMockedAlbum3(),
+            Artists = new List<Artist> { GetMockedArtist2() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("03b3fb9f-38af-4074-8ab5-b9644ab44397"), SimilarSongId = Guid.Parse("3aff8c17-3c98-44ed-a849-1976d2c4a91a") },
                 new SongLink { SongId = Guid.Parse("03b3fb9f-38af-4074-8ab5-b9644ab44397"), SimilarSongId = Guid.Parse("e7b0024e-cc97-46a8-bd3a-450607eebe3c") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong5() => new Song
@@ -221,14 +221,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2012, 1, 27),
             DurationSeconds = 218,
-            Album = AlbumMock.GetMockedAlbum3(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
+            Album = GetMockedAlbum3(),
+            Artists = new List<Artist> { GetMockedArtist2() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("3aff8c17-3c98-44ed-a849-1976d2c4a91a"), SimilarSongId = Guid.Parse("e7b0024e-cc97-46a8-bd3a-450607eebe3c") },
                 new SongLink { SongId = Guid.Parse("3aff8c17-3c98-44ed-a849-1976d2c4a91a"), SimilarSongId = Guid.Parse("8a5f664a-c72d-46b2-b12b-b38e4a5ec67f") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong6() => new Song
@@ -239,14 +241,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2012, 2, 1),
             DurationSeconds = 268,
-            Album = AlbumMock.GetMockedAlbum3(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
+            Album = GetMockedAlbum3(),
+            Artists = new List<Artist> { GetMockedArtist2() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("e7b0024e-cc97-46a8-bd3a-450607eebe3c"), SimilarSongId = Guid.Parse("8a5f664a-c72d-46b2-b12b-b38e4a5ec67f") },
                 new SongLink { SongId = Guid.Parse("e7b0024e-cc97-46a8-bd3a-450607eebe3c"), SimilarSongId = Guid.Parse("83b64a87-6bc5-4b61-9121-505f37b81682") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong7() => new Song
@@ -257,14 +261,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2012, 2, 3),
             DurationSeconds = 245,
-            Album = AlbumMock.GetMockedAlbum3(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
+            Album = GetMockedAlbum3(),
+            Artists = new List<Artist> { GetMockedArtist2() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("8a5f664a-c72d-46b2-b12b-b38e4a5ec67f"), SimilarSongId = Guid.Parse("83b64a87-6bc5-4b61-9121-505f37b81682") },
                 new SongLink { SongId = Guid.Parse("8a5f664a-c72d-46b2-b12b-b38e4a5ec67f"), SimilarSongId = Guid.Parse("23abfe5e-e938-4bf5-93d4-202e2fa3aa3e") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong8() => new Song
@@ -275,14 +281,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2012, 2, 5),
             DurationSeconds = 235,
-            Album = AlbumMock.GetMockedAlbum3(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
+            Album = GetMockedAlbum3(),
+            Artists = new List<Artist> { GetMockedArtist2() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("83b64a87-6bc5-4b61-9121-505f37b81682"), SimilarSongId = Guid.Parse("23abfe5e-e938-4bf5-93d4-202e2fa3aa3e") },
                 new SongLink { SongId = Guid.Parse("83b64a87-6bc5-4b61-9121-505f37b81682"), SimilarSongId = Guid.Parse("48f88f8f-c393-4bda-9812-a748486f404e") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong9() => new Song
@@ -293,14 +301,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2012, 2, 7),
             DurationSeconds = 249,
-            Album = AlbumMock.GetMockedAlbum3(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist2() },
+            Album = GetMockedAlbum3(),
+            Artists = new List<Artist> { GetMockedArtist2() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("23abfe5e-e938-4bf5-93d4-202e2fa3aa3e"), SimilarSongId = Guid.Parse("48f88f8f-c393-4bda-9812-a748486f404e") },
                 new SongLink { SongId = Guid.Parse("23abfe5e-e938-4bf5-93d4-202e2fa3aa3e"), SimilarSongId = Guid.Parse("eb6c8e4c-502e-45b4-9a69-387e33cdadb1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong10() => new Song
@@ -311,14 +321,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Electronic,
             ReleaseDate = new DateOnly(2013, 5, 17),
             DurationSeconds = 337,
-            Album = AlbumMock.GetMockedAlbum4(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist3() },
+            Album = GetMockedAlbum4(),
+            Artists = new List<Artist> { GetMockedArtist3() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("48f88f8f-c393-4bda-9812-a748486f404e"), SimilarSongId = Guid.Parse("eb6c8e4c-502e-45b4-9a69-387e33cdadb1") },
                 new SongLink { SongId = Guid.Parse("48f88f8f-c393-4bda-9812-a748486f404e"), SimilarSongId = Guid.Parse("68b0682b-9ac7-42a2-873a-8e9874e12953") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong11() => new Song
@@ -329,14 +341,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Electronic,
             ReleaseDate = new DateOnly(2013, 5, 17),
             DurationSeconds = 289,
-            Album = AlbumMock.GetMockedAlbum4(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist3() },
+            Album = GetMockedAlbum4(),
+            Artists = new List<Artist> { GetMockedArtist3() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("eb6c8e4c-502e-45b4-9a69-387e33cdadb1"), SimilarSongId = Guid.Parse("68b0682b-9ac7-42a2-873a-8e9874e12953") },
                 new SongLink { SongId = Guid.Parse("eb6c8e4c-502e-45b4-9a69-387e33cdadb1"), SimilarSongId = Guid.Parse("1e43835a-4902-4d12-abaf-0bc8f2dae2aa") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong12() => new Song
@@ -347,14 +361,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Electronic,
             ReleaseDate = new DateOnly(2013, 5, 17),
             DurationSeconds = 305,
-            Album = AlbumMock.GetMockedAlbum4(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist3() },
+            Album = GetMockedAlbum4(),
+            Artists = new List<Artist> { GetMockedArtist3() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("68b0682b-9ac7-42a2-873a-8e9874e12953"), SimilarSongId = Guid.Parse("1e43835a-4902-4d12-abaf-0bc8f2dae2aa") },
                 new SongLink { SongId = Guid.Parse("68b0682b-9ac7-42a2-873a-8e9874e12953"), SimilarSongId = Guid.Parse("19dc1564-8c00-4377-95db-16535a80610a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong13() => new Song
@@ -365,14 +381,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Electronic,
             ReleaseDate = new DateOnly(2013, 5, 21),
             DurationSeconds = 337,
-            Album = AlbumMock.GetMockedAlbum4(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist3() },
+            Album = GetMockedAlbum4(),
+            Artists = new List<Artist> { GetMockedArtist3() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("1e43835a-4902-4d12-abaf-0bc8f2dae2aa"), SimilarSongId = Guid.Parse("19dc1564-8c00-4377-95db-16535a80610a") },
                 new SongLink { SongId = Guid.Parse("1e43835a-4902-4d12-abaf-0bc8f2dae2aa"), SimilarSongId = Guid.Parse("b26a4472-db66-4bec-926d-bb53f31083c2") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong14() => new Song
@@ -383,14 +401,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Electronic,
             ReleaseDate = new DateOnly(2013, 5, 23),
             DurationSeconds = 325,
-            Album = AlbumMock.GetMockedAlbum4(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist3() },
+            Album = GetMockedAlbum4(),
+            Artists = new List<Artist> { GetMockedArtist3() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("19dc1564-8c00-4377-95db-16535a80610a"), SimilarSongId = Guid.Parse("b26a4472-db66-4bec-926d-bb53f31083c2") },
                 new SongLink { SongId = Guid.Parse("19dc1564-8c00-4377-95db-16535a80610a"), SimilarSongId = Guid.Parse("e91a010d-0fa4-4801-bee5-1974e87ab3d2") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong15() => new Song
@@ -401,14 +421,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Electronic,
             ReleaseDate = new DateOnly(2013, 5, 25),
             DurationSeconds = 337,
-            Album = AlbumMock.GetMockedAlbum4(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist3() },
+            Album = GetMockedAlbum4(),
+            Artists = new List<Artist> { GetMockedArtist3() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("b26a4472-db66-4bec-926d-bb53f31083c2"), SimilarSongId = Guid.Parse("e91a010d-0fa4-4801-bee5-1974e87ab3d2") },
                 new SongLink { SongId = Guid.Parse("b26a4472-db66-4bec-926d-bb53f31083c2"), SimilarSongId = Guid.Parse("469b6456-1157-43da-a275-88c983fcee9d") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong16() => new Song
@@ -419,14 +441,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Electronic,
             ReleaseDate = new DateOnly(2013, 5, 27),
             DurationSeconds = 354,
-            Album = AlbumMock.GetMockedAlbum4(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist3() },
+            Album = GetMockedAlbum4(),
+            Artists = new List<Artist> { GetMockedArtist3() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("e91a010d-0fa4-4801-bee5-1974e87ab3d2"), SimilarSongId = Guid.Parse("469b6456-1157-43da-a275-88c983fcee9d") },
                 new SongLink { SongId = Guid.Parse("e91a010d-0fa4-4801-bee5-1974e87ab3d2"), SimilarSongId = Guid.Parse("c23a762d-0f9f-43b9-8a6a-7a34421ee042") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong17() => new Song
@@ -437,14 +461,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2012, 10, 22),
             DurationSeconds = 222,
-            Album = AlbumMock.GetMockedAlbum5(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum5(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("469b6456-1157-43da-a275-88c983fcee9d"), SimilarSongId = Guid.Parse("c23a762d-0f9f-43b9-8a6a-7a34421ee042") },
                 new SongLink { SongId = Guid.Parse("469b6456-1157-43da-a275-88c983fcee9d"), SimilarSongId = Guid.Parse("80b291d4-5306-4879-8aa1-fec2ea4b6516") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong18() => new Song
@@ -455,14 +481,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2012, 10, 22),
             DurationSeconds = 210,
-            Album = AlbumMock.GetMockedAlbum5(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum5(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("c23a762d-0f9f-43b9-8a6a-7a34421ee042"), SimilarSongId = Guid.Parse("80b291d4-5306-4879-8aa1-fec2ea4b6516") },
                 new SongLink { SongId = Guid.Parse("c23a762d-0f9f-43b9-8a6a-7a34421ee042"), SimilarSongId = Guid.Parse("7ef7351b-912e-4a64-ba6d-cfdfcb7d56af") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong19() => new Song
@@ -473,14 +501,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2012, 10, 22),
             DurationSeconds = 237,
-            Album = AlbumMock.GetMockedAlbum5(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum5(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("80b291d4-5306-4879-8aa1-fec2ea4b6516"), SimilarSongId = Guid.Parse("81acd1bf-e6f3-44c4-ad24-c47dc22adc60") },
                 new SongLink { SongId = Guid.Parse("80b291d4-5306-4879-8aa1-fec2ea4b6516"), SimilarSongId = Guid.Parse("0e13b758-e1dc-4f5a-a481-de9ab43934f1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong20() => new Song
@@ -491,14 +521,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2012, 10, 25),
             DurationSeconds = 215,
-            Album = AlbumMock.GetMockedAlbum5(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum5(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("81acd1bf-e6f3-44c4-ad24-c47dc22adc60"), SimilarSongId = Guid.Parse("0e13b758-e1dc-4f5a-a481-de9ab43934f1") },
                 new SongLink { SongId = Guid.Parse("81acd1bf-e6f3-44c4-ad24-c47dc22adc60"), SimilarSongId = Guid.Parse("9acfdf82-5ffd-474d-8303-b22a2a9ce0f8") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong21() => new Song
@@ -509,14 +541,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2012, 10, 27),
             DurationSeconds = 231,
-            Album = AlbumMock.GetMockedAlbum5(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum5(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("0e13b758-e1dc-4f5a-a481-de9ab43934f1"), SimilarSongId = Guid.Parse("9acfdf82-5ffd-474d-8303-b22a2a9ce0f8") },
                 new SongLink { SongId = Guid.Parse("0e13b758-e1dc-4f5a-a481-de9ab43934f1"), SimilarSongId = Guid.Parse("586efb75-57ab-43ca-9b85-3bdeeae3ae19") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 21, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong22() => new Song
@@ -527,14 +561,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2012, 10, 29),
             DurationSeconds = 210,
-            Album = AlbumMock.GetMockedAlbum5(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum5(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("9acfdf82-5ffd-474d-8303-b22a2a9ce0f8"), SimilarSongId = Guid.Parse("586efb75-57ab-43ca-9b85-3bdeeae3ae19") },
                 new SongLink { SongId = Guid.Parse("9acfdf82-5ffd-474d-8303-b22a2a9ce0f8"), SimilarSongId = Guid.Parse("e4be062f-b594-4580-b514-d9d6cdaf2933") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 22, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong23() => new Song
@@ -545,14 +581,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2012, 10, 31),
             DurationSeconds = 241,
-            Album = AlbumMock.GetMockedAlbum5(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum5(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("586efb75-57ab-43ca-9b85-3bdeeae3ae19"), SimilarSongId = Guid.Parse("e4be062f-b594-4580-b514-d9d6cdaf2933") },
                 new SongLink { SongId = Guid.Parse("586efb75-57ab-43ca-9b85-3bdeeae3ae19"), SimilarSongId = Guid.Parse("0500418e-bfad-4cd1-860d-994cbdc9e2df") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 23, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong24() => new Song
@@ -563,14 +601,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2012, 7, 10),
             DurationSeconds = 248,
-            Album = AlbumMock.GetMockedAlbum6(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum6(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("e4be062f-b594-4580-b514-d9d6cdaf2933"), SimilarSongId = Guid.Parse("0500418e-bfad-4cd1-860d-994cbdc9e2df") },
                 new SongLink { SongId = Guid.Parse("e4be062f-b594-4580-b514-d9d6cdaf2933"), SimilarSongId = Guid.Parse("bc81df0c-573b-4269-ac2c-2b2667967dbb") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 24, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong25() => new Song
@@ -581,14 +621,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2012, 7, 10),
             DurationSeconds = 264,
-            Album = AlbumMock.GetMockedAlbum6(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum6(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("0500418e-bfad-4cd1-860d-994cbdc9e2df"), SimilarSongId = Guid.Parse("bc81df0c-573b-4269-ac2c-2b2667967dbb") },
                 new SongLink { SongId = Guid.Parse("0500418e-bfad-4cd1-860d-994cbdc9e2df"), SimilarSongId = Guid.Parse("866d5272-594d-423d-b702-cfccbe7a8e44") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 25, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong26() => new Song
@@ -599,14 +641,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2012, 7, 10),
             DurationSeconds = 312,
-            Album = AlbumMock.GetMockedAlbum6(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum6(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("bc81df0c-573b-4269-ac2c-2b2667967dbb"), SimilarSongId = Guid.Parse("866d5272-594d-423d-b702-cfccbe7a8e44") },
                 new SongLink { SongId = Guid.Parse("bc81df0c-573b-4269-ac2c-2b2667967dbb"), SimilarSongId = Guid.Parse("5231566f-373d-46a2-af0f-62e1a9ea643b") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 26, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong27() => new Song
@@ -617,14 +661,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2012, 7, 12),
             DurationSeconds = 312,
-            Album = AlbumMock.GetMockedAlbum6(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum6(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("866d5272-594d-423d-b702-cfccbe7a8e44"), SimilarSongId = Guid.Parse("5231566f-373d-46a2-af0f-62e1a9ea643b") },
                 new SongLink { SongId = Guid.Parse("866d5272-594d-423d-b702-cfccbe7a8e44"), SimilarSongId = Guid.Parse("70eb9a4b-be40-4b01-8534-796bb5f02d90") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 27, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong28() => new Song
@@ -635,14 +681,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2012, 7, 14),
             DurationSeconds = 288,
-            Album = AlbumMock.GetMockedAlbum6(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum6(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("5231566f-373d-46a2-af0f-62e1a9ea643b"), SimilarSongId = Guid.Parse("70eb9a4b-be40-4b01-8534-796bb5f02d90") },
                 new SongLink { SongId = Guid.Parse("5231566f-373d-46a2-af0f-62e1a9ea643b"), SimilarSongId = Guid.Parse("bb5f149f-8e45-455c-91d1-97639e96f671") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 28, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong29() => new Song
@@ -653,14 +701,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2012, 7, 16),
             DurationSeconds = 234,
-            Album = AlbumMock.GetMockedAlbum6(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum6(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("70eb9a4b-be40-4b01-8534-796bb5f02d90"), SimilarSongId = Guid.Parse("bb5f149f-8e45-455c-91d1-97639e96f671") },
                 new SongLink { SongId = Guid.Parse("70eb9a4b-be40-4b01-8534-796bb5f02d90"), SimilarSongId = Guid.Parse("4a88b128-2471-4f25-b51a-136363ddbe7d") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 29, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong30() => new Song
@@ -671,14 +721,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2012, 7, 18),
             DurationSeconds = 303,
-            Album = AlbumMock.GetMockedAlbum6(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum6(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("bb5f149f-8e45-455c-91d1-97639e96f671"), SimilarSongId = Guid.Parse("4a88b128-2471-4f25-b51a-136363ddbe7d") },
                 new SongLink { SongId = Guid.Parse("bb5f149f-8e45-455c-91d1-97639e96f671"), SimilarSongId = Guid.Parse("84b69406-d92e-4feb-a313-f1f373f1958c") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 30, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong31() => new Song
@@ -689,14 +741,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2014, 6, 5),
             DurationSeconds = 242,
-            Album = AlbumMock.GetMockedAlbum7(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist6() },
+            Album = GetMockedAlbum7(),
+            Artists = new List<Artist> { GetMockedArtist6() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("4a88b128-2471-4f25-b51a-136363ddbe7d"), SimilarSongId = Guid.Parse("84b69406-d92e-4feb-a313-f1f373f1958c") },
                 new SongLink { SongId = Guid.Parse("4a88b128-2471-4f25-b51a-136363ddbe7d"), SimilarSongId = Guid.Parse("ded148fc-19d8-478a-9060-0b4543727d37") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 31, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong32() => new Song
@@ -707,14 +761,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2014, 6, 7),
             DurationSeconds = 258,
-            Album = AlbumMock.GetMockedAlbum7(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist6() },
+            Album = GetMockedAlbum7(),
+            Artists = new List<Artist> { GetMockedArtist6() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("84b69406-d92e-4feb-a313-f1f373f1958c"), SimilarSongId = Guid.Parse("ded148fc-19d8-478a-9060-0b4543727d37") },
                 new SongLink { SongId = Guid.Parse("84b69406-d92e-4feb-a313-f1f373f1958c"), SimilarSongId = Guid.Parse("92388b4d-6ff6-4500-9b02-24d4227f3a28") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong33() => new Song
@@ -725,14 +781,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2014, 6, 9),
             DurationSeconds = 182,
-            Album = AlbumMock.GetMockedAlbum7(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist6() },
+            Album = GetMockedAlbum7(),
+            Artists = new List<Artist> { GetMockedArtist6() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("ded148fc-19d8-478a-9060-0b4543727d37"), SimilarSongId = Guid.Parse("92388b4d-6ff6-4500-9b02-24d4227f3a28") },
                 new SongLink { SongId = Guid.Parse("ded148fc-19d8-478a-9060-0b4543727d37"), SimilarSongId = Guid.Parse("e1817fb5-5fb6-44aa-abbf-eda52cc578d7") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong34() => new Song
@@ -743,14 +801,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2014, 6, 11),
             DurationSeconds = 206,
-            Album = AlbumMock.GetMockedAlbum7(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist6() },
+            Album = GetMockedAlbum7(),
+            Artists = new List<Artist> { GetMockedArtist6() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("92388b4d-6ff6-4500-9b02-24d4227f3a28"), SimilarSongId = Guid.Parse("e1817fb5-5fb6-44aa-abbf-eda52cc578d7") },
                 new SongLink { SongId = Guid.Parse("92388b4d-6ff6-4500-9b02-24d4227f3a28"), SimilarSongId = Guid.Parse("9a5f706f-ae38-418d-b911-77559d20e076") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong35() => new Song
@@ -761,14 +821,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(1973, 4, 1),
             DurationSeconds = 312,
-            Album = AlbumMock.GetMockedAlbum8(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist7() },
+            Album = GetMockedAlbum8(),
+            Artists = new List<Artist> { GetMockedArtist7() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("e1817fb5-5fb6-44aa-abbf-eda52cc578d7"), SimilarSongId = Guid.Parse("9a5f706f-ae38-418d-b911-77559d20e076") },
                 new SongLink { SongId = Guid.Parse("e1817fb5-5fb6-44aa-abbf-eda52cc578d7"), SimilarSongId = Guid.Parse("01db55cc-7d06-4778-b9c1-7ccdc3e3cd13") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong36() => new Song
@@ -779,14 +841,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(1973, 4, 3),
             DurationSeconds = 295,
-            Album = AlbumMock.GetMockedAlbum8(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist7() },
+            Album = GetMockedAlbum8(),
+            Artists = new List<Artist> { GetMockedArtist7() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("9a5f706f-ae38-418d-b911-77559d20e076"), SimilarSongId = Guid.Parse("01db55cc-7d06-4778-b9c1-7ccdc3e3cd13") },
                 new SongLink { SongId = Guid.Parse("9a5f706f-ae38-418d-b911-77559d20e076"), SimilarSongId = Guid.Parse("f80a900f-e0a5-4cc3-8adf-27c6309b81ca") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong37() => new Song
@@ -797,14 +861,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(1973, 4, 5),
             DurationSeconds = 408,
-            Album = AlbumMock.GetMockedAlbum8(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist7() },
+            Album = GetMockedAlbum8(),
+            Artists = new List<Artist> { GetMockedArtist7() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("01db55cc-7d06-4778-b9c1-7ccdc3e3cd13"), SimilarSongId = Guid.Parse("f80a900f-e0a5-4cc3-8adf-27c6309b81ca") },
                 new SongLink { SongId = Guid.Parse("01db55cc-7d06-4778-b9c1-7ccdc3e3cd13"), SimilarSongId = Guid.Parse("d6a31188-c1b8-4976-b372-aced401f2347") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong38() => new Song
@@ -815,14 +881,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(1973, 4, 7),
             DurationSeconds = 276,
-            Album = AlbumMock.GetMockedAlbum8(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist7() },
+            Album = GetMockedAlbum8(),
+            Artists = new List<Artist> { GetMockedArtist7() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("f80a900f-e0a5-4cc3-8adf-27c6309b81ca"), SimilarSongId = Guid.Parse("d6a31188-c1b8-4976-b372-aced401f2347") },
                 new SongLink { SongId = Guid.Parse("f80a900f-e0a5-4cc3-8adf-27c6309b81ca"), SimilarSongId = Guid.Parse("8f0191bc-a242-4cb0-a9ba-38f48e823e54") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong39() => new Song
@@ -833,14 +901,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2016, 1, 10),
             DurationSeconds = 289,
-            Album = AlbumMock.GetMockedAlbum10(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist9() },
+            Album = GetMockedAlbum10(),
+            Artists = new List<Artist> { GetMockedArtist9() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("d6a31188-c1b8-4976-b372-aced401f2347"), SimilarSongId = Guid.Parse("8f0191bc-a242-4cb0-a9ba-38f48e823e54") },
                 new SongLink { SongId = Guid.Parse("d6a31188-c1b8-4976-b372-aced401f2347"), SimilarSongId = Guid.Parse("c80e5abb-3759-49eb-8cbe-c2b7ff742072") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong40() => new Song
@@ -851,14 +921,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2016, 1, 12),
             DurationSeconds = 305,
-            Album = AlbumMock.GetMockedAlbum10(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist9() },
+            Album = GetMockedAlbum10(),
+            Artists = new List<Artist> { GetMockedArtist9() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("8f0191bc-a242-4cb0-a9ba-38f48e823e54"), SimilarSongId = Guid.Parse("c80e5abb-3759-49eb-8cbe-c2b7ff742072") },
                 new SongLink { SongId = Guid.Parse("8f0191bc-a242-4cb0-a9ba-38f48e823e54"), SimilarSongId = Guid.Parse("f1647832-8eb1-460d-a5ae-c9fac5e2cd5d") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong41() => new Song
@@ -869,14 +941,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2016, 1, 14),
             DurationSeconds = 264,
-            Album = AlbumMock.GetMockedAlbum10(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist9() },
+            Album = GetMockedAlbum10(),
+            Artists = new List<Artist> { GetMockedArtist9() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("c80e5abb-3759-49eb-8cbe-c2b7ff742072"), SimilarSongId = Guid.Parse("f1647832-8eb1-460d-a5ae-c9fac5e2cd5d") },
                 new SongLink { SongId = Guid.Parse("c80e5abb-3759-49eb-8cbe-c2b7ff742072"), SimilarSongId = Guid.Parse("e3d3e750-7179-4189-9c19-fd546c4493c5") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong42() => new Song
@@ -887,14 +961,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2016, 1, 16),
             DurationSeconds = 249,
-            Album = AlbumMock.GetMockedAlbum10(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist9() },
+            Album = GetMockedAlbum10(),
+            Artists = new List<Artist> { GetMockedArtist9() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("f1647832-8eb1-460d-a5ae-c9fac5e2cd5d"), SimilarSongId = Guid.Parse("e3d3e750-7179-4189-9c19-fd546c4493c5") },
                 new SongLink { SongId = Guid.Parse("f1647832-8eb1-460d-a5ae-c9fac5e2cd5d"), SimilarSongId = Guid.Parse("2a14abb5-4eea-46e2-bb70-2cf907acbf09") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong43() => new Song
@@ -905,14 +981,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 11, 16),
             DurationSeconds = 234,
-            Album = AlbumMock.GetMockedAlbum50(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist10() },
+            Album = GetMockedAlbum50(),
+            Artists = new List<Artist> { GetMockedArtist10() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("e3d3e750-7179-4189-9c19-fd546c4493c5"), SimilarSongId = Guid.Parse("2a14abb5-4eea-46e2-bb70-2cf907acbf09") },
                 new SongLink { SongId = Guid.Parse("e3d3e750-7179-4189-9c19-fd546c4493c5"), SimilarSongId = Guid.Parse("8f764924-0f7a-49e0-a39d-d29f9c3b1161") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong44() => new Song
@@ -923,14 +1001,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 11, 18),
             DurationSeconds = 245,
-            Album = AlbumMock.GetMockedAlbum50(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist10() },
+            Album = GetMockedAlbum50(),
+            Artists = new List<Artist> { GetMockedArtist10() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("2a14abb5-4eea-46e2-bb70-2cf907acbf09"), SimilarSongId = Guid.Parse("8f764924-0f7a-49e0-a39d-d29f9c3b1161") },
                 new SongLink { SongId = Guid.Parse("2a14abb5-4eea-46e2-bb70-2cf907acbf09"), SimilarSongId = Guid.Parse("2dec0615-0284-4260-a0f8-44baa2954bc4") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong45() => new Song
@@ -941,14 +1021,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 11, 20),
             DurationSeconds = 228,
-            Album = AlbumMock.GetMockedAlbum50(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist10() },
+            Album = GetMockedAlbum50(),
+            Artists = new List<Artist> { GetMockedArtist10() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("8f764924-0f7a-49e0-a39d-d29f9c3b1161"), SimilarSongId = Guid.Parse("2dec0615-0284-4260-a0f8-44baa2954bc4") },
                 new SongLink { SongId = Guid.Parse("8f764924-0f7a-49e0-a39d-d29f9c3b1161"), SimilarSongId = Guid.Parse("55bce552-42e3-4ae9-96d2-6df192f2ac50") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong46() => new Song
@@ -959,14 +1041,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 11, 12),
             DurationSeconds = 228,
-            Album = AlbumMock.GetMockedAlbum50(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist10() },
+            Album = GetMockedAlbum50(),
+            Artists = new List<Artist> { GetMockedArtist10() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("2dec0615-0284-4260-a0f8-44baa2954bc4"), SimilarSongId = Guid.Parse("55bce552-42e3-4ae9-96d2-6df192f2ac50") },
                 new SongLink { SongId = Guid.Parse("2dec0615-0284-4260-a0f8-44baa2954bc4"), SimilarSongId = Guid.Parse("7aaaf887-d5e5-47b6-b14b-6dfb7e423ea8") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong47() => new Song
@@ -977,14 +1061,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 11, 14),
             DurationSeconds = 214,
-            Album = AlbumMock.GetMockedAlbum50(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist10() },
+            Album = GetMockedAlbum50(),
+            Artists = new List<Artist> { GetMockedArtist10() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("55bce552-42e3-4ae9-96d2-6df192f2ac50"), SimilarSongId = Guid.Parse("7aaaf887-d5e5-47b6-b14b-6dfb7e423ea8") },
                 new SongLink { SongId = Guid.Parse("55bce552-42e3-4ae9-96d2-6df192f2ac50"), SimilarSongId = Guid.Parse("f7a5b648-8efe-41a8-8407-a9a76d8eb6fc") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong48() => new Song
@@ -995,14 +1081,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2019, 12, 15),
             DurationSeconds = 174,
-            Album = AlbumMock.GetMockedAlbum11(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist11() },
+            Album = GetMockedAlbum11(),
+            Artists = new List<Artist> { GetMockedArtist11() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("7aaaf887-d5e5-47b6-b14b-6dfb7e423ea8"), SimilarSongId = Guid.Parse("f7a5b648-8efe-41a8-8407-a9a76d8eb6fc") },
                 new SongLink { SongId = Guid.Parse("7aaaf887-d5e5-47b6-b14b-6dfb7e423ea8"), SimilarSongId = Guid.Parse("25d27dd1-8add-421e-93e0-ba7d964ff990") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong49() => new Song
@@ -1013,14 +1101,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2019, 12, 17),
             DurationSeconds = 210,
-            Album = AlbumMock.GetMockedAlbum11(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist11() },
+            Album = GetMockedAlbum11(),
+            Artists = new List<Artist> { GetMockedArtist11() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("f7a5b648-8efe-41a8-8407-a9a76d8eb6fc"), SimilarSongId = Guid.Parse("25d27dd1-8add-421e-93e0-ba7d964ff990") },
                 new SongLink { SongId = Guid.Parse("f7a5b648-8efe-41a8-8407-a9a76d8eb6fc"), SimilarSongId = Guid.Parse("93218e81-668d-4697-ab5b-e9e04cc9732d") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong50() => new Song
@@ -1031,14 +1121,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2019, 12, 18),
             DurationSeconds = 251,
-            Album = AlbumMock.GetMockedAlbum11(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist11() },
+            Album = GetMockedAlbum11(),
+            Artists = new List<Artist> { GetMockedArtist11() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("25d27dd1-8add-421e-93e0-ba7d964ff990"), SimilarSongId = Guid.Parse("93218e81-668d-4697-ab5b-e9e04cc9732d") },
                 new SongLink { SongId = Guid.Parse("25d27dd1-8add-421e-93e0-ba7d964ff990"), SimilarSongId = Guid.Parse("3e5f72f3-c2f9-4771-99c8-5a5ced274ed7") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong51() => new Song
@@ -1049,14 +1141,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rnb,
             ReleaseDate = new DateOnly(2019, 12, 18),
             DurationSeconds = 274,
-            Album = AlbumMock.GetMockedAlbum11(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist11() },
+            Album = GetMockedAlbum11(),
+            Artists = new List<Artist> { GetMockedArtist11() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("93218e81-668d-4697-ab5b-e9e04cc9732d"), SimilarSongId = Guid.Parse("3e5f72f3-c2f9-4771-99c8-5a5ced274ed7") },
                 new SongLink { SongId = Guid.Parse("93218e81-668d-4697-ab5b-e9e04cc9732d"), SimilarSongId = Guid.Parse("c00dd550-41aa-41e3-890e-abf3c937e62f") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong52() => new Song
@@ -1067,14 +1161,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2019, 12, 19),
             DurationSeconds = 240,
-            Album = AlbumMock.GetMockedAlbum11(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist11() },
+            Album = GetMockedAlbum11(),
+            Artists = new List<Artist> { GetMockedArtist11() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("3e5f72f3-c2f9-4771-99c8-5a5ced274ed7"), SimilarSongId = Guid.Parse("c00dd550-41aa-41e3-890e-abf3c937e62f") },
                 new SongLink { SongId = Guid.Parse("3e5f72f3-c2f9-4771-99c8-5a5ced274ed7"), SimilarSongId = Guid.Parse("bd5e6040-ba62-4a5d-aeda-ba81f6f46eea") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 21, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong53() => new Song
@@ -1085,14 +1181,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2019, 12, 21),
             DurationSeconds = 295,
-            Album = AlbumMock.GetMockedAlbum11(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist11() },
+            Album = GetMockedAlbum11(),
+            Artists = new List<Artist> { GetMockedArtist11() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("c00dd550-41aa-41e3-890e-abf3c937e62f"), SimilarSongId = Guid.Parse("bd5e6040-ba62-4a5d-aeda-ba81f6f46eea") },
                 new SongLink { SongId = Guid.Parse("c00dd550-41aa-41e3-890e-abf3c937e62f"), SimilarSongId = Guid.Parse("448f0c35-54b1-4bd3-9a37-24b350b50d0f") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 22, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong54() => new Song
@@ -1103,14 +1201,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2011, 1, 29),
             DurationSeconds = 228,
-            Album = AlbumMock.GetMockedAlbum17(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist14() },
+            Album = GetMockedAlbum17(),
+            Artists = new List<Artist> { GetMockedArtist14() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("bd5e6040-ba62-4a5d-aeda-ba81f6f46eea"), SimilarSongId = Guid.Parse("448f0c35-54b1-4bd3-9a37-24b350b50d0f") },
                 new SongLink { SongId = Guid.Parse("bd5e6040-ba62-4a5d-aeda-ba81f6f46eea"), SimilarSongId = Guid.Parse("835cb2dd-fb45-4605-9445-a2d14d2fba7b") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 23, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong55() => new Song
@@ -1121,14 +1221,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2011, 1, 31),
             DurationSeconds = 286,
-            Album = AlbumMock.GetMockedAlbum17(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist14() },
+            Album = GetMockedAlbum17(),
+            Artists = new List<Artist> { GetMockedArtist14() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("448f0c35-54b1-4bd3-9a37-24b350b50d0f"), SimilarSongId = Guid.Parse("835cb2dd-fb45-4605-9445-a2d14d2fba7b") },
                 new SongLink { SongId = Guid.Parse("448f0c35-54b1-4bd3-9a37-24b350b50d0f"), SimilarSongId = Guid.Parse("d38a98c4-5cc7-45a2-93c0-4d03ff9cb496") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 24, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong56() => new Song
@@ -1139,14 +1241,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2011, 1, 28),
             DurationSeconds = 242,
-            Album = AlbumMock.GetMockedAlbum17(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist14() },
+            Album = GetMockedAlbum17(),
+            Artists = new List<Artist> { GetMockedArtist14() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("835cb2dd-fb45-4605-9445-a2d14d2fba7b"), SimilarSongId = Guid.Parse("d38a98c4-5cc7-45a2-93c0-4d03ff9cb496") },
                 new SongLink { SongId = Guid.Parse("835cb2dd-fb45-4605-9445-a2d14d2fba7b"), SimilarSongId = Guid.Parse("34531668-8c68-4ebd-a6a7-36645e9bac97") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 25, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong57() => new Song
@@ -1157,14 +1261,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2011, 1, 30),
             DurationSeconds = 223,
-            Album = AlbumMock.GetMockedAlbum17(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist14() },
+            Album = GetMockedAlbum17(),
+            Artists = new List<Artist> { GetMockedArtist14() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("d38a98c4-5cc7-45a2-93c0-4d03ff9cb496"), SimilarSongId = Guid.Parse("34531668-8c68-4ebd-a6a7-36645e9bac97") },
                 new SongLink { SongId = Guid.Parse("d38a98c4-5cc7-45a2-93c0-4d03ff9cb496"), SimilarSongId = Guid.Parse("f2c126f4-0b32-46b1-a293-e4d53fd70d0f") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 26, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong58() => new Song
@@ -1175,14 +1281,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 9, 26),
             DurationSeconds = 197,
-            Album = AlbumMock.GetMockedAlbum27(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist23() },
+            Album = GetMockedAlbum27(),
+            Artists = new List<Artist> { GetMockedArtist23() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("34531668-8c68-4ebd-a6a7-36645e9bac97"), SimilarSongId = Guid.Parse("f2c126f4-0b32-46b1-a293-e4d53fd70d0f") },
                 new SongLink { SongId = Guid.Parse("34531668-8c68-4ebd-a6a7-36645e9bac97"), SimilarSongId = Guid.Parse("095f7293-c7b5-4c29-9112-4aa24a8c063a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 27, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong59() => new Song
@@ -1193,14 +1301,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 9, 28),
             DurationSeconds = 231,
-            Album = AlbumMock.GetMockedAlbum27(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist23() },
+            Album = GetMockedAlbum27(),
+            Artists = new List<Artist> { GetMockedArtist23() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("f2c126f4-0b32-46b1-a293-e4d53fd70d0f"), SimilarSongId = Guid.Parse("095f7293-c7b5-4c29-9112-4aa24a8c063a") },
                 new SongLink { SongId = Guid.Parse("f2c126f4-0b32-46b1-a293-e4d53fd70d0f"), SimilarSongId = Guid.Parse("1a4c8801-de6e-4787-b940-69ec4b9e8ad1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 28, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong60() => new Song
@@ -1211,14 +1321,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 9, 30),
             DurationSeconds = 250,
-            Album = AlbumMock.GetMockedAlbum27(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist23() },
+            Album = GetMockedAlbum27(),
+            Artists = new List<Artist> { GetMockedArtist23() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("095f7293-c7b5-4c29-9112-4aa24a8c063a"), SimilarSongId = Guid.Parse("1a4c8801-de6e-4787-b940-69ec4b9e8ad1") },
                 new SongLink { SongId = Guid.Parse("095f7293-c7b5-4c29-9112-4aa24a8c063a"), SimilarSongId = Guid.Parse("a1f09d89-9f92-4531-ae83-7d595da08138") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 29, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong61() => new Song
@@ -1229,14 +1341,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 10, 2),
             DurationSeconds = 210,
-            Album = AlbumMock.GetMockedAlbum27(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist23() },
+            Album = GetMockedAlbum27(),
+            Artists = new List<Artist> { GetMockedArtist23() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("1a4c8801-de6e-4787-b940-69ec4b9e8ad1"), SimilarSongId = Guid.Parse("a1f09d89-9f92-4531-ae83-7d595da08138") },
                 new SongLink { SongId = Guid.Parse("1a4c8801-de6e-4787-b940-69ec4b9e8ad1"), SimilarSongId = Guid.Parse("923182ab-0058-40ea-a878-f6ba3dad4f74") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 30, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong62() => new Song
@@ -1247,14 +1361,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 1, 30),
             DurationSeconds = 213,
-            Album = AlbumMock.GetMockedAlbum28(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist24() },
+            Album = GetMockedAlbum28(),
+            Artists = new List<Artist> { GetMockedArtist24() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("a1f09d89-9f92-4531-ae83-7d595da08138"), SimilarSongId = Guid.Parse("923182ab-0058-40ea-a878-f6ba3dad4f74") },
                 new SongLink { SongId = Guid.Parse("a1f09d89-9f92-4531-ae83-7d595da08138"), SimilarSongId = Guid.Parse("3c15b1af-8b00-4356-ae83-873a553d99c6") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong63() => new Song
@@ -1265,14 +1381,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 2, 1),
             DurationSeconds = 192,
-            Album = AlbumMock.GetMockedAlbum28(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist24() },
+            Album = GetMockedAlbum28(),
+            Artists = new List<Artist> { GetMockedArtist24() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("923182ab-0058-40ea-a878-f6ba3dad4f74"), SimilarSongId = Guid.Parse("3c15b1af-8b00-4356-ae83-873a553d99c6") },
                 new SongLink { SongId = Guid.Parse("923182ab-0058-40ea-a878-f6ba3dad4f74"), SimilarSongId = Guid.Parse("3dab7f91-33f3-4271-a2ff-d9b5eb232068") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong64() => new Song
@@ -1283,14 +1401,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 1, 28),
             DurationSeconds = 242,
-            Album = AlbumMock.GetMockedAlbum28(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist24() },
+            Album = GetMockedAlbum28(),
+            Artists = new List<Artist> { GetMockedArtist24() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("3c15b1af-8b00-4356-ae83-873a553d99c6"), SimilarSongId = Guid.Parse("3dab7f91-33f3-4271-a2ff-d9b5eb232068") },
                 new SongLink { SongId = Guid.Parse("3c15b1af-8b00-4356-ae83-873a553d99c6"), SimilarSongId = Guid.Parse("74316db6-7ad9-4570-b837-136944e986ad") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong65() => new Song
@@ -1301,14 +1421,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 1, 30),
             DurationSeconds = 228,
-            Album = AlbumMock.GetMockedAlbum28(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist24() },
+            Album = GetMockedAlbum28(),
+            Artists = new List<Artist> { GetMockedArtist24() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("3dab7f91-33f3-4271-a2ff-d9b5eb232068"), SimilarSongId = Guid.Parse("74316db6-7ad9-4570-b837-136944e986ad") },
                 new SongLink { SongId = Guid.Parse("3dab7f91-33f3-4271-a2ff-d9b5eb232068"), SimilarSongId = Guid.Parse("4cf28277-1496-4420-ac8a-9c24e1e41181") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong66() => new Song
@@ -1319,14 +1441,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2018, 5, 13),
             DurationSeconds = 275,
-            Album = AlbumMock.GetMockedAlbum33(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist28() },
+            Album = GetMockedAlbum33(),
+            Artists = new List<Artist> { GetMockedArtist28() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("74316db6-7ad9-4570-b837-136944e986ad"), SimilarSongId = Guid.Parse("4cf28277-1496-4420-ac8a-9c24e1e41181") },
                 new SongLink { SongId = Guid.Parse("74316db6-7ad9-4570-b837-136944e986ad"), SimilarSongId = Guid.Parse("9a9e7afb-d32b-4975-a7ed-d0174761e6e7") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong67() => new Song
@@ -1337,14 +1461,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2018, 5, 15),
             DurationSeconds = 243,
-            Album = AlbumMock.GetMockedAlbum33(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist28() },
+            Album = GetMockedAlbum33(),
+            Artists = new List<Artist> { GetMockedArtist28() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("4cf28277-1496-4420-ac8a-9c24e1e41181"), SimilarSongId = Guid.Parse("9a9e7afb-d32b-4975-a7ed-d0174761e6e7") },
                 new SongLink { SongId = Guid.Parse("4cf28277-1496-4420-ac8a-9c24e1e41181"), SimilarSongId = Guid.Parse("ad372f33-1ace-46da-b3ef-f9156398a019") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong68() => new Song
@@ -1355,14 +1481,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2018, 5, 11),
             DurationSeconds = 345,
-            Album = AlbumMock.GetMockedAlbum33(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist28() },
+            Album = GetMockedAlbum33(),
+            Artists = new List<Artist> { GetMockedArtist28() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("9a9e7afb-d32b-4975-a7ed-d0174761e6e7"), SimilarSongId = Guid.Parse("ad372f33-1ace-46da-b3ef-f9156398a019") },
                 new SongLink { SongId = Guid.Parse("9a9e7afb-d32b-4975-a7ed-d0174761e6e7"), SimilarSongId = Guid.Parse("bc795075-07ac-4458-a8a2-56b7d8ab0437") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong69() => new Song
@@ -1373,14 +1501,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Rock,
             ReleaseDate = new DateOnly(2018, 5, 13),
             DurationSeconds = 300,
-            Album = AlbumMock.GetMockedAlbum33(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist28() },
+            Album = GetMockedAlbum33(),
+            Artists = new List<Artist> { GetMockedArtist28() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("ad372f33-1ace-46da-b3ef-f9156398a019"), SimilarSongId = Guid.Parse("bc795075-07ac-4458-a8a2-56b7d8ab0437") },
                 new SongLink { SongId = Guid.Parse("ad372f33-1ace-46da-b3ef-f9156398a019"), SimilarSongId = Guid.Parse("72c4be16-5b12-432b-8cec-4fa162788527") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong70() => new Song
@@ -1391,14 +1521,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 8, 20),
             DurationSeconds = 278,
-            Album = AlbumMock.GetMockedAlbum24(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum24(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("bc795075-07ac-4458-a8a2-56b7d8ab0437"), SimilarSongId = Guid.Parse("72c4be16-5b12-432b-8cec-4fa162788527") },
                 new SongLink { SongId = Guid.Parse("bc795075-07ac-4458-a8a2-56b7d8ab0437"), SimilarSongId = Guid.Parse("f111ef40-05d2-4e04-9856-d63fade4a12d") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong71() => new Song
@@ -1409,14 +1541,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 8, 22),
             DurationSeconds = 219,
-            Album = AlbumMock.GetMockedAlbum24(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum24(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("72c4be16-5b12-432b-8cec-4fa162788527"), SimilarSongId = Guid.Parse("f111ef40-05d2-4e04-9856-d63fade4a12d") },
                 new SongLink { SongId = Guid.Parse("72c4be16-5b12-432b-8cec-4fa162788527"), SimilarSongId = Guid.Parse("f027a18c-3164-42a2-b49b-f299a1477798") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong72() => new Song
@@ -1427,14 +1561,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 8, 24),
             DurationSeconds = 204,
-            Album = AlbumMock.GetMockedAlbum24(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum24(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("f111ef40-05d2-4e04-9856-d63fade4a12d"), SimilarSongId = Guid.Parse("f027a18c-3164-42a2-b49b-f299a1477798") },
                 new SongLink { SongId = Guid.Parse("f111ef40-05d2-4e04-9856-d63fade4a12d"), SimilarSongId = Guid.Parse("a19c9d5d-5999-4972-aca8-1990d6c854ea") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong73() => new Song
@@ -1445,14 +1581,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2016, 8, 26),
             DurationSeconds = 314,
-            Album = AlbumMock.GetMockedAlbum24(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum24(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("f027a18c-3164-42a2-b49b-f299a1477798"), SimilarSongId = Guid.Parse("a19c9d5d-5999-4972-aca8-1990d6c854ea") },
                 new SongLink { SongId = Guid.Parse("f027a18c-3164-42a2-b49b-f299a1477798"), SimilarSongId = Guid.Parse("46d680bc-036d-4e72-bb12-1d8ed212c83a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong74() => new Song
@@ -1463,14 +1601,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2016, 8, 21),
             DurationSeconds = 157,
-            Album = AlbumMock.GetMockedAlbum24(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist5() },
+            Album = GetMockedAlbum24(),
+            Artists = new List<Artist> { GetMockedArtist5() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("a19c9d5d-5999-4972-aca8-1990d6c854ea"), SimilarSongId = Guid.Parse("46d680bc-036d-4e72-bb12-1d8ed212c83a") },
                 new SongLink { SongId = Guid.Parse("a19c9d5d-5999-4972-aca8-1990d6c854ea"), SimilarSongId = Guid.Parse("8f162292-9e44-4003-97b8-86fe410c486a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong75() => new Song
@@ -1481,14 +1621,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 6, 16),
             DurationSeconds = 234,
-            Album = AlbumMock.GetMockedAlbum26(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist15() },
+            Album = GetMockedAlbum26(),
+            Artists = new List<Artist> { GetMockedArtist15() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("46d680bc-036d-4e72-bb12-1d8ed212c83a"), SimilarSongId = Guid.Parse("8f162292-9e44-4003-97b8-86fe410c486a") },
                 new SongLink { SongId = Guid.Parse("46d680bc-036d-4e72-bb12-1d8ed212c83a"), SimilarSongId = Guid.Parse("b2c5d58f-9983-48c5-8a1e-96dafdb3307c") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong76() => new Song
@@ -1499,14 +1641,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 6, 18),
             DurationSeconds = 214,
-            Album = AlbumMock.GetMockedAlbum26(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist15() },
+            Album = GetMockedAlbum26(),
+            Artists = new List<Artist> { GetMockedArtist15() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("8f162292-9e44-4003-97b8-86fe410c486a"), SimilarSongId = Guid.Parse("b2c5d58f-9983-48c5-8a1e-96dafdb3307c") },
                 new SongLink { SongId = Guid.Parse("8f162292-9e44-4003-97b8-86fe410c486a"), SimilarSongId = Guid.Parse("d7cc064f-70a0-43ad-bd86-8d200580d6b8") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong77() => new Song
@@ -1517,14 +1661,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 6, 20),
             DurationSeconds = 178,
-            Album = AlbumMock.GetMockedAlbum26(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist15() },
+            Album = GetMockedAlbum26(),
+            Artists = new List<Artist> { GetMockedArtist15() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("b2c5d58f-9983-48c5-8a1e-96dafdb3307c"), SimilarSongId = Guid.Parse("d7cc064f-70a0-43ad-bd86-8d200580d6b8") },
                 new SongLink { SongId = Guid.Parse("b2c5d58f-9983-48c5-8a1e-96dafdb3307c"), SimilarSongId = Guid.Parse("daf6789f-eb96-423c-9958-82ba17c4517a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong78() => new Song
@@ -1535,14 +1681,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2017, 6, 22),
             DurationSeconds = 230,
-            Album = AlbumMock.GetMockedAlbum26(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist15() },
+            Album = GetMockedAlbum26(),
+            Artists = new List<Artist> { GetMockedArtist15() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("d7cc064f-70a0-43ad-bd86-8d200580d6b8"), SimilarSongId = Guid.Parse("daf6789f-eb96-423c-9958-82ba17c4517a") },
                 new SongLink { SongId = Guid.Parse("d7cc064f-70a0-43ad-bd86-8d200580d6b8"), SimilarSongId = Guid.Parse("5248af81-7450-48a8-bce9-d179a79101b3") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong79() => new Song
@@ -1553,14 +1701,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2013, 6, 18),
             DurationSeconds = 212,
-            Album = AlbumMock.GetMockedAlbum36(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist21() },
+            Album = GetMockedAlbum36(),
+            Artists = new List<Artist> { GetMockedArtist21() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("daf6789f-eb96-423c-9958-82ba17c4517a"), SimilarSongId = Guid.Parse("5248af81-7450-48a8-bce9-d179a79101b3") },
                 new SongLink { SongId = Guid.Parse("daf6789f-eb96-423c-9958-82ba17c4517a"), SimilarSongId = Guid.Parse("a8bdf565-b0d2-46dd-aa34-fedd762ff61c") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong80() => new Song
@@ -1571,14 +1721,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 6, 20),
             DurationSeconds = 188,
-            Album = AlbumMock.GetMockedAlbum36(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist21() },
+            Album = GetMockedAlbum36(),
+            Artists = new List<Artist> { GetMockedArtist21() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("5248af81-7450-48a8-bce9-d179a79101b3"), SimilarSongId = Guid.Parse("a8bdf565-b0d2-46dd-aa34-fedd762ff61c") },
                 new SongLink { SongId = Guid.Parse("5248af81-7450-48a8-bce9-d179a79101b3"), SimilarSongId = Guid.Parse("be8f4a76-9966-4b2f-95ef-067dd7879655") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong81() => new Song
@@ -1589,14 +1741,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 6, 22),
             DurationSeconds = 223,
-            Album = AlbumMock.GetMockedAlbum36(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist21() },
+            Album = GetMockedAlbum36(),
+            Artists = new List<Artist> { GetMockedArtist21() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("a8bdf565-b0d2-46dd-aa34-fedd762ff61c"), SimilarSongId = Guid.Parse("be8f4a76-9966-4b2f-95ef-067dd7879655") },
                 new SongLink { SongId = Guid.Parse("a8bdf565-b0d2-46dd-aa34-fedd762ff61c"), SimilarSongId = Guid.Parse("5904e413-0619-4099-afbc-71e133a68511") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong82() => new Song
@@ -1607,14 +1761,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 6, 19),
             DurationSeconds = 233,
-            Album = AlbumMock.GetMockedAlbum36(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist21() },
+            Album = GetMockedAlbum36(),
+            Artists = new List<Artist> { GetMockedArtist21() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("be8f4a76-9966-4b2f-95ef-067dd7879655"), SimilarSongId = Guid.Parse("5904e413-0619-4099-afbc-71e133a68511") },
                 new SongLink { SongId = Guid.Parse("be8f4a76-9966-4b2f-95ef-067dd7879655"), SimilarSongId = Guid.Parse("a5780fe8-4708-4574-a3de-416064b970d1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 21, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong83() => new Song
@@ -1625,14 +1781,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2013, 6, 19),
             DurationSeconds = 306,
-            Album = AlbumMock.GetMockedAlbum36(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist21() },
+            Album = GetMockedAlbum36(),
+            Artists = new List<Artist> { GetMockedArtist21() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("5904e413-0619-4099-afbc-71e133a68511"), SimilarSongId = Guid.Parse("a5780fe8-4708-4574-a3de-416064b970d1") },
                 new SongLink { SongId = Guid.Parse("5904e413-0619-4099-afbc-71e133a68511"), SimilarSongId = Guid.Parse("212c0538-0cb2-4126-bcc9-baaa8265afb2") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 22, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong84() => new Song
@@ -1643,14 +1801,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Pop,
             ReleaseDate = new DateOnly(2015, 3, 15),
             DurationSeconds = 228,
-            Album = AlbumMock.GetMockedAlbum32(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum32(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("a5780fe8-4708-4574-a3de-416064b970d1"), SimilarSongId = Guid.Parse("212c0538-0cb2-4126-bcc9-baaa8265afb2") },
                 new SongLink { SongId = Guid.Parse("a5780fe8-4708-4574-a3de-416064b970d1"), SimilarSongId = Guid.Parse("748d7f2c-0e5d-45cd-8f5d-77da302bbc0c") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 23, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Song GetMockedSong85() => new Song
@@ -1661,14 +1821,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2015, 3, 17),
             DurationSeconds = 225,
-            Album = AlbumMock.GetMockedAlbum32(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum32(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("212c0538-0cb2-4126-bcc9-baaa8265afb2"), SimilarSongId = Guid.Parse("748d7f2c-0e5d-45cd-8f5d-77da302bbc0c") },
                 new SongLink { SongId = Guid.Parse("212c0538-0cb2-4126-bcc9-baaa8265afb2"), SimilarSongId = Guid.Parse("3a2b8ce7-e279-42dd-8905-a42d35bf6fa0") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 5, 24, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 24, 12, 0, 0)
         };
 
         public static Song GetMockedSong86() => new Song
@@ -1679,14 +1841,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2015, 3, 19),
             DurationSeconds = 234,
-            Album = AlbumMock.GetMockedAlbum32(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum32(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("748d7f2c-0e5d-45cd-8f5d-77da302bbc0c"), SimilarSongId = Guid.Parse("3a2b8ce7-e279-42dd-8905-a42d35bf6fa0") },
                 new SongLink { SongId = Guid.Parse("748d7f2c-0e5d-45cd-8f5d-77da302bbc0c"), SimilarSongId = Guid.Parse("af20c27b-e20c-459a-bbde-7603fc8715fc") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 5, 25, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 25, 12, 0, 0)
         };
 
         public static Song GetMockedSong87() => new Song
@@ -1697,14 +1861,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2015, 3, 16),
             DurationSeconds = 312,
-            Album = AlbumMock.GetMockedAlbum32(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum32(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("3a2b8ce7-e279-42dd-8905-a42d35bf6fa0"), SimilarSongId = Guid.Parse("af20c27b-e20c-459a-bbde-7603fc8715fc") },
                 new SongLink { SongId = Guid.Parse("3a2b8ce7-e279-42dd-8905-a42d35bf6fa0"), SimilarSongId = Guid.Parse("a23d5a35-4168-40d2-a8eb-cd15f71f120c") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 5, 26, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 26, 12, 0, 0)
         };
 
         public static Song GetMockedSong88() => new Song
@@ -1715,14 +1881,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2015, 3, 16),
             DurationSeconds = 287,
-            Album = AlbumMock.GetMockedAlbum32(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum32(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("af20c27b-e20c-459a-bbde-7603fc8715fc"), SimilarSongId = Guid.Parse("a23d5a35-4168-40d2-a8eb-cd15f71f120c") },
                 new SongLink { SongId = Guid.Parse("af20c27b-e20c-459a-bbde-7603fc8715fc"), SimilarSongId = Guid.Parse("8b39efa4-ce8d-4617-84e7-45bf095c290a") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 5, 27, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 27, 12, 0, 0)
         };
 
         public static Song GetMockedSong89() => new Song
@@ -1733,14 +1901,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.HipHop,
             ReleaseDate = new DateOnly(2015, 3, 16),
             DurationSeconds = 279,
-            Album = AlbumMock.GetMockedAlbum32(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist4() },
+            Album = GetMockedAlbum32(),
+            Artists = new List<Artist> { GetMockedArtist4() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("a23d5a35-4168-40d2-a8eb-cd15f71f120c"), SimilarSongId = Guid.Parse("8b39efa4-ce8d-4617-84e7-45bf095c290a") },
                 new SongLink { SongId = Guid.Parse("a23d5a35-4168-40d2-a8eb-cd15f71f120c"), SimilarSongId = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 5, 28, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 28, 12, 0, 0)
         };
 
         public static Song GetMockedSong90() => new Song
@@ -1751,14 +1921,16 @@ namespace SoundSphere.Tests.Mocks
             Genre = GenreType.Jazz,
             ReleaseDate = new DateOnly(2021, 5, 25),
             DurationSeconds = 194,
-            Album = AlbumMock.GetMockedAlbum1(),
-            Artists = new List<Artist> { ArtistMock.GetMockedArtist16() },
+            Album = GetMockedAlbum1(),
+            Artists = new List<Artist> { GetMockedArtist16() },
             SimilarSongs = new List<SongLink>
             {
                 new SongLink { SongId = Guid.Parse("8b39efa4-ce8d-4617-84e7-45bf095c290a"), SimilarSongId = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8") },
                 new SongLink { SongId = Guid.Parse("8b39efa4-ce8d-4617-84e7-45bf095c290a"), SimilarSongId = Guid.Parse("278cfa5a-6f44-420e-9930-07da6c43a6ad") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 29, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static SongDto GetMockedSongDto1() => ToDto(GetMockedSong1());
@@ -1952,7 +2124,9 @@ namespace SoundSphere.Tests.Mocks
             AlbumId = song.Album.Id,
             ArtistsIds = song.Artists.Select(artist => artist.Id).ToList(),
             SimilarSongsIds = song.SimilarSongs.Select(songLink => songLink.SimilarSongId).ToList(),
-            IsActive = song.IsActive
+            CreatedAt = song.CreatedAt,
+            UpdatedAt = song.UpdatedAt,
+            DeletedAt = song.DeletedAt
         };
     }
 }

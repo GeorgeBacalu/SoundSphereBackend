@@ -3,17 +3,16 @@ using SoundSphere.Database.Dtos.Request.Models;
 
 namespace SoundSphere.Database.Dtos.Request
 {
-    public class NotificationPaginationRequest : PaginationRequest
-    {
-        public IDictionary<NotificationSortCriterion, SortOrder>? SortCriteria { get; set; }
-        public IList<NotificationSearchCriterion>? SearchCriteria { get; set; }
-        public string? Message { get; set; }
-        public DateTimeRange? DateRange { get; set; }
-        public string? UserName { get; set; }
-        public bool? IsRead { get; set; }
-    }
+    public record NotificationPaginationRequest(
+        IDictionary<NotificationSortCriterion, SortOrder>? SortCriteria,
+        IList<NotificationSearchCriterion>? SearchCriteria,
+        DateTimeRange? DateRange,
+        string? Message,
+        string? UserName,
+        bool? IsRead
+        ) : PaginationRequest;
 
-    public enum NotificationSortCriterion { BySendDate = 10, ByMessage = 20, ByUserName = 30 }
+    public enum NotificationSortCriterion { ByCreateDate = 10, ByMessage = 20, ByUserName = 30 }
 
-    public enum NotificationSearchCriterion { BySendDateRange = 10, ByMessage = 20, ByUserName = 30, ByIsRead = 40 }
+    public enum NotificationSearchCriterion { ByCreateDateRange = 10, ByMessage = 20, ByUserName = 30, ByIsRead = 40 }
 }

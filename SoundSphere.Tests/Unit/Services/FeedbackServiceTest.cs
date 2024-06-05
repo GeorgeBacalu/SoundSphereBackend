@@ -3,12 +3,13 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.FeedbackMock;
+using static SoundSphere.Tests.Mocks.UserMock;
 
 namespace SoundSphere.Tests.Unit.Services
 {
@@ -19,16 +20,16 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly IFeedbackService _feedbackService;
 
-        private readonly Feedback _feedback1 = FeedbackMock.GetMockedFeedback1();
-        private readonly Feedback _feedback2 = FeedbackMock.GetMockedFeedback2();
-        private readonly IList<Feedback> _feedbacks = FeedbackMock.GetMockedFeedbacks();
-        private readonly IList<Feedback> _paginatedFeedbacks = FeedbackMock.GetMockedPaginatedFeedbacks();
-        private readonly FeedbackDto _feedbackDto1 = FeedbackMock.GetMockedFeedbackDto1();
-        private readonly FeedbackDto _feedbackDto2 = FeedbackMock.GetMockedFeedbackDto2();
-        private readonly IList<FeedbackDto> _feedbackDtos = FeedbackMock.GetMockedFeedbackDtos();
-        private readonly IList<FeedbackDto> _paginatedFeedbackDtos = FeedbackMock.GetMockedPaginatedFeedbackDtos();
-        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
-        private readonly User _user1 = UserMock.GetMockedUser1();
+        private readonly Feedback _feedback1 = GetMockedFeedback1();
+        private readonly Feedback _feedback2 = GetMockedFeedback2();
+        private readonly IList<Feedback> _feedbacks = GetMockedFeedbacks();
+        private readonly IList<Feedback> _paginatedFeedbacks = GetMockedPaginatedFeedbacks();
+        private readonly FeedbackDto _feedbackDto1 = GetMockedFeedbackDto1();
+        private readonly FeedbackDto _feedbackDto2 = GetMockedFeedbackDto2();
+        private readonly IList<FeedbackDto> _feedbackDtos = GetMockedFeedbackDtos();
+        private readonly IList<FeedbackDto> _paginatedFeedbackDtos = GetMockedPaginatedFeedbackDtos();
+        private readonly FeedbackPaginationRequest _paginationRequest = GetMockedFeedbacksPaginationRequest();
+        private readonly User _user1 = GetMockedUser1();
 
         public FeedbackServiceTest()
         {
@@ -39,51 +40,45 @@ namespace SoundSphere.Tests.Unit.Services
             _feedbackService = new FeedbackService(_feedbackRepositoryMock.Object, _userRepositoryMock.Object, _mapperMock.Object);
         }
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _feedbackRepositoryMock.Setup(mock => mock.FindAll()).Returns(_feedbacks);
-            _feedbackService.FindAll().Should().BeEquivalentTo(_feedbackDtos);
+            _feedbackRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedFeedbacks);
+            _feedbackService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos);
         }
 
-        [Fact] public void FindAllPagination_Test()
+        [Fact] public void GetById_Test()
         {
-            _feedbackRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedFeedbacks);
-            _feedbackService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos);
+            _feedbackRepositoryMock.Setup(mock => mock.GetById(ValidFeedbackGuid)).Returns(_feedback1);
+            _feedbackService.GetById(ValidFeedbackGuid).Should().Be(_feedbackDto1);
         }
 
-        [Fact] public void FindById_Test()
+        [Fact] public void Add_Test()
         {
-            _feedbackRepositoryMock.Setup(mock => mock.FindById(Constants.ValidFeedbackGuid)).Returns(_feedback1);
-            _feedbackService.FindById(Constants.ValidFeedbackGuid).Should().Be(_feedbackDto1);
-        }
-
-        [Fact] public void Save_Test()
-        {
-            _userRepositoryMock.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
-            _feedbackRepositoryMock.Setup(mock => mock.Save(_feedback1)).Returns(_feedback1);
-            _feedbackService.Save(_feedbackDto1).Should().Be(_feedbackDto1);
+            _userRepositoryMock.Setup(mock => mock.GetById(ValidUserGuid)).Returns(_user1);
+            _feedbackRepositoryMock.Setup(mock => mock.Add(_feedback1)).Returns(_feedback1);
+            _feedbackService.Add(_feedbackDto1).Should().Be(_feedbackDto1);
         }
 
         [Fact] public void UpdateById_Test()
         {
             Feedback updatedFeedback = new Feedback
             {
-                Id = Constants.ValidFeedbackGuid,
+                Id = ValidFeedbackGuid,
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
             FeedbackDto updatedFeedbackDto = ToDto(updatedFeedback);
             _mapperMock.Setup(mock => mock.Map<FeedbackDto>(updatedFeedback)).Returns(updatedFeedbackDto);
-            _feedbackRepositoryMock.Setup(mock => mock.UpdateById(_feedback2, Constants.ValidFeedbackGuid)).Returns(updatedFeedback);
-            _feedbackService.UpdateById(_feedbackDto2, Constants.ValidFeedbackGuid).Should().Be(updatedFeedbackDto);
+            _feedbackRepositoryMock.Setup(mock => mock.UpdateById(_feedback2, ValidFeedbackGuid)).Returns(updatedFeedback);
+            _feedbackService.UpdateById(_feedbackDto2, ValidFeedbackGuid).Should().Be(updatedFeedbackDto);
         }
 
         [Fact] public void DeleteById_Test()
         {
-            _feedbackService.DeleteById(Constants.ValidFeedbackGuid);
-            _feedbackRepositoryMock.Verify(mock => mock.DeleteById(Constants.ValidFeedbackGuid));
+            _feedbackService.DeleteById(ValidFeedbackGuid);
+            _feedbackRepositoryMock.Verify(mock => mock.DeleteById(ValidFeedbackGuid));
         }
 
         private FeedbackDto ToDto(Feedback feedback) => new FeedbackDto
@@ -92,7 +87,9 @@ namespace SoundSphere.Tests.Unit.Services
             UserId = feedback.User.Id,
             Type = feedback.Type,
             Message = feedback.Message,
-            SentAt = feedback.SentAt
+            CreatedAt = feedback.CreatedAt,
+            UpdatedAt = feedback.UpdatedAt,
+            DeletedAt = feedback.DeletedAt
         };
     }
 }

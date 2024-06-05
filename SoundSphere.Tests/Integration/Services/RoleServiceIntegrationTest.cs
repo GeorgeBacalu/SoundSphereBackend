@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using SoundSphere.Core.Services;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.RoleMock;
 
 namespace SoundSphere.Tests.Integration.Services
 {
@@ -15,9 +15,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly DbFixture _fixture;
         private readonly IMapper _mapper;
 
-        private readonly IList<Role> _roles = RoleMock.GetMockedRoles();
-        private readonly RoleDto _roleDto1 = RoleMock.GetMockedRoleDto1();
-        private readonly IList<RoleDto> _roleDtos = RoleMock.GetMockedRoleDtos();
+        private readonly IList<Role> _roles = GetMockedRoles();
+        private readonly RoleDto _roleDto1 = GetMockedRoleDto1();
+        private readonly IList<RoleDto> _roleDtos = GetMockedRoleDtos();
 
         public RoleServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Role, RoleDto>(); config.CreateMap<RoleDto, Role>(); }).CreateMapper());
 
@@ -32,12 +32,12 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((roleService, context) => roleService.FindAll().Should().BeEquivalentTo(_roleDtos));
+        [Fact] public void GetAll_Test() => Execute((roleService, context) => roleService.GetAll().Should().BeEquivalentTo(_roleDtos));
 
-        [Fact] public void FindById_Test() => Execute((roleService, context) => roleService.FindById(Constants.ValidRoleGuid).Should().Be(_roleDto1));
+        [Fact] public void GetById_Test() => Execute((roleService, context) => roleService.GetById(ValidRoleGuid).Should().Be(_roleDto1));
 
-        [Fact] public void Save_Test() => Execute((roleService, context) => roleService
-            .Invoking(service => service.Save(_roleDto1))
+        [Fact] public void Add_Test() => Execute((roleService, context) => roleService
+            .Invoking(service => service.Add(_roleDto1))
             .Should().Throw<InvalidOperationException>());
     }
 }

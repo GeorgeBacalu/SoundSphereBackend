@@ -2,13 +2,13 @@
 using FluentAssertions;
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.ArtistMock;
 
 namespace SoundSphere.Tests.Integration.Services
 {
@@ -17,16 +17,14 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly DbFixture _fixture;
         private readonly IMapper _mapper;
 
-        private readonly Artist _artist1 = ArtistMock.GetMockedArtist1();
-        private readonly Artist _artist2 = ArtistMock.GetMockedArtist2();
-        private readonly IList<Artist> _artists = ArtistMock.GetMockedArtists();
-        private readonly ArtistDto _artistDto1 = ArtistMock.GetMockedArtistDto1();
-        private readonly ArtistDto _artistDto2 = ArtistMock.GetMockedArtistDto2();
-        private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
-        private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
-        private readonly IList<ArtistDto> _paginatedArtistDtos = ArtistMock.GetMockedPaginatedArtistDtos();
-        private readonly IList<ArtistDto> _activePaginatedArtistDtos = ArtistMock.GetMockedActivePaginatedArtistDtos();
-        private readonly ArtistPaginationRequest _paginationRequest = ArtistMock.GetMockedPaginationRequest();
+        private readonly Artist _artist1 = GetMockedArtist1();
+        private readonly Artist _artist2 = GetMockedArtist2();
+        private readonly IList<Artist> _artists = GetMockedArtists();
+        private readonly ArtistDto _artistDto1 = GetMockedArtistDto1();
+        private readonly ArtistDto _artistDto2 = GetMockedArtistDto2();
+        private readonly IList<ArtistDto> _artistDtos = GetMockedArtistDtos();
+        private readonly IList<ArtistDto> _paginatedArtistDtos = GetMockedPaginatedArtistDtos();
+        private readonly ArtistPaginationRequest _paginationRequest = GetMockedArtistsPaginationRequest();
 
         public ArtistServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Artist, ArtistDto>(); config.CreateMap<ArtistDto, Artist>(); }).CreateMapper());
 
@@ -41,47 +39,46 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((artistService, context) => artistService.FindAll().Should().BeEquivalentTo(_artistDtos));
-
-        [Fact] public void FindAllActive_Test() => Execute((artistService, context) => artistService.FindAllActive().Should().BeEquivalentTo(_activeArtistDtos));
-
-        [Fact] public void FindAllPagination_Test() => Execute((artistService, context) => artistService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtistDtos));
-
-        [Fact] public void FindAllActivePagination_Test() => Execute((artistService, context) => artistService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtistDtos));
+        [Fact] public void GetAll_Test() => Execute((artistService, context) => artistService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedArtistDtos));
         
-        [Fact] public void FindById_Test() => Execute((artistService, context) => artistService.FindById(Constants.ValidArtistGuid).Should().Be(_artistDto1));
+        [Fact] public void GetById_Test() => Execute((artistService, context) => artistService.GetById(ValidArtistGuid).Should().Be(_artistDto1));
 
-        [Fact] public void Save_Test() => Execute((artistService, context) =>
+        [Fact] public void Add_Test() => Execute((artistService, context) =>
         {
-            ArtistDto newArtistDto = ArtistMock.GetMockedArtistDto51();
-            artistService.Save(newArtistDto);
+            ArtistDto newArtistDto = GetMockedArtistDto51();
+            ArtistDto result = artistService.Add(newArtistDto);
             context.Artists.Find(newArtistDto.Id).Should().Be(newArtistDto);
+            result.Should().Be(newArtistDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((artistService, context) =>
         {
-            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
+            Artist updatedArtist = GetArtist(_artist2, true);
             ArtistDto updatedArtistDto = updatedArtist.ToDto(_mapper);
-            artistService.UpdateById(_artistDto2, Constants.ValidArtistGuid);
-            context.Artists.Find(Constants.ValidArtistGuid).Should().Be(updatedArtist);
+            ArtistDto result = artistService.UpdateById(_artistDto2, ValidArtistGuid);
+            context.Artists.Find(ValidArtistGuid).Should().Be(updatedArtist);
+            result.Should().Be(updatedArtistDto);
         });
 
-        [Fact] public void DisableById_Test() => Execute((artistService, context) =>
+        [Fact] public void DeleteById_Test() => Execute((artistService, context) =>
         {
-            Artist disabledArtist = GetArtist(_artist1, false);
-            ArtistDto disabledArtistDto = disabledArtist.ToDto(_mapper);
-            artistService.DisableById(Constants.ValidArtistGuid);
-            context.Artists.Find(Constants.ValidArtistGuid).Should().Be(disabledArtist);
+            Artist deletedArtist = GetArtist(_artist1, false);
+            ArtistDto deletedArtistDto = deletedArtist.ToDto(_mapper);
+            ArtistDto result = artistService.DeleteById(ValidArtistGuid);
+            context.Artists.Find(ValidArtistGuid).Should().Be(deletedArtist);
+            result.Should().Be(deletedArtistDto);
         });
 
         private Artist GetArtist(Artist artist, bool isActive) => new Artist
         {
-            Id = Constants.ValidArtistGuid,
+            Id = ValidArtistGuid,
             Name = artist.Name,
             ImageUrl = artist.ImageUrl,
             Bio = artist.Bio,
             SimilarArtists = artist.SimilarArtists,
-            IsActive = isActive
+            CreatedAt = artist.CreatedAt,
+            UpdatedAt = artist.UpdatedAt,
+            DeletedAt = artist.DeletedAt
         };
     }
 }

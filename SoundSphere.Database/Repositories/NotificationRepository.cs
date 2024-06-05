@@ -5,6 +5,7 @@ using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -14,24 +15,25 @@ namespace SoundSphere.Database.Repositories
 
         public NotificationRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Notification> FindAll() => _context.Notifications
+        public IList<Notification> GetAll(NotificationPaginationRequest payload) => _context.Notifications
             .Include(notification => notification.User)
-            .ToList();
-
-        public IList<Notification> FindAllPagination(NotificationPaginationRequest payload) => _context.Notifications
-            .Include(notification => notification.User)
+            .Where(notification => notification.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
             .ToList();
 
-        public Notification FindById(Guid id) => _context.Notifications
+        public Notification GetById(Guid id) => _context.Notifications
             .Include(notification => notification.User)
+            .Where(notification => notification.DeletedAt == null)
             .FirstOrDefault(notification => notification.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(Constants.NotificationNotFound, id));
+            ?? throw new ResourceNotFoundException(string.Format(NotificationNotFound, id));
 
-        public Notification Save(Notification notification)
+        public Notification Add(Notification notification)
         {
+            if (notification.Id == Guid.Empty) notification.Id = Guid.NewGuid();
+            notification.CreatedAt = DateTime.Now;
+            notification.IsRead = false;
             _context.Notifications.Add(notification);
             _context.SaveChanges();
             return notification;
@@ -39,19 +41,22 @@ namespace SoundSphere.Database.Repositories
 
         public Notification UpdateById(Notification notification, Guid id)
         {
-            Notification notificationToUpdate = FindById(id);
+            Notification notificationToUpdate = GetById(id);
             notificationToUpdate.Type = notification.Type;
             notificationToUpdate.Message = notification.Message;
             notificationToUpdate.IsRead = notification.IsRead;
+            if (_context.Entry(notificationToUpdate).State == EntityState.Modified)
+                notificationToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return notificationToUpdate;
         }
 
-        public void DeleteById(Guid id)
+        public Notification DeleteById(Guid id)
         {
-            Notification notificationToDelete = FindById(id);
-            _context.Notifications.Remove(notificationToDelete);
+            Notification notificationToDelete = GetById(id);
+            notificationToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
+            return notificationToDelete;
         }
 
         public void LinkNotificationToUser(Notification notification)

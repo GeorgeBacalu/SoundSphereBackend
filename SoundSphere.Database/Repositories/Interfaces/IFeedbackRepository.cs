@@ -5,17 +5,15 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IFeedbackRepository
     {
-        IList<Feedback> FindAll();
+        IList<Feedback> GetAll(FeedbackPaginationRequest payload);
 
-        IList<Feedback> FindAllPagination(FeedbackPaginationRequest payload);
+        Feedback GetById(Guid id);
 
-        Feedback FindById(Guid id);
-
-        Feedback Save(Feedback feedback);
+        Feedback Add(Feedback feedback);
 
         Feedback UpdateById(Feedback feedback, Guid id);
 
-        void DeleteById(Guid id);
+        Feedback DeleteById(Guid id);
 
         void LinkFeedbackToUser(Feedback feedback);
     }

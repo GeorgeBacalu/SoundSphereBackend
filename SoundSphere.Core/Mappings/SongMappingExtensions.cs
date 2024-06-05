@@ -23,8 +23,8 @@ namespace SoundSphere.Core.Mappings
         public static Song ToEntity(this SongDto songDto, IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper)
         {
             Song song = mapper.Map<Song>(songDto);
-            song.Album = albumRepository.FindById(songDto.AlbumId);
-            song.Artists = songDto.ArtistsIds.Select(artistRepository.FindById).ToList();
+            song.Album = albumRepository.GetById(songDto.AlbumId);
+            song.Artists = songDto.ArtistsIds.Select(artistRepository.GetById).ToList();
             song.SimilarSongs = songDto.SimilarSongsIds.Select(id => new SongLink { SongId = songDto.Id, SimilarSongId = id }).ToList();
             return song;
         }

@@ -1,11 +1,11 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.PlaylistMock;
 
 namespace SoundSphere.Tests.Integration.Repositories
 {
@@ -13,13 +13,11 @@ namespace SoundSphere.Tests.Integration.Repositories
     {
         private readonly DbFixture _fixture;
 
-        private readonly Playlist _playlist1 = PlaylistMock.GetMockedPlaylist1();
-        private readonly Playlist _playlist2 = PlaylistMock.GetMockedPlaylist2();
-        private readonly IList<Playlist> _playlists = PlaylistMock.GetMockedPlaylists();
-        private readonly IList<Playlist> _activePlaylists = PlaylistMock.GetMockedActivePlaylists();
-        private readonly IList<Playlist> _paginatedPlaylists = PlaylistMock.GetMockedPaginatedPlaylists();
-        private readonly IList<Playlist> _activePaginatedPlaylists = PlaylistMock.GetMockedActivePaginatedPlaylists();
-        private readonly PlaylistPaginationRequest _paginationRequest = PlaylistMock.GetMockedPaginationRequest();
+        private readonly Playlist _playlist1 = GetMockedPlaylist1();
+        private readonly Playlist _playlist2 = GetMockedPlaylist2();
+        private readonly IList<Playlist> _playlists = GetMockedPlaylists();
+        private readonly IList<Playlist> _paginatedPlaylists = GetMockedPaginatedPlaylists();
+        private readonly PlaylistPaginationRequest _paginationRequest = GetMockedPlaylistsPaginationRequest();
 
         public PlaylistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -34,25 +32,19 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((playlistRepository, context) => playlistRepository.FindAll().Should().BeEquivalentTo(_playlists));
-
-        [Fact] public void FindAllActive_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllActive().Should().BeEquivalentTo(_activePlaylists));
-
-        [Fact] public void FindAllPagination_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists));
-
-        [Fact] public void FindAllActivePagination_Test() => Execute((playlistRepository, context) => playlistRepository.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylists));
+        [Fact] public void GetAll_Test() => Execute((playlistRepository, context) => playlistRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists));
         
-        [Fact] public void FindById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.FindById(Constants.ValidPlaylistGuid).Should().Be(_playlist1));
+        [Fact] public void GetById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.GetById(ValidPlaylistGuid).Should().Be(_playlist1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
-            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+        [Fact] public void GetById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+            .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(PlaylistNotFound, InvalidGuid)));
 
-        [Fact] public void Save_Test() => Execute((playlistRepository, context) =>
+        [Fact] public void Add_Test() => Execute((playlistRepository, context) =>
         {
-            Playlist newPlaylist = PlaylistMock.GetMockedPlaylist24();
-            playlistRepository.Save(newPlaylist);
+            Playlist newPlaylist = GetMockedPlaylist24();
+            playlistRepository.Add(newPlaylist);
             context.Playlists.Find(newPlaylist.Id).Should().BeEquivalentTo(newPlaylist, options => options.Excluding(playlist => playlist.CreatedAt));
         });
 
@@ -60,40 +52,38 @@ namespace SoundSphere.Tests.Integration.Repositories
         {
             Playlist updatedPlaylist = new Playlist
             {
-                Id = Constants.ValidPlaylistGuid,
+                Id = ValidPlaylistGuid,
                 Title = _playlist2.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = _playlist1.IsActive
+                CreatedAt = _playlist1.CreatedAt
             };
-            playlistRepository.UpdateById(_playlist2, Constants.ValidPlaylistGuid);
-            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(updatedPlaylist);
+            playlistRepository.UpdateById(_playlist2, ValidPlaylistGuid);
+            context.Playlists.Find(ValidPlaylistGuid).Should().Be(updatedPlaylist);
         });
 
         [Fact] public void UpdateById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
-            .Invoking(repository => repository.UpdateById(_playlist2, Constants.InvalidGuid))
+            .Invoking(repository => repository.UpdateById(_playlist2, InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(PlaylistNotFound, InvalidGuid)));
 
-        [Fact] public void DisableById_ValidId_Test() => Execute((playlistRepository, context) =>
+        [Fact] public void DeleteById_ValidId_Test() => Execute((playlistRepository, context) =>
         {
-            Playlist disabledPlaylist = new Playlist
+            Playlist deletedPlaylist = new Playlist
             {
-                Id = Constants.ValidPlaylistGuid,
+                Id = ValidPlaylistGuid,
                 Title = _playlist1.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = false
+                CreatedAt = _playlist1.CreatedAt
             };
-            playlistRepository.DisableById(Constants.ValidPlaylistGuid);
-            context.Playlists.Find(Constants.ValidPlaylistGuid).Should().Be(disabledPlaylist);
+            playlistRepository.DeleteById(ValidPlaylistGuid);
+            context.Playlists.Find(ValidPlaylistGuid).Should().Be(deletedPlaylist);
         });
 
-        [Fact] public void DisableById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
-            .Invoking(repository => repository.DisableById(Constants.InvalidGuid))
+        [Fact] public void DeleteById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+            .Invoking(repository => repository.DeleteById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.PlaylistNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(PlaylistNotFound, InvalidGuid)));
     }
 }

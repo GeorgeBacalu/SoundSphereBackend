@@ -5,6 +5,7 @@ using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -14,24 +15,24 @@ namespace SoundSphere.Database.Repositories
 
         public FeedbackRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Feedback> FindAll() => _context.Feedbacks
+        public IList<Feedback> GetAll(FeedbackPaginationRequest payload) => _context.Feedbacks
             .Include(feedback => feedback.User)
-            .ToList();
-
-        public IList<Feedback> FindAllPagination(FeedbackPaginationRequest payload) => _context.Feedbacks
-            .Include(feedback => feedback.User)
+            .Where(feedback => feedback.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
             .ToList();
 
-        public Feedback FindById(Guid id) => _context.Feedbacks
+        public Feedback GetById(Guid id) => _context.Feedbacks
             .Include(feedback => feedback.User)
+            .Where(feedback => feedback.DeletedAt == null)
             .FirstOrDefault(feedback => feedback.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(Constants.FeedbackNotFound, id));
+            ?? throw new ResourceNotFoundException(string.Format(FeedbackNotFound, id));
 
-        public Feedback Save(Feedback feedback)
+        public Feedback Add(Feedback feedback)
         {
+            if (feedback.Id == Guid.Empty) feedback.Id = Guid.NewGuid();
+            feedback.CreatedAt = DateTime.Now;
             _context.Feedbacks.Add(feedback);
             _context.SaveChanges();
             return feedback;
@@ -39,18 +40,21 @@ namespace SoundSphere.Database.Repositories
 
         public Feedback UpdateById(Feedback feedback, Guid id)
         {
-            Feedback feedbackToUpdate = FindById(id);
+            Feedback feedbackToUpdate = GetById(id);
             feedbackToUpdate.Type = feedback.Type;
             feedbackToUpdate.Message = feedback.Message;
+            if (_context.Entry(feedbackToUpdate).State == EntityState.Modified)
+                feedbackToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return feedbackToUpdate;
         }
 
-        public void DeleteById(Guid id)
+        public Feedback DeleteById(Guid id)
         {
-            Feedback feedbackToDelete = FindById(id);
-            _context.Feedbacks.Remove(feedbackToDelete);
+            Feedback feedbackToDelete = GetById(id);
+            feedbackToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
+            return feedbackToDelete;
         }
 
         public void LinkFeedbackToUser(Feedback feedback)

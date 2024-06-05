@@ -3,6 +3,8 @@ using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
+using static SoundSphere.Tests.Mocks.UserMock;
+using static SoundSphere.Tests.Mocks.SongMock;
 
 namespace SoundSphere.Tests.Mocks
 {
@@ -19,266 +21,280 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<PlaylistDto> GetMockedPlaylistDtos() => GetMockedPlaylists().Select(ToDto).ToList();
 
-        public static IList<Playlist> GetMockedActivePlaylists() => GetMockedPlaylists().Where(playlist => playlist.IsActive).ToList();
+        public static IList<Playlist> GetMockedPaginatedPlaylists() => GetMockedPlaylists().Where(playlist => playlist.DeletedAt == null).Take(10).ToList();
 
-        public static IList<PlaylistDto> GetMockedActivePlaylistDtos() => GetMockedPlaylistDtos().Where(playlist => playlist.IsActive).ToList();
+        public static IList<PlaylistDto> GetMockedPaginatedPlaylistDtos() => GetMockedPaginatedPlaylists().Select(ToDto).ToList();
 
-        public static IList<Playlist> GetMockedPaginatedPlaylists() => new List<Playlist> { GetMockedPlaylist18(), GetMockedPlaylist19(), GetMockedPlaylist20(), GetMockedPlaylist21(), GetMockedPlaylist22() };
-
-        public static IList<PlaylistDto> GetMockedPaginatedPlaylistDtos() => new List<PlaylistDto> { GetMockedPlaylistDto18(), GetMockedPlaylistDto19(), GetMockedPlaylistDto20(), GetMockedPlaylistDto21(), GetMockedPlaylistDto22() };
-
-        public static IList<Playlist> GetMockedActivePaginatedPlaylists() => GetMockedPaginatedPlaylists().Where(playlist => playlist.IsActive).ToList();
-
-        public static IList<PlaylistDto> GetMockedActivePaginatedPlaylistDtos() => GetMockedPaginatedPlaylistDtos().Where(playlist => playlist.IsActive).ToList();
-
-        public static PlaylistPaginationRequest GetMockedPaginationRequest() => new PlaylistPaginationRequest
-        {
-            SortCriteria = new Dictionary<PlaylistSortCriterion, SortOrder> { { PlaylistSortCriterion.ByCreatedDate, SortOrder.Ascending }, { PlaylistSortCriterion.ByTitle, SortOrder.Ascending } },
-            SearchCriteria = new List<PlaylistSearchCriterion> { PlaylistSearchCriterion.ByUserName, PlaylistSearchCriterion.ByTitle, PlaylistSearchCriterion.ByCreatedDateRange },
-            Title = "A",
-            DateRange = new DateTimeRange { StartDate = new DateTime(1950, 1, 1), EndDate = new DateTime(2024, 1, 1) },
-            UserName = "A",
-            SongId = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8")
-        };
+        public static PlaylistPaginationRequest GetMockedPlaylistsPaginationRequest() => new PlaylistPaginationRequest(
+            SortCriteria: new Dictionary<PlaylistSortCriterion, SortOrder> { { PlaylistSortCriterion.ByCreateDate, SortOrder.Ascending }, { PlaylistSortCriterion.ByTitle, SortOrder.Ascending } },
+            SearchCriteria: new List<PlaylistSearchCriterion> { PlaylistSearchCriterion.ByUserName, PlaylistSearchCriterion.ByTitle, PlaylistSearchCriterion.ByCreateDateRange },
+            Title: "A",
+            DateRange: new DateTimeRange(new DateTime(1950, 1, 1), new DateTime(2024, 5, 31)),
+            UserName: "A",
+            SongTitle: "Echo of Silence");
 
         public static Playlist GetMockedPlaylist1() => new Playlist
         {
             Id = Guid.Parse("239d050b-b59c-47e0-9e1a-ab5faf6f903e"),
             Title = "Playlist 1",
-            User = UserMock.GetMockedUser1(),
-            Songs = SongMock.GetMockedSongs1(),
-            CreatedAt = new DateTime(2024, 5, 7),
-            IsActive = true
+            User = GetMockedUser1(),
+            Songs = GetMockedSongs1(),
+            CreatedAt = new DateTime(2024, 4, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist2() => new Playlist
         {
             Id = Guid.Parse("67b394ad-aeba-4804-be29-71fc4ebd37c8"),
             Title = "Playlist 2",
-            User = UserMock.GetMockedUser2(),
-            Songs = SongMock.GetMockedSongs2(),
-            CreatedAt = new DateTime(2024, 5, 6),
-            IsActive = true
+            User = GetMockedUser2(),
+            Songs = GetMockedSongs2(),
+            CreatedAt = new DateTime(2024, 4, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist3() => new Playlist
         {
             Id = Guid.Parse("25fc284d-9ad3-462e-8947-9a46f1bb7bde"),
             Title = "Playlist 3",
-            User = UserMock.GetMockedUser3(),
-            Songs = SongMock.GetMockedSongs3(),
-            CreatedAt = new DateTime(2024, 5, 5),
-            IsActive = true
+            User = GetMockedUser3(),
+            Songs = GetMockedSongs3(),
+            CreatedAt = new DateTime(2024, 4, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist4() => new Playlist
         {
             Id = Guid.Parse("db73836b-b090-4b9e-979c-f02e712a4941"),
             Title = "Playlist 4",
-            User = UserMock.GetMockedUser4(),
-            Songs = SongMock.GetMockedSongs4(),
-            CreatedAt = new DateTime(2024, 5, 4),
-            IsActive = true
+            User = GetMockedUser4(),
+            Songs = GetMockedSongs4(),
+            CreatedAt = new DateTime(2024, 4, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist5() => new Playlist
         {
             Id = Guid.Parse("883b32f5-6f45-4e36-aae4-271b40322445"),
             Title = "Playlist 5",
-            User = UserMock.GetMockedUser5(),
-            Songs = SongMock.GetMockedSongs5(),
-            CreatedAt = new DateTime(2024, 5, 3),
-            IsActive = true
+            User = GetMockedUser5(),
+            Songs = GetMockedSongs5(),
+            CreatedAt = new DateTime(2024, 4, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist6() => new Playlist
         {
             Id = Guid.Parse("a9f4b39f-c273-41e1-a82f-544e4c287192"),
             Title = "Playlist 6",
-            User = UserMock.GetMockedUser6(),
-            Songs = SongMock.GetMockedSongs6(),
-            CreatedAt = new DateTime(2024, 5, 2),
-            IsActive = true
+            User = GetMockedUser6(),
+            Songs = GetMockedSongs6(),
+            CreatedAt = new DateTime(2024, 4, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist7() => new Playlist
         {
             Id = Guid.Parse("49ea6e91-4033-49bd-9275-24292ee36bb8"),
             Title = "Playlist 7",
-            User = UserMock.GetMockedUser7(),
-            Songs = SongMock.GetMockedSongs7(),
-            CreatedAt = new DateTime(2024, 5, 1),
-            IsActive = true
+            User = GetMockedUser7(),
+            Songs = GetMockedSongs7(),
+            CreatedAt = new DateTime(2024, 4, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist8() => new Playlist
         {
             Id = Guid.Parse("f1d2f01e-dcb1-46e5-bb3c-a6a0cbd280f3"),
             Title = "Playlist 8",
-            User = UserMock.GetMockedUser8(),
-            Songs = SongMock.GetMockedSongs8(),
-            CreatedAt = new DateTime(2024, 4, 30),
-            IsActive = true
+            User = GetMockedUser8(),
+            Songs = GetMockedSongs8(),
+            CreatedAt = new DateTime(2024, 4, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist9() => new Playlist
         {
             Id = Guid.Parse("20a85f02-c737-4f5e-ab72-e1512e1177d1"),
             Title = "Playlist 9",
-            User = UserMock.GetMockedUser9(),
-            Songs = SongMock.GetMockedSongs9(),
-            CreatedAt = new DateTime(2024, 4, 29),
-            IsActive = true
+            User = GetMockedUser9(),
+            Songs = GetMockedSongs9(),
+            CreatedAt = new DateTime(2024, 4, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist10() => new Playlist
         {
             Id = Guid.Parse("c012c843-ca72-4121-b818-4b38d03be24b"),
             Title = "Playlist 10",
-            User = UserMock.GetMockedUser10(),
-            Songs = SongMock.GetMockedSongs10(),
-            CreatedAt = new DateTime(2024, 4, 28),
-            IsActive = true
+            User = GetMockedUser10(),
+            Songs = GetMockedSongs10(),
+            CreatedAt = new DateTime(2024, 4, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist11() => new Playlist
         {
             Id = Guid.Parse("c6c1b55d-b30f-49e1-af8d-beeff7b76b24"),
             Title = "Playlist 11",
-            User = UserMock.GetMockedUser1(),
-            Songs = SongMock.GetMockedSongs11(),
-            CreatedAt = new DateTime(2024, 4, 27),
-            IsActive = true
+            User = GetMockedUser1(),
+            Songs = GetMockedSongs11(),
+            CreatedAt = new DateTime(2024, 4, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist12() => new Playlist
         {
             Id = Guid.Parse("55fca191-e4fc-43da-a576-1a867256e65d"),
             Title = "Playlist 12",
-            User = UserMock.GetMockedUser2(),
-            Songs = SongMock.GetMockedSongs12(),
-            CreatedAt = new DateTime(2024, 4, 26),
-            IsActive = true
+            User = GetMockedUser2(),
+            Songs = GetMockedSongs12(),
+            CreatedAt = new DateTime(2024, 4, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist13() => new Playlist
         {
             Id = Guid.Parse("514b9ab3-0a63-4219-8989-9b3dd6422005"),
             Title = "Playlist 13",
-            User = UserMock.GetMockedUser3(),
-            Songs = SongMock.GetMockedSongs13(),
-            CreatedAt = new DateTime(2024, 4, 25),
-            IsActive = true
+            User = GetMockedUser3(),
+            Songs = GetMockedSongs13(),
+            CreatedAt = new DateTime(2024, 4, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist14() => new Playlist
         {
             Id = Guid.Parse("e8560429-a622-473a-9646-bfcaac9cc934"),
             Title = "Playlist 14",
-            User = UserMock.GetMockedUser4(),
-            Songs = SongMock.GetMockedSongs14(),
-            CreatedAt = new DateTime(2024, 4, 24),
-            IsActive = true
+            User = GetMockedUser4(),
+            Songs = GetMockedSongs14(),
+            CreatedAt = new DateTime(2024, 4, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist15() => new Playlist
         {
             Id = Guid.Parse("677abd5c-33e0-4553-9be7-f8be825e7afe"),
             Title = "Playlist 15",
-            User = UserMock.GetMockedUser5(),
-            Songs = SongMock.GetMockedSongs15(),
-            CreatedAt = new DateTime(2024, 4, 23),
-            IsActive = true
+            User = GetMockedUser5(),
+            Songs = GetMockedSongs15(),
+            CreatedAt = new DateTime(2024, 4, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist16() => new Playlist
         {
             Id = Guid.Parse("1b6de32d-f60e-45ee-9d96-dcec12fe6525"),
             Title = "Playlist 16",
-            User = UserMock.GetMockedUser6(),
-            Songs = SongMock.GetMockedSongs16(),
-            CreatedAt = new DateTime(2024, 4, 22),
-            IsActive = true
+            User = GetMockedUser6(),
+            Songs = GetMockedSongs16(),
+            CreatedAt = new DateTime(2024, 4, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist17() => new Playlist
         {
             Id = Guid.Parse("4c8747b0-e5a6-48e4-af5c-bdebbe041daa"),
             Title = "Playlist 17",
-            User = UserMock.GetMockedUser7(),
-            Songs = SongMock.GetMockedSongs17(),
-            CreatedAt = new DateTime(2024, 4, 21),
-            IsActive = true
+            User = GetMockedUser7(),
+            Songs = GetMockedSongs17(),
+            CreatedAt = new DateTime(2024, 4, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist18() => new Playlist
         {
             Id = Guid.Parse("ab9ee809-25a5-4c16-8f04-1c9ee63c7784"),
             Title = "Playlist 18",
-            User = UserMock.GetMockedUser8(),
-            Songs = SongMock.GetMockedSongs18(),
-            CreatedAt = new DateTime(2024, 4, 20),
-            IsActive = true
+            User = GetMockedUser8(),
+            Songs = GetMockedSongs18(),
+            CreatedAt = new DateTime(2024, 4, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist19() => new Playlist
         {
             Id = Guid.Parse("01de5998-2c9f-40c5-8766-0d17103da4a0"),
             Title = "Playlist 19",
-            User = UserMock.GetMockedUser9(),
-            Songs = SongMock.GetMockedSongs19(),
-            CreatedAt = new DateTime(2024, 4, 19),
-            IsActive = true
+            User = GetMockedUser9(),
+            Songs = GetMockedSongs19(),
+            CreatedAt = new DateTime(2024, 4, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 19, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist20() => new Playlist
         {
             Id = Guid.Parse("309ba8a0-3a2a-44fd-b359-1058defb3c75"),
             Title = "Playlist 20",
-            User = UserMock.GetMockedUser10(),
-            Songs = SongMock.GetMockedSongs20(),
-            CreatedAt = new DateTime(2024, 4, 18),
-            IsActive = true
+            User = GetMockedUser10(),
+            Songs = GetMockedSongs20(),
+            CreatedAt = new DateTime(2024, 4, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 20, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist21() => new Playlist
         {
             Id = Guid.Parse("ca6f3c65-8051-48a5-8c36-adbfc1a6ac1c"),
             Title = "Playlist 21",
-            User = UserMock.GetMockedUser1(),
-            Songs = SongMock.GetMockedSongs21(),
-            CreatedAt = new DateTime(2024, 4, 17),
-            IsActive = false
+            User = GetMockedUser1(),
+            Songs = GetMockedSongs21(),
+            CreatedAt = new DateTime(2024, 4, 21, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 21, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist22() => new Playlist
         {
             Id = Guid.Parse("80759f9e-c756-4ae1-abcc-c5b300c4890f"),
             Title = "Playlist 22",
-            User = UserMock.GetMockedUser2(),
-            Songs = SongMock.GetMockedSongs22(),
-            CreatedAt = new DateTime(2024, 4, 16),
-            IsActive = false
+            User = GetMockedUser2(),
+            Songs = GetMockedSongs22(),
+            CreatedAt = new DateTime(2024, 4, 22, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 22, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist23() => new Playlist
         {
             Id = Guid.Parse("07919c9c-2642-4a31-8200-e978052c4d7e"),
             Title = "Playlist 23",
-            User = UserMock.GetMockedUser3(),
-            Songs = SongMock.GetMockedSongs23(),
-            CreatedAt = new DateTime(2024, 4, 15),
-            IsActive = false
+            User = GetMockedUser3(),
+            Songs = GetMockedSongs23(),
+            CreatedAt = new DateTime(2024, 4, 23, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 23, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist24() => new Playlist
         {
             Id = Guid.Parse("78b11337-713d-4994-8e49-42b06bde9010"),
             Title = "Playlist 24",
-            User = UserMock.GetMockedUser4(),
-            Songs = SongMock.GetMockedSongs1(),
-            CreatedAt = new DateTime(2024, 4, 14),
-            IsActive = true
+            User = GetMockedUser4(),
+            Songs = GetMockedSongs1(),
+            CreatedAt = new DateTime(2024, 4, 24, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static PlaylistDto GetMockedPlaylistDto1() => ToDto(GetMockedPlaylist1());
@@ -336,7 +352,8 @@ namespace SoundSphere.Tests.Mocks
             UserId = playlist.User.Id,
             SongsIds = playlist.Songs.Select(song => song.Id).ToList(),
             CreatedAt = playlist.CreatedAt,
-            IsActive = playlist.IsActive
+            UpdatedAt = playlist.UpdatedAt,
+            DeletedAt = playlist.DeletedAt
         };
     }
 }

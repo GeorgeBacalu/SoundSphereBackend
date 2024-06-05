@@ -1,11 +1,11 @@
 ﻿using FluentAssertions;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.FeedbackMock;
 
 namespace SoundSphere.Tests.Integration.Repositories
 {
@@ -13,11 +13,11 @@ namespace SoundSphere.Tests.Integration.Repositories
     {
         private readonly DbFixture _fixture;
 
-        private readonly Feedback _feedback1 = FeedbackMock.GetMockedFeedback1();
-        private readonly Feedback _feedback2 = FeedbackMock.GetMockedFeedback2();
-        private readonly IList<Feedback> _feedbacks = FeedbackMock.GetMockedFeedbacks();
-        private readonly IList<Feedback> _paginatedFeedbacks = FeedbackMock.GetMockedPaginatedFeedbacks();
-        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
+        private readonly Feedback _feedback1 = GetMockedFeedback1();
+        private readonly Feedback _feedback2 = GetMockedFeedback2();
+        private readonly IList<Feedback> _feedbacks = GetMockedFeedbacks();
+        private readonly IList<Feedback> _paginatedFeedbacks = GetMockedPaginatedFeedbacks();
+        private readonly FeedbackPaginationRequest _paginationRequest = GetMockedFeedbacksPaginationRequest();
 
         public FeedbackRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 
@@ -32,52 +32,52 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindAll().Should().BeEquivalentTo(_feedbacks));
-
-        [Fact] public void FindAllPagination_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks));
+        [Fact] public void GetAll_Test() => Execute((feedbackRepository, context) => feedbackRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks));
         
-        [Fact] public void FindById_ValidId_Test() => Execute((feedbackRepository, context) => feedbackRepository.FindById(Constants.ValidFeedbackGuid).Should().Be(_feedback1));
+        [Fact] public void GetById_ValidId_Test() => Execute((feedbackRepository, context) => feedbackRepository.GetById(ValidFeedbackGuid).Should().Be(_feedback1));
 
-        [Fact] public void FindById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
-            .Invoking(repository => repository.FindById(Constants.InvalidGuid))
+        [Fact] public void GetById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
+            .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(FeedbackNotFound, InvalidGuid)));
 
-        [Fact] public void Save_Test() => Execute((feedbackRepository, context) =>
+        [Fact] public void Add_Test() => Execute((feedbackRepository, context) =>
         {
-            Feedback newFeedback = FeedbackMock.GetMockedFeedback37();
-            feedbackRepository.Save(newFeedback);
-            context.Feedbacks.Find(newFeedback.Id).Should().BeEquivalentTo(newFeedback, options => options.Excluding(feedback => feedback.SentAt));
+            Feedback newFeedback = GetMockedFeedback37();
+            feedbackRepository.Add(newFeedback);
+            context.Feedbacks.Find(newFeedback.Id).Should().BeEquivalentTo(newFeedback, options => options.Excluding(feedback => feedback.CreatedAt));
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((feedbackRepository, context) =>
         {
             Feedback updatedFeedback = new Feedback
             {
-                Id = Constants.ValidFeedbackGuid,
+                Id = ValidFeedbackGuid,
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
-            feedbackRepository.UpdateById(_feedback2, Constants.ValidFeedbackGuid);
-            context.Feedbacks.Find(Constants.ValidFeedbackGuid).Should().Be(updatedFeedback);
+            feedbackRepository.UpdateById(_feedback2, ValidFeedbackGuid);
+            context.Feedbacks.Find(ValidFeedbackGuid).Should().Be(updatedFeedback);
         });
 
         [Fact] public void UpdateById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
-            .Invoking(repository => repository.UpdateById(_feedback2, Constants.InvalidGuid))
+            .Invoking(repository => repository.UpdateById(_feedback2, InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(FeedbackNotFound, InvalidGuid)));
 
         [Fact] public void DeleteById_ValidId_Test() => Execute((feedbackRepository, context) =>
         {
-            feedbackRepository.DeleteById(Constants.ValidFeedbackGuid);
-            context.Feedbacks.Should().BeEquivalentTo(new List<Feedback> { _feedback2 });
+            feedbackRepository.DeleteById(ValidFeedbackGuid);
+            IList<Feedback> newFeedbacks = new List<Feedback>(_feedbacks);
+            newFeedbacks.Remove(_feedback1);
+            context.Feedbacks.Should().BeEquivalentTo(newFeedbacks);
         });
 
         [Fact] public void DeleteById_InvalidId_Test() => Execute((feedbackRepository, context) => feedbackRepository
-            .Invoking(repository => repository.DeleteById(Constants.InvalidGuid))
+            .Invoking(repository => repository.DeleteById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
-            .WithMessage(string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid)));
+            .WithMessage(string.Format(FeedbackNotFound, InvalidGuid)));
     }
 }

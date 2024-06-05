@@ -3,12 +3,13 @@ using FluentAssertions;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.NotificationMock;
+using static SoundSphere.Tests.Mocks.UserMock;
 
 namespace SoundSphere.Tests.Unit.Services
 {
@@ -19,16 +20,16 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly INotificationService _notificationService;
 
-        private readonly Notification _notification1 = NotificationMock.GetMockedNotification1();
-        private readonly Notification _notification2 = NotificationMock.GetMockedNotification2();
-        private readonly IList<Notification> _notifications = NotificationMock.GetMockedNotifications();
-        private readonly IList<Notification> _paginatedNotifications = NotificationMock.GetMockedPaginatedNotifications();
-        private readonly NotificationDto _notificationDto1 = NotificationMock.GetMockedNotificationDto1();
-        private readonly NotificationDto _notificationDto2 = NotificationMock.GetMockedNotificationDto2();
-        private readonly IList<NotificationDto> _notificationDtos = NotificationMock.GetMockedNotificationDtos();
-        private readonly IList<NotificationDto> _paginatedNotificationDtos = NotificationMock.GetMockedPaginatedNotificationDtos();
-        private readonly NotificationPaginationRequest _paginationRequest = NotificationMock.GetMockedPaginationRequest();
-        private readonly User _user1 = UserMock.GetMockedUser1();
+        private readonly Notification _notification1 = GetMockedNotification1();
+        private readonly Notification _notification2 = GetMockedNotification2();
+        private readonly IList<Notification> _notifications = GetMockedNotifications();
+        private readonly IList<Notification> _paginatedNotifications = GetMockedPaginatedNotifications();
+        private readonly NotificationDto _notificationDto1 = GetMockedNotificationDto1();
+        private readonly NotificationDto _notificationDto2 = GetMockedNotificationDto2();
+        private readonly IList<NotificationDto> _notificationDtos = GetMockedNotificationDtos();
+        private readonly IList<NotificationDto> _paginatedNotificationDtos = GetMockedPaginatedNotificationDtos();
+        private readonly NotificationPaginationRequest _paginationRequest = GetMockedNotificationsPaginationRequest();
+        private readonly User _user1 = GetMockedUser1();
 
         public NotificationServiceTest()
         {
@@ -39,52 +40,46 @@ namespace SoundSphere.Tests.Unit.Services
             _notificationService = new NotificationService(_notificationRepositoryMock.Object, _userRepositoryMock.Object, _mapperMock.Object);
         }
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _notificationRepositoryMock.Setup(mock => mock.FindAll()).Returns(_notifications);
-            _notificationService.FindAll().Should().BeEquivalentTo(_notificationDtos);
+            _notificationRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedNotifications);
+            _notificationService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos);
         }
 
-        [Fact] public void FindAllPagination_Test()
+        [Fact] public void GetById_Test()
         {
-            _notificationRepositoryMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedNotifications);
-            _notificationService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos);
+            _notificationRepositoryMock.Setup(mock => mock.GetById(ValidNotificationGuid)).Returns(_notification1);
+            _notificationService.GetById(ValidNotificationGuid).Should().Be(_notificationDto1);
         }
 
-        [Fact] public void FindById_Test()
+        [Fact] public void Add_Test()
         {
-            _notificationRepositoryMock.Setup(mock => mock.FindById(Constants.ValidNotificationGuid)).Returns(_notification1);
-            _notificationService.FindById(Constants.ValidNotificationGuid).Should().Be(_notificationDto1);
-        }
-
-        [Fact] public void Save_Test()
-        {
-            _userRepositoryMock.Setup(mock => mock.FindById(Constants.ValidUserGuid)).Returns(_user1);
-            _notificationRepositoryMock.Setup(mock => mock.Save(_notification1)).Returns(_notification1);
-            _notificationService.Save(_notificationDto1).Should().Be(_notificationDto1);
+            _userRepositoryMock.Setup(mock => mock.GetById(ValidUserGuid)).Returns(_user1);
+            _notificationRepositoryMock.Setup(mock => mock.Add(_notification1)).Returns(_notification1);
+            _notificationService.Add(_notificationDto1).Should().Be(_notificationDto1);
         }
 
         [Fact] public void UpdateById_Test()
         {
             Notification updatedNotification = new Notification
             {
-                Id = Constants.ValidNotificationGuid,
+                Id = ValidNotificationGuid,
                 User = _notification1.User,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
-                SentAt = _notification1.SentAt,
-                IsRead = _notification2.IsRead
+                IsRead = _notification2.IsRead,
+                CreatedAt = _notification1.CreatedAt,
             };
             NotificationDto updatedNotificationDto = ToDto(updatedNotification);
             _mapperMock.Setup(mock => mock.Map<NotificationDto>(updatedNotification)).Returns(updatedNotificationDto);
-            _notificationRepositoryMock.Setup(mock => mock.UpdateById(_notification2, Constants.ValidNotificationGuid)).Returns(updatedNotification);
-            _notificationService.UpdateById(_notificationDto2, Constants.ValidNotificationGuid).Should().Be(updatedNotificationDto);
+            _notificationRepositoryMock.Setup(mock => mock.UpdateById(_notification2, ValidNotificationGuid)).Returns(updatedNotification);
+            _notificationService.UpdateById(_notificationDto2, ValidNotificationGuid).Should().Be(updatedNotificationDto);
         }
 
         [Fact] public void DeleteById_Test()
         {
-            _notificationService.DeleteById(Constants.ValidNotificationGuid);
-            _notificationRepositoryMock.Verify(mock => mock.DeleteById(Constants.ValidNotificationGuid));
+            _notificationService.DeleteById(ValidNotificationGuid);
+            _notificationRepositoryMock.Verify(mock => mock.DeleteById(ValidNotificationGuid));
         }
 
         private NotificationDto ToDto(Notification notification) => new NotificationDto
@@ -93,8 +88,10 @@ namespace SoundSphere.Tests.Unit.Services
             UserId = notification.User.Id,
             Type = notification.Type,
             Message = notification.Message,
-            SentAt = notification.SentAt,
-            IsRead = notification.IsRead
+            IsRead = notification.IsRead,
+            CreatedAt = notification.CreatedAt,
+            UpdatedAt = notification.UpdatedAt,
+            DeletedAt = notification.DeletedAt
         };
     }
 }

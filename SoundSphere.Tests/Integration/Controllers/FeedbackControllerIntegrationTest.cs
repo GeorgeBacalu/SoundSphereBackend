@@ -1,15 +1,16 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
-using SoundSphere.Tests.Mocks;
-using System.Net;
+using static Microsoft.AspNetCore.Http.StatusCodes;
+using static Newtonsoft.Json.JsonConvert;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.FeedbackMock;
+using static SoundSphere.Tests.Mocks.UserMock;
+using static System.Net.HttpStatusCode;
 
 namespace SoundSphere.Tests.Integration.Controllers
 {
@@ -19,15 +20,15 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly CustomWebAppFactory _factory;
         private readonly HttpClient _httpClient;
 
-        private readonly Feedback _feedback1 = FeedbackMock.GetMockedFeedback1();
-        private readonly Feedback _feedback2 = FeedbackMock.GetMockedFeedback2();
-        private readonly IList<Feedback> _feedbacks = FeedbackMock.GetMockedFeedbacks();
-        private readonly FeedbackDto _feedbackDto1 = FeedbackMock.GetMockedFeedbackDto1();
-        private readonly FeedbackDto _feedbackDto2 = FeedbackMock.GetMockedFeedbackDto2();
-        private readonly IList<FeedbackDto> _feedbackDtos = FeedbackMock.GetMockedFeedbackDtos();
-        private readonly IList<FeedbackDto> _paginatedFeedbackDtos = FeedbackMock.GetMockedPaginatedFeedbackDtos();
-        private readonly FeedbackPaginationRequest _paginationRequest = FeedbackMock.GetMockedPaginationRequest();
-        private readonly IList<User> _users = UserMock.GetMockedUsers();
+        private readonly Feedback _feedback1 = GetMockedFeedback1();
+        private readonly Feedback _feedback2 = GetMockedFeedback2();
+        private readonly IList<Feedback> _feedbacks = GetMockedFeedbacks();
+        private readonly FeedbackDto _feedbackDto1 = GetMockedFeedbackDto1();
+        private readonly FeedbackDto _feedbackDto2 = GetMockedFeedbackDto2();
+        private readonly IList<FeedbackDto> _feedbackDtos = GetMockedFeedbackDtos();
+        private readonly IList<FeedbackDto> _paginatedFeedbackDtos = GetMockedPaginatedFeedbackDtos();
+        private readonly FeedbackPaginationRequest _paginationRequest = GetMockedFeedbacksPaginationRequest();
+        private readonly IList<User> _users = GetMockedUsers();
 
         public FeedbackControllerIntegrationTest()
         {
@@ -51,55 +52,46 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
-        [Fact] public async Task FindAll_Test() => await Execute(async () =>
+        [Fact] public async Task GetAll_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(Constants.ApiFeedback);
+            var response = await _httpClient.PostAsync($"{ApiFeedback}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<IList<FeedbackDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_feedbackDtos);
-        });
-
-        [Fact] public async Task FindAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{Constants.ApiFeedback}/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<IList<FeedbackDto>>(await response.Content.ReadAsStringAsync());
+            response.StatusCode.Should().Be(OK);
+            var responseBody = DeserializeObject<IList<FeedbackDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_paginatedFeedbackDtos);
         });
 
-        [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
+        [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync($"{Constants.ApiFeedback}/{Constants.ValidFeedbackGuid}");
+            var response = await _httpClient.GetAsync($"{ApiFeedback}/{ValidFeedbackGuid}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<FeedbackDto>(await response.Content.ReadAsStringAsync());
+            response.StatusCode.Should().Be(OK);
+            var responseBody = DeserializeObject<FeedbackDto>(await response.Content.ReadAsStringAsync());
             responseBody.Should().Be(_feedbackDto1);
         });
 
-        [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
+        [Fact] public async Task GetById_InvalidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync($"{Constants.ApiFeedback}/{Constants.InvalidGuid}");
+            var response = await _httpClient.GetAsync($"{ApiFeedback}/{InvalidGuid}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid) });
+            response.StatusCode.Should().Be(NotFound);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(FeedbackNotFound, InvalidGuid) });
         });
 
-        [Fact] public async Task Save_Test() => await Execute(async () =>
+        [Fact] public async Task Add_Test() => await Execute(async () =>
         {
-            FeedbackDto newFeedbackDto = FeedbackMock.GetMockedFeedbackDto37();
-            var saveResponse = await _httpClient.PostAsync(Constants.ApiFeedback, new StringContent(JsonConvert.SerializeObject(newFeedbackDto)));
+            FeedbackDto newFeedbackDto = GetMockedFeedbackDto37();
+            var saveResponse = await _httpClient.PostAsync(ApiFeedback, new StringContent(SerializeObject(newFeedbackDto)));
             saveResponse.Should().NotBeNull();
-            saveResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            var saveResponseBody = JsonConvert.DeserializeObject<FeedbackDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResponseBody.Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.SentAt));
+            saveResponse.StatusCode.Should().Be(Created);
+            var saveResponseBody = DeserializeObject<FeedbackDto>(await saveResponse.Content.ReadAsStringAsync());
+            saveResponseBody.Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.CreatedAt));
 
-            var getAllResponse = await _httpClient.GetAsync(Constants.ApiFeedback);
+            var getAllResponse = await _httpClient.GetAsync(ApiFeedback);
             getAllResponse.Should().NotBeNull();
-            getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getAllResponseBody = JsonConvert.DeserializeObject<IList<FeedbackDto>>(await getAllResponse.Content.ReadAsStringAsync());
+            getAllResponse.StatusCode.Should().Be(OK);
+            var getAllResponseBody = DeserializeObject<IList<FeedbackDto>>(await getAllResponse.Content.ReadAsStringAsync());
             getAllResponseBody.Should().Contain(newFeedbackDto);
         });
 
@@ -107,55 +99,55 @@ namespace SoundSphere.Tests.Integration.Controllers
         {
             Feedback updatedFeedback = new Feedback
             {
-                Id = Constants.ValidFeedbackGuid,
+                Id = ValidFeedbackGuid,
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
             FeedbackDto updatedFeedbackDto = ToDto(updatedFeedback);
-            var updateResponse = await _httpClient.PutAsync($"{Constants.ApiFeedback}/{Constants.ValidFeedbackGuid}", new StringContent(JsonConvert.SerializeObject(updatedFeedbackDto)));
+            var updateResponse = await _httpClient.PutAsync($"{ApiFeedback}/{ValidFeedbackGuid}", new StringContent(SerializeObject(updatedFeedbackDto)));
             updateResponse.Should().NotBeNull();
-            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var updateResponseBody = JsonConvert.DeserializeObject<FeedbackDto>(await updateResponse.Content.ReadAsStringAsync());
+            updateResponse.StatusCode.Should().Be(OK);
+            var updateResponseBody = DeserializeObject<FeedbackDto>(await updateResponse.Content.ReadAsStringAsync());
             updateResponseBody.Should().Be(updatedFeedbackDto);
 
-            var getResponse = await _httpClient.GetAsync($"{Constants.ApiFeedback}/{Constants.ValidFeedbackGuid}");
+            var getResponse = await _httpClient.GetAsync($"{ApiFeedback}/{ValidFeedbackGuid}");
             getResponse.Should().NotBeNull();
-            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResponseBody = JsonConvert.DeserializeObject<FeedbackDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponse.StatusCode.Should().Be(OK);
+            var getResponseBody = DeserializeObject<FeedbackDto>(await getResponse.Content.ReadAsStringAsync());
             getResponseBody.Should().Be(updatedFeedbackDto);
         });
 
         [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.PutAsync($"{Constants.ApiFeedback}/{Constants.InvalidGuid}", new StringContent(JsonConvert.SerializeObject(_feedbackDto2)));
+            var response = await _httpClient.PutAsync($"{ApiFeedback}/{InvalidGuid}", new StringContent(SerializeObject(_feedbackDto2)));
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid) });
+            response.StatusCode.Should().Be(NotFound);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(FeedbackNotFound, InvalidGuid) });
         });
 
         [Fact] public async Task DeleteById_ValidId_Test() => await Execute(async () =>
         {
-            var deleteResponse = await _httpClient.DeleteAsync($"{Constants.ApiFeedback}/{Constants.ValidFeedbackGuid}");
+            var deleteResponse = await _httpClient.DeleteAsync($"{ApiFeedback}/{ValidFeedbackGuid}");
             deleteResponse.Should().NotBeNull();
-            deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            deleteResponse.StatusCode.Should().Be(NoContent);
 
-            var getResponse = await _httpClient.GetAsync($"{Constants.ApiFeedback}/{Constants.ValidFeedbackGuid}");
+            var getResponse = await _httpClient.GetAsync($"{ApiFeedback}/{ValidFeedbackGuid}");
             getResponse.Should().NotBeNull();
-            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var getResponseBody = JsonConvert.DeserializeObject<ProblemDetails>(await getResponse.Content.ReadAsStringAsync());
-            getResponseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.FeedbackNotFound, Constants.ValidFeedbackGuid) });
+            getResponse.StatusCode.Should().Be(NotFound);
+            var getResponseBody = DeserializeObject<ProblemDetails>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(FeedbackNotFound, ValidFeedbackGuid) });
         });
 
         [Fact] public async Task DeleteById_InvalidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.DeleteAsync($"{Constants.ApiFeedback}/{Constants.InvalidGuid}");
+            var response = await _httpClient.DeleteAsync($"{ApiFeedback}/{InvalidGuid}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.FeedbackNotFound, Constants.InvalidGuid) });
+            response.StatusCode.Should().Be(NotFound);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(FeedbackNotFound, InvalidGuid) });
         });
 
         private FeedbackDto ToDto(Feedback feedback) => new FeedbackDto
@@ -164,7 +156,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             UserId = feedback.User.Id,
             Type = feedback.Type,
             Message = feedback.Message,
-            SentAt = feedback.SentAt
+            CreatedAt = feedback.CreatedAt,
+            UpdatedAt = feedback.UpdatedAt,
+            DeletedAt = feedback.DeletedAt
         };
     }
 }

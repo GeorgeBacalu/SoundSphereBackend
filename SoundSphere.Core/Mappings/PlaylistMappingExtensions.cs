@@ -22,8 +22,8 @@ namespace SoundSphere.Core.Mappings
         public static Playlist ToEntity(this PlaylistDto playlistDto, IUserRepository userRepository, ISongRepository songRepository, IMapper mapper)
         {
             Playlist playlist = mapper.Map<Playlist>(playlistDto);
-            playlist.User = userRepository.FindById(playlistDto.UserId);
-            playlist.Songs = playlistDto.SongsIds.Select(songRepository.FindById).ToList();
+            playlist.User = userRepository.GetById(playlistDto.UserId);
+            playlist.Songs = playlistDto.SongsIds.Select(songRepository.GetById).ToList();
             return playlist;
         }
     }

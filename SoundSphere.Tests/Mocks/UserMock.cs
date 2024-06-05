@@ -3,6 +3,8 @@ using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
+using static SoundSphere.Tests.Mocks.RoleMock;
+using static SoundSphere.Tests.Mocks.AuthorityMock;
 
 namespace SoundSphere.Tests.Mocks
 {
@@ -14,27 +16,17 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<UserDto> GetMockedUserDtos() => GetMockedUsers().Select(ToDto).ToList();
 
-        public static IList<User> GetMockedActiveUsers() => GetMockedUsers().Where(user => user.IsActive).ToList();
+        public static IList<User> GetMockedPaginatedUsers() => GetMockedUsers().Where(user => user.DeletedAt == null).Take(10).ToList();
 
-        public static IList<UserDto> GetMockedActiveUserDtos() => GetMockedUserDtos().Where(user => user.IsActive).ToList();
+        public static IList<UserDto> GetMockedPaginatedUserDtos() => GetMockedPaginatedUsers().Select(ToDto).ToList();
 
-        public static IList<User> GetMockedPaginatedUsers() => new List<User> { GetMockedUser5(), GetMockedUser6(), GetMockedUser7(), GetMockedUser8(), GetMockedUser9(), GetMockedUser10() };
-        
-        public static IList<UserDto> GetMockedPaginatedUserDtos() => new List<UserDto> { GetMockedUserDto5(), GetMockedUserDto6(), GetMockedUserDto7(), GetMockedUserDto8(), GetMockedUserDto9(), GetMockedUserDto10() };
-
-        public static IList<User> GetMockedActivePaginatedUsers() => GetMockedPaginatedUsers().Where(user => user.IsActive).ToList();
-
-        public static IList<UserDto> GetMockedActivePaginatedUserDtos() => GetMockedPaginatedUserDtos().Where(user => user.IsActive).ToList();
-
-        public static UserPaginationRequest GetMockedPaginationRequest() => new UserPaginationRequest
-        {
-            SortCriteria = new Dictionary<UserSortCriterion, SortOrder> { { UserSortCriterion.ByName, SortOrder.Ascending }, { UserSortCriterion.ByEmail, SortOrder.Ascending } },
-            SearchCriteria = new List<UserSearchCriterion> { UserSearchCriterion.ByName, UserSearchCriterion.ByEmail, UserSearchCriterion.ByBirthdayRange, UserSearchCriterion.ByRole },
-            Name = "A",
-            Email = "A",
-            DateRange = new DateRange { StartDate = new DateOnly(1950, 1, 1), EndDate = new DateOnly(2024, 1, 1) },
-            RoleType = RoleType.Listener
-        };
+        public static UserPaginationRequest GetMockedUsersPaginationRequest() => new UserPaginationRequest(
+            SortCriteria: new Dictionary<UserSortCriterion, SortOrder> { { UserSortCriterion.ByName, SortOrder.Ascending }, { UserSortCriterion.ByEmail, SortOrder.Ascending } },
+            SearchCriteria: new List<UserSearchCriterion> { UserSearchCriterion.ByName, UserSearchCriterion.ByEmail, UserSearchCriterion.ByBirthdayRange, UserSearchCriterion.ByRole },
+            Name: "A",
+            Email: "A",
+            DateRange: new DateRange(new DateOnly(1950, 1, 1), new DateOnly(2024, 5, 31)),
+            RoleType: RoleType.Listener);
 
         public static User GetMockedUser1() => new User
         {
@@ -46,9 +38,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "123 Main St, Boston, USA",
             Birthday = new DateOnly(1980, 2, 15),
             Avatar = "https://john-doe-avatar.jpg",
-            Role = RoleMock.GetMockedRole1(),
-            Authorities = AuthorityMock.GetMockedAuthorities(),
-            IsActive = true
+            Role = GetMockedRole1(),
+            Authorities = GetMockedAuthorities(),
+            CreatedAt = new DateTime(2024, 5, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser2() => new User
@@ -61,9 +55,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "456 Oak St, London, UK",
             Birthday = new DateOnly(1982, 7, 10),
             Avatar = "https://jane-smith-avatar.jpg",
-            Role = RoleMock.GetMockedRole1(),
-            Authorities = AuthorityMock.GetMockedAuthorities(),
-            IsActive = true
+            Role = GetMockedRole1(),
+            Authorities = GetMockedAuthorities(),
+            CreatedAt = new DateTime(2024, 5, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser3() => new User
@@ -76,9 +72,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "789 Pine St, Madrid, Spain",
             Birthday = new DateOnly(1990, 11, 20),
             Avatar = "https://michael-johnson-avatar.jpg",
-            Role = RoleMock.GetMockedRole1(),
-            Authorities = AuthorityMock.GetMockedAuthorities(),
-            IsActive = true
+            Role = GetMockedRole1(),
+            Authorities = GetMockedAuthorities(),
+            CreatedAt = new DateTime(2024, 5, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser4() => new User
@@ -91,9 +89,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "333 Elm St, Paris, France",
             Birthday = new DateOnly(1985, 8, 25),
             Avatar = "https://laura-brown-avatar.jpg",
-            Role = RoleMock.GetMockedRole2(),
-            Authorities = AuthorityMock.GetMockedAuthorities2(),
-            IsActive = true
+            Role = GetMockedRole2(),
+            Authorities = GetMockedAuthorities2(),
+            CreatedAt = new DateTime(2024, 5, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser5() => new User
@@ -106,9 +106,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "555 Oak St, Berlin, Germany",
             Birthday = new DateOnly(1988, 5, 12),
             Avatar = "https://robert-davis-avatar.jpg",
-            Role = RoleMock.GetMockedRole2(),
-            Authorities = AuthorityMock.GetMockedAuthorities2(),
-            IsActive = true
+            Role = GetMockedRole2(),
+            Authorities = GetMockedAuthorities2(),
+            CreatedAt = new DateTime(2024, 5, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser6() => new User
@@ -121,9 +123,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "777 Pine St, Sydney, Australia",
             Birthday = new DateOnly(1995, 9, 8),
             Avatar = "https://emily-wilson-avatar.jpg",
-            Role = RoleMock.GetMockedRole2(),
-            Authorities = AuthorityMock.GetMockedAuthorities2(),
-            IsActive = true
+            Role = GetMockedRole2(),
+            Authorities = GetMockedAuthorities2(),
+            CreatedAt = new DateTime(2024, 5, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 6, 12, 0, 0)
         };
 
         public static User GetMockedUser7() => new User
@@ -136,9 +140,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "999 Elm St, Rome, Italy",
             Birthday = new DateOnly(1983, 12, 7),
             Avatar = "https://michaela-taylor-avatar.jpg",
-            Role = RoleMock.GetMockedRole2(),
-            Authorities = AuthorityMock.GetMockedAuthorities2(),
-            IsActive = true
+            Role = GetMockedRole2(),
+            Authorities = GetMockedAuthorities2(),
+            CreatedAt = new DateTime(2024, 5, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 7, 12, 0, 0)
         };
 
         public static User GetMockedUser8() => new User
@@ -151,9 +157,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "111 Oak St, Moscow, Russia",
             Birthday = new DateOnly(1992, 4, 23),
             Avatar = "https://david-anderson-avatar.jpg",
-            Role = RoleMock.GetMockedRole3(),
-            Authorities = AuthorityMock.GetMockedAuthorities1(),
-            IsActive = true
+            Role = GetMockedRole3(),
+            Authorities = GetMockedAuthorities1(),
+            CreatedAt = new DateTime(2024, 5, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 8, 12, 0, 0)
         };
 
         public static User GetMockedUser9() => new User
@@ -166,9 +174,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "333 Pine St, Athens, Greece",
             Birthday = new DateOnly(1998, 7, 30),
             Avatar = "https://sophia-garcia-avatar.jpg",
-            Role = RoleMock.GetMockedRole3(),
-            Authorities = AuthorityMock.GetMockedAuthorities1(),
-            IsActive = true
+            Role = GetMockedRole3(),
+            Authorities = GetMockedAuthorities1(),
+            CreatedAt = new DateTime(2024, 5, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 9, 12, 0, 0)
         };
 
         public static User GetMockedUser10() => new User
@@ -181,9 +191,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "555 Elm St, Madrid, Spain",
             Birthday = new DateOnly(1991, 3, 14),
             Avatar = "https://joseph-wilson-avatar.jpg",
-            Role = RoleMock.GetMockedRole3(),
-            Authorities = AuthorityMock.GetMockedAuthorities1(),
-            IsActive = true
+            Role = GetMockedRole3(),
+            Authorities = GetMockedAuthorities1(),
+            CreatedAt = new DateTime(2024, 5, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 10, 12, 0, 0)
         };
 
         public static User GetMockedUser11() => new User
@@ -196,9 +208,11 @@ namespace SoundSphere.Tests.Mocks
             Address = "777 Oak St, Tokyo, Japan",
             Birthday = new DateOnly(1999, 10, 17),
             Avatar = "https://olivia-martinez-avatar.jpg",
-            Role = RoleMock.GetMockedRole3(),
-            Authorities = AuthorityMock.GetMockedAuthorities1(),
-            IsActive = true
+            Role = GetMockedRole3(),
+            Authorities = GetMockedAuthorities1(),
+            CreatedAt = new DateTime(2024, 5, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static UserDto GetMockedUserDto1() => ToDto(GetMockedUser1());
@@ -234,7 +248,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = user.Avatar,
             RoleId = user.Role.Id,
             AuthoritiesIds = user.Authorities.Select(authority => authority.Id).ToList(),
-            IsActive = user.IsActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
     }
 }

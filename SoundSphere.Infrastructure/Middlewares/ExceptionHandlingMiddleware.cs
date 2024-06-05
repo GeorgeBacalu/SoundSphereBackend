@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SoundSphere.Infrastructure.Exceptions;
 using System.Text.Json;
 
-namespace SoundSphere.Infrastructure.Exceptions
+namespace SoundSphere.Infrastructure.Middlewares
 {
-    public class GlobalExceptionHandlingMiddleware : IMiddleware
+    public class ExceptionHandlingMiddleware : IMiddleware
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {

@@ -2,12 +2,11 @@
 
 namespace SoundSphere.Database.Dtos.Request
 {
-    public class ArtistPaginationRequest : PaginationRequest
-    {
-        public IDictionary<ArtistSortCriterion, SortOrder>? SortCriteria { get; set; }
-        public IList<ArtistSearchCriterion>? SearchCriteria { get; set; }
-        public string? Name { get; set; }
-    }
+    public record ArtistPaginationRequest(
+        IDictionary<ArtistSortCriterion, SortOrder>? SortCriteria,
+        IList<ArtistSearchCriterion>? SearchCriteria,
+        string? Name
+        ) : PaginationRequest;
 
     public enum ArtistSortCriterion { ByName = 10 }
 

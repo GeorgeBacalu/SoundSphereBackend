@@ -1,12 +1,12 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Tests.Mocks;
+using static Microsoft.AspNetCore.Http.StatusCodes;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.RoleMock;
 
 namespace SoundSphere.Tests.Unit.Controllers
 {
@@ -15,35 +15,35 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly Mock<IRoleService> _roleServiceMock = new();
         private readonly RoleController _roleController;
 
-        private readonly RoleDto _roleDto1 = RoleMock.GetMockedRoleDto1();
-        private readonly IList<RoleDto> _roleDtos = RoleMock.GetMockedRoleDtos();
+        private readonly RoleDto _roleDto1 = GetMockedRoleDto1();
+        private readonly IList<RoleDto> _roleDtos = GetMockedRoleDtos();
 
         public RoleControllerTest() => _roleController = new(_roleServiceMock.Object);
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _roleServiceMock.Setup(mock => mock.FindAll()).Returns(_roleDtos);
-            OkObjectResult? result = _roleController.FindAll() as OkObjectResult;
+            _roleServiceMock.Setup(mock => mock.GetAll()).Returns(_roleDtos);
+            OkObjectResult? result = _roleController.GetAll() as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_roleDtos);
         }
 
-        [Fact] public void FindById_Test()
+        [Fact] public void GetById_Test()
         {
-            _roleServiceMock.Setup(mock => mock.FindById(Constants.ValidRoleGuid)).Returns(_roleDto1);
-            OkObjectResult? result = _roleController.FindById(Constants.ValidRoleGuid) as OkObjectResult;
+            _roleServiceMock.Setup(mock => mock.GetById(ValidRoleGuid)).Returns(_roleDto1);
+            OkObjectResult? result = _roleController.GetById(ValidRoleGuid) as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_roleDto1);
         }
 
-        [Fact] public void Save_Test()
+        [Fact] public void Add_Test()
         {
-            _roleServiceMock.Setup(mock => mock.Save(_roleDto1)).Returns(_roleDto1);
-            CreatedAtActionResult? result = _roleController.Save(_roleDto1) as CreatedAtActionResult;
+            _roleServiceMock.Setup(mock => mock.Add(_roleDto1)).Returns(_roleDto1);
+            CreatedAtActionResult? result = _roleController.Add(_roleDto1) as CreatedAtActionResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status201Created);
+            result?.StatusCode.Should().Be(Status201Created);
             result?.Value.Should().Be(_roleDto1);
         }
     }

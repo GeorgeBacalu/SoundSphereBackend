@@ -5,20 +5,14 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IUserService
     {
-        IList<UserDto> FindAll();
+        IList<UserDto> GetAll(UserPaginationRequest payload);
 
-        IList<UserDto> FindAllActive();
+        UserDto GetById(Guid id);
 
-        IList<UserDto> FindAllPagination(UserPaginationRequest payload);
-
-        IList<UserDto> FindAllActivePagination(UserPaginationRequest payload);
-
-        UserDto FindById(Guid id);
-
-        UserDto Save(UserDto userDto);
+        UserDto Add(UserDto userDto);
 
         UserDto UpdateById(UserDto userDto, Guid id);
 
-        UserDto DisableById(Guid id);
+        UserDto DeleteById(Guid id);
     }
 }

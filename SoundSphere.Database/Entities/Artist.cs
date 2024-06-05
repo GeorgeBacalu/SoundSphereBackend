@@ -2,7 +2,7 @@
 
 namespace SoundSphere.Database.Entities
 {
-    public class Artist
+    public class Artist : BaseEntity
     {
         public Guid Id { get; set; }
         
@@ -15,8 +15,6 @@ namespace SoundSphere.Database.Entities
         [JsonIgnore] public IList<Song>? Songs { get; set; }
         
         public IList<ArtistLink> SimilarArtists { get; set; } = null!;
-        
-        public bool IsActive { get; set; } = true;
 
         public override bool Equals(object? obj) => obj is Artist artist &&
             Id.Equals(artist.Id) &&
@@ -24,8 +22,10 @@ namespace SoundSphere.Database.Entities
             ImageUrl.Equals(artist.ImageUrl) &&
             Bio.Equals(artist.Bio) &&
             SimilarArtists.SequenceEqual(artist.SimilarArtists) &&
-            IsActive == artist.IsActive;
+            CreatedAt.Equals(artist.CreatedAt) &&
+            UpdatedAt.Equals(artist.UpdatedAt) &&
+            DeletedAt.Equals(artist.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, ImageUrl, Bio, Songs, SimilarArtists, IsActive);
+        public override int GetHashCode() => HashCode.Combine(Id, Name, ImageUrl, Bio, Songs, SimilarArtists, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 }

@@ -5,21 +5,15 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface ISongRepository
     {
-        IList<Song> FindAll();
+        IList<Song> GetAll(SongPaginationRequest payload);
 
-        IList<Song> FindAllActive();
+        Song GetById(Guid id);
 
-        IList<Song> FindAllPagination(SongPaginationRequest payload);
-
-        IList<Song> FindAllActivePagination(SongPaginationRequest payload);
-
-        Song FindById(Guid id);
-
-        Song Save(Song song);
+        Song Add(Song song);
 
         Song UpdateById(Song song, Guid id);
 
-        Song DisableById(Guid id);
+        Song DeleteById(Guid id);
 
         void LinkSongToAlbum(Song song);
 

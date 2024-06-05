@@ -1,15 +1,15 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
-using SoundSphere.Tests.Mocks;
-using System.Net;
+using static Microsoft.AspNetCore.Http.StatusCodes;
+using static Newtonsoft.Json.JsonConvert;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.AlbumMock;
+using static System.Net.HttpStatusCode;
 
 namespace SoundSphere.Tests.Integration.Controllers
 {
@@ -19,16 +19,14 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly CustomWebAppFactory _factory;
         private readonly HttpClient _httpClient;
 
-        private readonly Album _album1 = AlbumMock.GetMockedAlbum1();
-        private readonly Album _album2 = AlbumMock.GetMockedAlbum2();
-        private readonly IList<Album> _albums = AlbumMock.GetMockedAlbums();
-        private readonly AlbumDto _albumDto1 = AlbumMock.GetMockedAlbumDto1();
-        private readonly AlbumDto _albumDto2 = AlbumMock.GetMockedAlbumDto2();
-        private readonly IList<AlbumDto> _albumDtos = AlbumMock.GetMockedAlbumDtos();
-        private readonly IList<AlbumDto> _activeAlbumDtos = AlbumMock.GetMockedActiveAlbumDtos();
-        private readonly IList<AlbumDto> _paginatedAlbumDtos = AlbumMock.GetMockedPaginatedAlbumDtos();
-        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = AlbumMock.GetMockedActivePaginatedAlbumDtos();
-        private readonly AlbumPaginationRequest _paginationRequest = AlbumMock.GetMockedPaginationRequest();
+        private readonly Album _album1 = GetMockedAlbum1();
+        private readonly Album _album2 = GetMockedAlbum2();
+        private readonly IList<Album> _albums = GetMockedAlbums();
+        private readonly AlbumDto _albumDto1 = GetMockedAlbumDto1();
+        private readonly AlbumDto _albumDto2 = GetMockedAlbumDto2();
+        private readonly IList<AlbumDto> _albumDtos = GetMockedAlbumDtos();
+        private readonly IList<AlbumDto> _paginatedAlbumDtos = GetMockedPaginatedAlbumDtos();
+        private readonly AlbumPaginationRequest _paginationRequest = GetMockedAlbumsPaginationRequest();
 
         public AlbumControllerIntegrationTest()
         {
@@ -51,136 +49,111 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
-        [Fact] public async Task FindAll_Test() => await Execute(async () =>
+        [Fact] public async Task GetAll_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(Constants.ApiAlbum);
+            var response = await _httpClient.PostAsync($"{ApiAlbum}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_albumDtos);
-        });
-
-        [Fact] public async Task FindAllActive_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.GetAsync($"{Constants.ApiAlbum}/active");
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activeAlbumDtos);
-        });
-
-        [Fact] public async Task FindAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{Constants.ApiAlbum}/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
+            response.StatusCode.Should().Be(OK);
+            var responseBody = DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_paginatedAlbumDtos);
         });
 
-        [Fact] public async Task FindAllActivePagination_Test() => await Execute(async () =>
+        [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.PostAsync($"{Constants.ApiAlbum}/active/pagination", new StringContent(JsonConvert.SerializeObject(_paginationRequest)));
+            var response = await _httpClient.GetAsync($"{ApiAlbum}/{ValidAlbumGuid}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activePaginatedAlbumDtos);
-        });
-
-        [Fact] public async Task FindById_ValidId_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseBody = JsonConvert.DeserializeObject<AlbumDto>(await response.Content.ReadAsStringAsync());
+            response.StatusCode.Should().Be(OK);
+            var responseBody = DeserializeObject<AlbumDto>(await response.Content.ReadAsStringAsync());
             responseBody.Should().Be(_albumDto1);
         });
 
-        [Fact] public async Task FindById_InvalidId_Test() => await Execute(async () =>
+        [Fact] public async Task GetById_InvalidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.InvalidGuid}");
+            var response = await _httpClient.GetAsync($"{ApiAlbum}/{InvalidGuid}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
+            response.StatusCode.Should().Be(NotFound);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(AlbumNotFound, InvalidGuid) });
         });
 
-        [Fact] public async Task Save_Test() => await Execute(async () =>
+        [Fact] public async Task Add_Test() => await Execute(async () =>
         {
-            AlbumDto newAlbumDto = AlbumMock.GetMockedAlbumDto51();
-            var saveResponse = await _httpClient.PostAsync(Constants.ApiAlbum, new StringContent(JsonConvert.SerializeObject(newAlbumDto)));
+            AlbumDto newAlbumDto = GetMockedAlbumDto51();
+            var saveResponse = await _httpClient.PostAsync(ApiAlbum, new StringContent(SerializeObject(newAlbumDto)));
             saveResponse.Should().NotBeNull();
-            saveResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            var saveResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await saveResponse.Content.ReadAsStringAsync());
+            saveResponse.StatusCode.Should().Be(Created);
+            var saveResponseBody = DeserializeObject<AlbumDto>(await saveResponse.Content.ReadAsStringAsync());
             saveResponseBody.Should().Be(newAlbumDto);
 
-            var getAllResponse = await _httpClient.GetAsync(Constants.ApiAlbum);
+            var getAllResponse = await _httpClient.GetAsync(ApiAlbum);
             getAllResponse.Should().NotBeNull();
-            getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getAllResponseBody = JsonConvert.DeserializeObject<IList<AlbumDto>>(await getAllResponse.Content.ReadAsStringAsync());
+            getAllResponse.StatusCode.Should().Be(OK);
+            var getAllResponseBody = DeserializeObject<IList<AlbumDto>>(await getAllResponse.Content.ReadAsStringAsync());
             getAllResponseBody.Should().Contain(newAlbumDto);
         });
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
-            Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
+            Album updatedAlbum = GetAlbum(_album2, true);
             AlbumDto updatedAlbumDto = ToDto(updatedAlbum);
-            var updateResponse = await _httpClient.PutAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}", new StringContent(JsonConvert.SerializeObject(updatedAlbumDto)));
+            var updateResponse = await _httpClient.PutAsync($"{ApiAlbum}/{ValidAlbumGuid}", new StringContent(SerializeObject(updatedAlbumDto)));
             updateResponse.Should().NotBeNull();
-            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var updateResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await updateResponse.Content.ReadAsStringAsync());
+            updateResponse.StatusCode.Should().Be(OK);
+            var updateResponseBody = DeserializeObject<AlbumDto>(await updateResponse.Content.ReadAsStringAsync());
             updateResponseBody.Should().Be(updatedAlbumDto);
 
-            var getResponse = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
+            var getResponse = await _httpClient.GetAsync($"{ApiAlbum}/{ValidAlbumGuid}");
             getResponse.Should().NotBeNull();
-            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponse.StatusCode.Should().Be(OK);
+            var getResponseBody = DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
             getResponseBody.Should().Be(updatedAlbumDto);
         });
 
         [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.PutAsync($"{Constants.ApiAlbum}/{Constants.InvalidGuid}", new StringContent(JsonConvert.SerializeObject(_albumDto2)));
+            var response = await _httpClient.PutAsync($"{ApiAlbum}/{InvalidGuid}", new StringContent(SerializeObject(_albumDto2)));
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
+            response.StatusCode.Should().Be(NotFound);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(AlbumNotFound, InvalidGuid) });
         });
 
-        [Fact] public async Task DisableById_ValidId_Test() => await Execute(async () =>
+        [Fact] public async Task DeleteById_ValidId_Test() => await Execute(async () =>
         {
-            Album disabledAlbum = GetAlbum(_album1, false);
-            AlbumDto disabledAlbumDto = ToDto(disabledAlbum);
-            var deleteResponse = await _httpClient.DeleteAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
+            Album deletedAlbum = GetAlbum(_album1, false);
+            AlbumDto deletedAlbumDto = ToDto(deletedAlbum);
+            var deleteResponse = await _httpClient.DeleteAsync($"{ApiAlbum}/{ValidAlbumGuid}");
             deleteResponse.Should().NotBeNull();
-            deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var deleteResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await deleteResponse.Content.ReadAsStringAsync());
-            deleteResponseBody.Should().Be(disabledAlbumDto);
+            deleteResponse.StatusCode.Should().Be(OK);
+            var deleteResponseBody = DeserializeObject<AlbumDto>(await deleteResponse.Content.ReadAsStringAsync());
+            deleteResponseBody.Should().Be(deletedAlbumDto);
 
-            var getResponse = await _httpClient.GetAsync($"{Constants.ApiAlbum}/{Constants.ValidAlbumGuid}");
+            var getResponse = await _httpClient.GetAsync($"{ApiAlbum}/{ValidAlbumGuid}");
             getResponse.Should().NotBeNull();
-            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResponseBody = JsonConvert.DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
-            getResponseBody.Should().Be(disabledAlbumDto);
+            getResponse.StatusCode.Should().Be(OK);
+            var getResponseBody = DeserializeObject<AlbumDto>(await getResponse.Content.ReadAsStringAsync());
+            getResponseBody.Should().Be(deletedAlbumDto);
         });
 
-        [Fact] public async Task DisableById_InvalidId_Test() => await Execute(async () =>
+        [Fact] public async Task DeleteById_InvalidId_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.DeleteAsync($"{Constants.ApiAlbum}/{Constants.InvalidGuid}");
+            var response = await _httpClient.DeleteAsync($"{ApiAlbum}/{InvalidGuid}");
             response.Should().NotBeNull();
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            var responseBody = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = string.Format(Constants.AlbumNotFound, Constants.InvalidGuid) });
+            response.StatusCode.Should().Be(NotFound);
+            var responseBody = DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+            responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(AlbumNotFound, InvalidGuid) });
         });
 
         private Album GetAlbum(Album album, bool isActive) => new Album
         {
-            Id = Constants.ValidAlbumGuid,
+            Id = ValidAlbumGuid,
             Title = album.Title,
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,
             SimilarAlbums = album.SimilarAlbums,
-            IsActive = isActive
+            CreatedAt = album.CreatedAt,
+            UpdatedAt = album.UpdatedAt,
+            DeletedAt = album.DeletedAt
         };
 
         private AlbumDto ToDto(Album album) => new AlbumDto
@@ -190,7 +163,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,
             SimilarAlbumsIds = album.SimilarAlbums.Select(albumLink => albumLink.SimilarAlbumId).ToList(),
-            IsActive = album.IsActive
+            CreatedAt = album.CreatedAt,
+            UpdatedAt = album.UpdatedAt,
+            DeletedAt = album.DeletedAt
         };
     }
 }

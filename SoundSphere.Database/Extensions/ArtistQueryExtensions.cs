@@ -6,26 +6,22 @@ namespace SoundSphere.Database.Extensions
 {
     public static class ArtistQueryExtensions
     {
-        public static IQueryable<Artist> Filter(this IQueryable<Artist> query, ArtistPaginationRequest payload)
-        {
-            if (payload.SearchCriteria == null || !payload.SearchCriteria.Any()) return query;
-            return payload.SearchCriteria.Aggregate(query, (current, searchCriterion) => searchCriterion switch
+        public static IQueryable<Artist> Filter(this IQueryable<Artist> query, ArtistPaginationRequest payload) =>
+            payload.SearchCriteria == null || !payload.SearchCriteria.Any() ? query :
+            payload.SearchCriteria.Aggregate(query, (current, searchCriterion) => searchCriterion switch
             {
                 ArtistSearchCriterion.ByName => current.Where(artist => artist.Name.Contains(payload.Name)),
                 _ => current
             });
-        }
 
-        public static IQueryable<Artist> Sort(this IQueryable<Artist> query, ArtistPaginationRequest payload)
-        {
-            if (payload.SortCriteria == null || !payload.SortCriteria.Any()) return query;
-            return payload.SortCriteria.Aggregate(query, (current, searchCriterion) => searchCriterion.Key switch
+        public static IQueryable<Artist> Sort(this IQueryable<Artist> query, ArtistPaginationRequest payload) =>
+            payload.SortCriteria == null || !payload.SortCriteria.Any() ? query.OrderBy(artist => artist.CreatedAt) :
+            payload.SortCriteria.Aggregate(query, (current, sortCriterion) => sortCriterion.Key switch
             {
-                ArtistSortCriterion.ByName => searchCriterion.Value == SortOrder.Ascending ? current.OrderBy(artist => artist.Name) : current.OrderByDescending(artist => artist.Name),
-                _ => current
+                ArtistSortCriterion.ByName => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(artist => artist.Name) : current.OrderByDescending(artist => artist.Name),
+                _ => current.OrderBy(artist => artist.CreatedAt)
             });
-        }
 
-        public static IQueryable<Artist> Paginate(this IQueryable<Artist> query, ArtistPaginationRequest payload) => query.Skip((payload.Page - 1) * payload.Size).Take(payload.Size);
+        public static IQueryable<Artist> Paginate(this IQueryable<Artist> query, ArtistPaginationRequest payload) => query.Skip(payload.Page * payload.Size).Take(payload.Size);
     }
 }

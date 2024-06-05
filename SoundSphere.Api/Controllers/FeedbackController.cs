@@ -16,33 +16,28 @@ namespace SoundSphere.Api.Controllers
 
         public FeedbackController(IFeedbackService feedbackService) => _feedbackService = feedbackService;
 
-        /// <summary>Find all feedbacks</summary>
-        /// <remarks>Return list with all feedbacks</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult FindAll() => Ok(_feedbackService.FindAll());
-
-        /// <summary>Find feedbacks paginated, sorted and filtered</summary>
-        /// <remarks>Return list with feedbacks paginated, sorted and filtered</remarks>
+        /// <summary>Get active feedbacks paginated, sorted and filtered</summary>
+        /// <remarks>Return list with active feedbacks paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with feedbacks pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("pagination")] public IActionResult FindAllPagination(FeedbackPaginationRequest payload) => Ok(_feedbackService.FindAllPagination(payload));
+        [HttpPost("get")] public IActionResult GetAll(FeedbackPaginationRequest payload) => Ok(_feedbackService.GetAll(payload));
 
-        /// <summary>Find feedback by ID</summary>
-        /// <remarks>Return feedback with given ID</remarks>
+        /// <summary>Get active feedback by ID</summary>
+        /// <remarks>Return active feedback with given ID</remarks>
         /// <param name="id">Feedback fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult FindById(Guid id) => Ok(_feedbackService.FindById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_feedbackService.GetById(id));
 
-        /// <summary>Save feedback</summary>
-        /// <remarks>Save new feedback</remarks>
-        /// <param name="feedbackDto">Feedback to save</param>
+        /// <summary>Add feedback</summary>
+        /// <remarks>Add new feedback</remarks>
+        /// <param name="feedbackDto">Feedback to add</param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost] public IActionResult Save(FeedbackDto feedbackDto)
+        [HttpPost] public IActionResult Add(FeedbackDto feedbackDto)
         {
-            FeedbackDto savedFeedbackDto = _feedbackService.Save(feedbackDto);
-            return CreatedAtAction(nameof(FindById), new { id = savedFeedbackDto.Id }, savedFeedbackDto);
+            FeedbackDto createdFeedbackDto = _feedbackService.Add(feedbackDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdFeedbackDto.Id }, createdFeedbackDto);
         }
 
         /// <summary>Update feedback by ID</summary>
@@ -55,14 +50,10 @@ namespace SoundSphere.Api.Controllers
         [HttpPut("{id}")] public IActionResult UpdateById(FeedbackDto feedbackDto, Guid id) => Ok(_feedbackService.UpdateById(feedbackDto, id));
 
         /// <summary>Delete feedback by ID</summary>
-        /// <remarks>Delete feedback with given ID</remarks>
+        /// <remarks>Soft delete feedback with given ID</remarks>
         /// <param name="id">Feedback deleting ID</param>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
-        {
-            _feedbackService.DeleteById(id);
-            return NoContent();
-        }
+        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id) => Ok(_feedbackService.DeleteById(id));
     }
 }

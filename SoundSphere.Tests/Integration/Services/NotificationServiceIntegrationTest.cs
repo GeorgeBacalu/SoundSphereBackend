@@ -2,13 +2,13 @@
 using FluentAssertions;
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.NotificationMock;
 
 namespace SoundSphere.Tests.Integration.Services
 {
@@ -17,14 +17,14 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly DbFixture _fixture;
         private readonly IMapper _mapper;
 
-        private readonly Notification _notification1 = NotificationMock.GetMockedNotification1();
-        private readonly Notification _notification2 = NotificationMock.GetMockedNotification2();
-        private readonly IList<Notification> _notifications = NotificationMock.GetMockedNotifications();
-        private readonly NotificationDto _notificationDto1 = NotificationMock.GetMockedNotificationDto1();
-        private readonly NotificationDto _notificationDto2 = NotificationMock.GetMockedNotificationDto2();
-        private readonly IList<NotificationDto> _notificationDtos = NotificationMock.GetMockedNotificationDtos();
-        private readonly IList<NotificationDto> _paginatedNotificationDtos = NotificationMock.GetMockedPaginatedNotificationDtos();
-        private readonly NotificationPaginationRequest _paginationRequest = NotificationMock.GetMockedPaginationRequest();
+        private readonly Notification _notification1 = GetMockedNotification1();
+        private readonly Notification _notification2 = GetMockedNotification2();
+        private readonly IList<Notification> _notifications = GetMockedNotifications();
+        private readonly NotificationDto _notificationDto1 = GetMockedNotificationDto1();
+        private readonly NotificationDto _notificationDto2 = GetMockedNotificationDto2();
+        private readonly IList<NotificationDto> _notificationDtos = GetMockedNotificationDtos();
+        private readonly IList<NotificationDto> _paginatedNotificationDtos = GetMockedPaginatedNotificationDtos();
+        private readonly NotificationPaginationRequest _paginationRequest = GetMockedNotificationsPaginationRequest();
 
         public NotificationServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Notification, NotificationDto>(); config.CreateMap<NotificationDto, Notification>(); }).CreateMapper());
 
@@ -39,39 +39,41 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((notificationService, context) => notificationService.FindAll().Should().BeEquivalentTo(_notificationDtos));
-
-        [Fact] public void FindAllPagination_Test() => Execute((notificationService, context) => notificationService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos));
+        [Fact] public void GetAll_Test() => Execute((notificationService, context) => notificationService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos));
         
-        [Fact] public void FindById_Test() => Execute((notificationService, context) => notificationService.FindById(Constants.ValidNotificationGuid).Should().Be(_notificationDto1));
+        [Fact] public void GetById_Test() => Execute((notificationService, context) => notificationService.GetById(ValidNotificationGuid).Should().Be(_notificationDto1));
 
-        [Fact] public void Save_Test() => Execute((notificationService, context) =>
+        [Fact] public void Add_Test() => Execute((notificationService, context) =>
         {
-            NotificationDto newNotificationDto = NotificationMock.GetMockedNotificationDto37();
-            notificationService.Save(newNotificationDto);
-            context.Notifications.Find(newNotificationDto.Id).Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.SentAt));
+            NotificationDto newNotificationDto = GetMockedNotificationDto37();
+            NotificationDto result = notificationService.Add(newNotificationDto);
+            context.Notifications.Find(newNotificationDto.Id).Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.CreatedAt));
+            result.Should().Be(newNotificationDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((notificationService, context) =>
         {
             Notification updatedNotification = new Notification
             {
-                Id = Constants.ValidNotificationGuid,
+                Id = ValidNotificationGuid,
                 User = _notification1.User,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
-                SentAt = _notification1.SentAt,
-                IsRead = _notification2.IsRead
+                IsRead = _notification2.IsRead,
+                CreatedAt = _notification1.CreatedAt
             };
             NotificationDto updatedNotificationDto = updatedNotification.ToDto(_mapper);
-            notificationService.UpdateById(_notificationDto2, Constants.ValidNotificationGuid);
-            context.Notifications.Find(Constants.ValidNotificationGuid).Should().Be(updatedNotification);
+            NotificationDto result = notificationService.UpdateById(_notificationDto2, ValidNotificationGuid);
+            context.Notifications.Find(ValidNotificationGuid).Should().Be(updatedNotification);
+            result.Should().Be(updatedNotificationDto);
         });
 
         [Fact] public void DeleteById_Test() => Execute((notificationService, context) =>
         {
-            notificationService.DeleteById(Constants.ValidNotificationGuid);
-            context.Notifications.Should().BeEquivalentTo(new List<Notification> { _notification2 });
+            notificationService.DeleteById(ValidNotificationGuid);
+            IList<Notification> newNotifications = new List<Notification>(_notifications);
+            newNotifications.Remove(_notification1);
+            context.Notifications.Should().BeEquivalentTo(newNotifications);
         });
     }
 }

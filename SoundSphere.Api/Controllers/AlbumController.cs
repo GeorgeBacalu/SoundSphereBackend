@@ -16,44 +16,28 @@ namespace SoundSphere.Api.Controllers
 
         public AlbumController(IAlbumService albumService) => _albumService = albumService;
 
-        /// <summary>Find all albums</summary>
-        /// <remarks>Return list with all albums</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult FindAll() => Ok(_albumService.FindAll());
-
-        /// <summary>Find all active albums</summary>
-        /// <remarks>Return list with all active albums</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("active")] public IActionResult FindAllActive() => Ok(_albumService.FindAllActive());
-
-        /// <summary>Find albums paginated, sorted and filtered</summary>
-        /// <remarks>Return list with albums paginated, sorted and filtered</remarks>
-        /// <param name="payload">Request body with albums pagination rules</param>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("pagination")] public IActionResult FindAllPagination(AlbumPaginationRequest payload) => Ok(_albumService.FindAllPagination(payload));
-
-        /// <summary>Find active albums paginated, sorted and filtered</summary>
+        /// <summary>Get active albums paginated, sorted and filtered</summary>
         /// <remarks>Return list with active albums paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with albums pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("active/pagination")] public IActionResult FindAllActivePagination(AlbumPaginationRequest payload) => Ok(_albumService.FindAllActivePagination(payload));
+        [HttpPost("get")] public IActionResult GetAll(AlbumPaginationRequest payload) => Ok(_albumService.GetAll(payload));
 
-        /// <summary>Find album by ID</summary>
-        /// <remarks>Return album with given ID</remarks>
+        /// <summary>Get active album by ID</summary>
+        /// <remarks>Return active album with given ID</remarks>
         /// <param name="id">Album fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult FindById(Guid id) => Ok(_albumService.FindById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_albumService.GetById(id));
 
-        /// <summary>Save album</summary>
-        /// <remarks>Save new album</remarks>
-        /// <param name="albumDto">Album to save</param>
+        /// <summary>Add album</summary>
+        /// <remarks>Add new album</remarks>
+        /// <param name="albumDto">Album to add</param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost] public IActionResult Save(AlbumDto albumDto)
+        [HttpPost] public IActionResult Add(AlbumDto albumDto)
         {
-            AlbumDto savedAlbumDto = _albumService.Save(albumDto);
-            return CreatedAtAction(nameof(FindById), new { id = savedAlbumDto.Id }, savedAlbumDto);
+            AlbumDto createdAlbumDto = _albumService.Add(albumDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdAlbumDto.Id }, createdAlbumDto);
         }
 
         /// <summary>Update album by ID</summary>
@@ -65,11 +49,11 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut("{id}")] public IActionResult UpdateById(AlbumDto albumDto, Guid id) => Ok(_albumService.UpdateById(albumDto, id));
 
-        /// <summary>Disable album by ID</summary>
-        /// <remarks>Disable album with given ID</remarks>
-        /// <param name="id">Album disabling ID</param>
+        /// <summary>Delete album by ID</summary>
+        /// <remarks>Soft delete album with given ID</remarks>
+        /// <param name="id">Album deleting ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpDelete("{id}")] public IActionResult DisableById(Guid id) => Ok(_albumService.DisableById(id));
+        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id) => Ok(_albumService.DeleteById(id));
     }
 }

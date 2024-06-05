@@ -1,13 +1,13 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
-using SoundSphere.Tests.Mocks;
+using static Microsoft.AspNetCore.Http.StatusCodes;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.ArtistMock;
 
 namespace SoundSphere.Tests.Unit.Controllers
 {
@@ -16,98 +16,71 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly Mock<IArtistService> _artistServiceMock = new();
         private readonly ArtistController _artistController;
 
-        private readonly ArtistDto _artistDto1 = ArtistMock.GetMockedArtistDto1();
-        private readonly ArtistDto _artistDto2 = ArtistMock.GetMockedArtistDto2();
-        private readonly IList<ArtistDto> _artistDtos = ArtistMock.GetMockedArtistDtos();
-        private readonly IList<ArtistDto> _activeArtistDtos = ArtistMock.GetMockedActiveArtistDtos();
-        private readonly IList<ArtistDto> _paginatedArtistDtos = ArtistMock.GetMockedPaginatedArtistDtos();
-        private readonly IList<ArtistDto> _activePaginatedArtistDtos = ArtistMock.GetMockedActivePaginatedArtistDtos();
-        private readonly ArtistPaginationRequest _paginationRequest = ArtistMock.GetMockedPaginationRequest();
+        private readonly ArtistDto _artistDto1 = GetMockedArtistDto1();
+        private readonly ArtistDto _artistDto2 = GetMockedArtistDto2();
+        private readonly IList<ArtistDto> _artistDtos = GetMockedArtistDtos();
+        private readonly IList<ArtistDto> _paginatedArtistDtos = GetMockedPaginatedArtistDtos();
+        private readonly ArtistPaginationRequest _paginationRequest = GetMockedArtistsPaginationRequest();
 
         public ArtistControllerTest() => _artistController = new(_artistServiceMock.Object);
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _artistServiceMock.Setup(mock => mock.FindAll()).Returns(_artistDtos);
-            OkObjectResult? result = _artistController.FindAll() as OkObjectResult;
+            _artistServiceMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedArtistDtos);
+            OkObjectResult? result = _artistController.GetAll(_paginationRequest) as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
-            result?.Value.Should().Be(_artistDtos);
-        }
-
-        [Fact] public void FindAllActive_Test()
-        {
-            _artistServiceMock.Setup(mock => mock.FindAllActive()).Returns(_activeArtistDtos);
-            OkObjectResult? result = _artistController.FindAllActive() as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
-            result?.Value.Should().Be(_activeArtistDtos);
-        }
-
-        [Fact] public void FindAllPagination_Test()
-        {
-            _artistServiceMock.Setup(mock => mock.FindAllPagination(_paginationRequest)).Returns(_paginatedArtistDtos);
-            OkObjectResult? result = _artistController.FindAllPagination(_paginationRequest) as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_paginatedArtistDtos);
         }
 
-        [Fact] public void FindAllActivePagination_Test()
+        [Fact] public void GetById_Test()
         {
-            _artistServiceMock.Setup(mock => mock.FindAllActivePagination(_paginationRequest)).Returns(_activePaginatedArtistDtos);
-            OkObjectResult? result = _artistController.FindAllActivePagination(_paginationRequest) as OkObjectResult;
+            _artistServiceMock.Setup(mock => mock.GetById(ValidArtistGuid)).Returns(_artistDto1);
+            OkObjectResult? result = _artistController.GetById(ValidArtistGuid) as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
-            result?.Value.Should().Be(_activePaginatedArtistDtos);
-        }
-
-        [Fact] public void FindById_Test()
-        {
-            _artistServiceMock.Setup(mock => mock.FindById(Constants.ValidArtistGuid)).Returns(_artistDto1);
-            OkObjectResult? result = _artistController.FindById(Constants.ValidArtistGuid) as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_artistDto1);
         }
 
-        [Fact] public void Save_Test()
+        [Fact] public void Add_Test()
         {
-            _artistServiceMock.Setup(mock => mock.Save(_artistDto1)).Returns(_artistDto1);
-            CreatedAtActionResult? result = _artistController.Save(_artistDto1) as CreatedAtActionResult;
+            _artistServiceMock.Setup(mock => mock.Add(_artistDto1)).Returns(_artistDto1);
+            CreatedAtActionResult? result = _artistController.Add(_artistDto1) as CreatedAtActionResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status201Created);
+            result?.StatusCode.Should().Be(Status201Created);
             result?.Value.Should().Be(_artistDto1);
         }
 
         [Fact] public void UpdateById_Test()
         {
-            ArtistDto updatedArtistDto = GetArtistDto(_artistDto2, _artistDto1.IsActive);
-            _artistServiceMock.Setup(mock => mock.UpdateById(_artistDto2, Constants.ValidArtistGuid)).Returns(updatedArtistDto);
-            OkObjectResult? result = _artistController.UpdateById(_artistDto2, Constants.ValidArtistGuid) as OkObjectResult;
+            ArtistDto updatedArtistDto = GetArtistDto(_artistDto2, true);
+            _artistServiceMock.Setup(mock => mock.UpdateById(_artistDto2, ValidArtistGuid)).Returns(updatedArtistDto);
+            OkObjectResult? result = _artistController.UpdateById(_artistDto2, ValidArtistGuid) as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(updatedArtistDto);
         }
 
-        [Fact] public void DisableById_Test()
+        [Fact] public void DeleteById_Test()
         {
-            ArtistDto disabledArtistDto = GetArtistDto(_artistDto1, false);
-            _artistServiceMock.Setup(mock => mock.DisableById(Constants.ValidArtistGuid)).Returns(disabledArtistDto);
-            OkObjectResult? result = _artistController.DisableById(Constants.ValidArtistGuid) as OkObjectResult;
+            ArtistDto deletedArtistDto = GetArtistDto(_artistDto1, false);
+            _artistServiceMock.Setup(mock => mock.DeleteById(ValidArtistGuid)).Returns(deletedArtistDto);
+            OkObjectResult? result = _artistController.DeleteById(ValidArtistGuid) as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
-            result?.Value.Should().Be(disabledArtistDto);
+            result?.StatusCode.Should().Be(Status200OK);
+            result?.Value.Should().Be(deletedArtistDto);
         }
 
         private ArtistDto GetArtistDto(ArtistDto artistDto, bool isActive) => new ArtistDto
         {
-            Id = Constants.ValidArtistGuid,
+            Id = ValidArtistGuid,
             Name = artistDto.Name,
             ImageUrl = artistDto.ImageUrl,
             Bio = artistDto.Bio,
             SimilarArtistsIds = artistDto.SimilarArtistsIds,
-            IsActive = isActive,
+            CreatedAt = artistDto.CreatedAt,
+            UpdatedAt = artistDto.UpdatedAt,
+            DeletedAt = artistDto.DeletedAt
         };
     }
 }

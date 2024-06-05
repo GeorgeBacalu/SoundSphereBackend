@@ -1,6 +1,6 @@
 ﻿namespace SoundSphere.Database.Entities
 {
-    public class Album
+    public class Album : BaseEntity
     {
         public Guid Id { get; set; }
         
@@ -11,8 +11,6 @@
         public DateOnly ReleaseDate { get; set; }
         
         public IList<AlbumLink> SimilarAlbums { get; set; } = null!;
-        
-        public bool IsActive { get; set; } = true;
 
         public override bool Equals(object? obj) => obj is Album album &&
             Id.Equals(album.Id) &&
@@ -20,8 +18,10 @@
             ImageUrl.Equals(album.ImageUrl) &&
             ReleaseDate.Equals(album.ReleaseDate) &&
             SimilarAlbums.SequenceEqual(album.SimilarAlbums) &&
-            IsActive == album.IsActive;
+            CreatedAt.Equals(album.CreatedAt) &&
+            UpdatedAt.Equals(album.UpdatedAt) &&
+            DeletedAt.Equals(album.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, ReleaseDate, SimilarAlbums, IsActive);
+        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, ReleaseDate, SimilarAlbums, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 }

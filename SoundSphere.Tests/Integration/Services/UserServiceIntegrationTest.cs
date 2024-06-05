@@ -2,13 +2,13 @@
 using FluentAssertions;
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
-using SoundSphere.Database;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
-using SoundSphere.Tests.Mocks;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.UserMock;
 
 namespace SoundSphere.Tests.Integration.Services
 {
@@ -17,16 +17,14 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly DbFixture _fixture;
         private readonly IMapper _mapper;
 
-        private readonly User _user1 = UserMock.GetMockedUser1();
-        private readonly User _user2 = UserMock.GetMockedUser2();
-        private readonly IList<User> _users = UserMock.GetMockedUsers();
-        private readonly UserDto _userDto1 = UserMock.GetMockedUserDto1();
-        private readonly UserDto _userDto2 = UserMock.GetMockedUserDto2();
-        private readonly IList<UserDto> _userDtos = UserMock.GetMockedUserDtos();
-        private readonly IList<UserDto> _activeUserDtos = UserMock.GetMockedActiveUserDtos();
-        private readonly IList<UserDto> _paginatedUserDtos = UserMock.GetMockedPaginatedUserDtos();
-        private readonly IList<UserDto> _activePaginatedUserDtos = UserMock.GetMockedActivePaginatedUserDtos();
-        private readonly UserPaginationRequest _paginationRequest = UserMock.GetMockedPaginationRequest();
+        private readonly User _user1 = GetMockedUser1();
+        private readonly User _user2 = GetMockedUser2();
+        private readonly IList<User> _users = GetMockedUsers();
+        private readonly UserDto _userDto1 = GetMockedUserDto1();
+        private readonly UserDto _userDto2 = GetMockedUserDto2();
+        private readonly IList<UserDto> _userDtos = GetMockedUserDtos();
+        private readonly IList<UserDto> _paginatedUserDtos = GetMockedPaginatedUserDtos();
+        private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
 
         public UserServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<User, UserDto>(); config.CreateMap<UserDto, User>(); }).CreateMapper());
 
@@ -41,42 +39,39 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void FindAll_Test() => Execute((userService, context) => userService.FindAll().Should().BeEquivalentTo(_userDtos));
-
-        [Fact] public void FindAllActive_Test() => Execute((userService, context) => userService.FindAllActive().Should().BeEquivalentTo(_activeUserDtos));
-
-        [Fact] public void FindAllPagination_Test() => Execute((userService, context) => userService.FindAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos));
-
-        [Fact] public void FindAllActivePagination_Test() => Execute((userService, context) => userService.FindAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUserDtos));
+        [Fact] public void GetAll_Test() => Execute((userService, context) => userService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos));
         
-        [Fact] public void FindById_Test() => Execute((userService, context) => userService.FindById(Constants.ValidUserGuid).Should().Be(_userDto1));
+        [Fact] public void GetById_Test() => Execute((userService, context) => userService.GetById(ValidUserGuid).Should().Be(_userDto1));
 
-        [Fact] public void Save_Test() => Execute((userService, context) =>
+        [Fact] public void Add_Test() => Execute((userService, context) =>
         {
-            UserDto newUserDto = UserMock.GetMockedUserDto11();
-            userService.Save(newUserDto);
+            UserDto newUserDto = GetMockedUserDto11();
+            UserDto result = userService.Add(newUserDto);
             context.Users.Find(newUserDto.Id).Should().Be(newUserDto);
+            result.Should().Be(newUserDto);
         });
 
         [Fact] public void UpdateById_Test() => Execute((userService, context) =>
         {
-            User updatedUser = GetUser(_user2, _user1.IsActive);
+            User updatedUser = GetUser(_user2, true);
             UserDto updatedUserDto = updatedUser.ToDto(_mapper);
-            userService.UpdateById(_userDto2, Constants.ValidUserGuid);
-            context.Users.Find(Constants.ValidUserGuid).Should().Be(updatedUser);
+            UserDto result = userService.UpdateById(_userDto2, ValidUserGuid);
+            context.Users.Find(ValidUserGuid).Should().Be(updatedUser);
+            result.Should().Be(updatedUserDto);
         });
 
-        [Fact] public void DisableById_Test() => Execute((userService, context) =>
+        [Fact] public void DeleteById_Test() => Execute((userService, context) =>
         {
-            User disabledUser = GetUser(_user1, false);
-            UserDto disabledUserDto = disabledUser.ToDto(_mapper);
-            userService.DisableById(Constants.ValidUserGuid);
-            context.Users.Find(Constants.ValidUserGuid).Should().Be(disabledUser);
+            User deletedUser = GetUser(_user1, false);
+            UserDto deletedUserDto = deletedUser.ToDto(_mapper);
+            UserDto result = userService.DeleteById(ValidUserGuid);
+            context.Users.Find(ValidUserGuid).Should().Be(deletedUser);
+            result.Should().Be(deletedUserDto);
         });
 
         private User GetUser(User user, bool isActive) => new User
         {
-            Id = Constants.ValidUserGuid,
+            Id = ValidUserGuid,
             Name = user.Name,
             Email = user.Email,
             Password = user.Password,
@@ -86,7 +81,9 @@ namespace SoundSphere.Tests.Integration.Services
             Avatar = user.Avatar,
             Role = user.Role,
             Authorities = user.Authorities,
-            IsActive = isActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
     }
 }

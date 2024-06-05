@@ -1,12 +1,12 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
-using SoundSphere.Database;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Tests.Mocks;
+using static Microsoft.AspNetCore.Http.StatusCodes;
+using static SoundSphere.Database.Constants;
+using static SoundSphere.Tests.Mocks.AuthorityMock;
 
 namespace SoundSphere.Tests.Unit.Controllers
 {
@@ -15,35 +15,35 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly Mock<IAuthorityService> _authorityServiceMock = new();
         private readonly AuthorityController _authorityController;
 
-        private readonly AuthorityDto _authorityDto1 = AuthorityMock.GetMockedAuthorityDto1();
-        private readonly IList<AuthorityDto> _authorityDtos = AuthorityMock.GetMockedAuthorityDtos();
+        private readonly AuthorityDto _authorityDto1 = GetMockedAuthorityDto1();
+        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtos();
 
         public AuthorityControllerTest() => _authorityController = new(_authorityServiceMock.Object);
 
-        [Fact] public void FindAll_Test()
+        [Fact] public void GetAll_Test()
         {
-            _authorityServiceMock.Setup(mock => mock.FindAll()).Returns(_authorityDtos);
-            OkObjectResult? result = _authorityController.FindAll() as OkObjectResult;
+            _authorityServiceMock.Setup(mock => mock.GetAll()).Returns(_authorityDtos);
+            OkObjectResult? result = _authorityController.GetAll() as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_authorityDtos);
         }
 
-        [Fact] public void FindById_Test()
+        [Fact] public void GetById_Test()
         {
-            _authorityServiceMock.Setup(mock => mock.FindById(Constants.ValidAuthorityGuid)).Returns(_authorityDto1);
-            OkObjectResult? result = _authorityController.FindById(Constants.ValidAuthorityGuid) as OkObjectResult;
+            _authorityServiceMock.Setup(mock => mock.GetById(ValidAuthorityGuid)).Returns(_authorityDto1);
+            OkObjectResult? result = _authorityController.GetById(ValidAuthorityGuid) as OkObjectResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_authorityDto1);
         }
 
-        [Fact] public void Save_Test()
+        [Fact] public void Add_Test()
         {
-            _authorityServiceMock.Setup(mock => mock.Save(_authorityDto1)).Returns(_authorityDto1);
-            CreatedAtActionResult? result = _authorityController.Save(_authorityDto1) as CreatedAtActionResult;
+            _authorityServiceMock.Setup(mock => mock.Add(_authorityDto1)).Returns(_authorityDto1);
+            CreatedAtActionResult? result = _authorityController.Add(_authorityDto1) as CreatedAtActionResult;
             result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(StatusCodes.Status201Created);
+            result?.StatusCode.Should().Be(Status201Created);
             result?.Value.Should().Be(_authorityDto1);
         }
     }

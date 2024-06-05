@@ -5,6 +5,7 @@ using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
 
 namespace SoundSphere.Database.Repositories
 {
@@ -14,48 +15,28 @@ namespace SoundSphere.Database.Repositories
 
         public SongRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Song> FindAll() => _context.Songs
+        public IList<Song> GetAll(SongPaginationRequest payload) => _context.Songs
             .Include(song => song.Album)
             .Include(song => song.Artists)
             .Include(song => song.SimilarSongs)
-            .ToList();
-
-        public IList<Song> FindAllActive() => _context.Songs
-            .Include(song => song.Album)
-            .Include(song => song.Artists)
-            .Include(song => song.SimilarSongs)
-            .Where(song => song.IsActive)
-            .ToList();
-
-        public IList<Song> FindAllPagination(SongPaginationRequest payload) => _context.Songs
-            .Include(song => song.Album)
-            .Include(song => song.Artists)
-            .Include(song => song.SimilarSongs)
+            .Where(song => song.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
             .ToList();
 
-        public IList<Song> FindAllActivePagination(SongPaginationRequest payload) => _context.Songs
+        public Song GetById(Guid id) => _context.Songs
             .Include(song => song.Album)
             .Include(song => song.Artists)
             .Include(song => song.SimilarSongs)
-            .Where(song => song.IsActive)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
-
-        public Song FindById(Guid id) => _context.Songs
-            .Include(song => song.Album)
-            .Include(song => song.Artists)
-            .Include(song => song.SimilarSongs)
-            .Where(song => song.IsActive)
+            .Where(song => song.DeletedAt == null)
             .FirstOrDefault(song => song.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(Constants.SongNotFound, id));
+            ?? throw new ResourceNotFoundException(string.Format(SongNotFound, id));
 
-        public Song Save(Song song)
+        public Song Add(Song song)
         {
+            if (song.Id == Guid.Empty) song.Id = Guid.NewGuid();
+            song.CreatedAt = DateTime.Now;
             _context.Songs.Add(song);
             _context.SaveChanges();
             return song;
@@ -63,7 +44,7 @@ namespace SoundSphere.Database.Repositories
 
         public Song UpdateById(Song song, Guid id)
         {
-            Song songToUpdate = FindById(id);
+            Song songToUpdate = GetById(id);
             songToUpdate.Title = song.Title;
             songToUpdate.ImageUrl = song.ImageUrl;
             songToUpdate.Genre = song.Genre;
@@ -72,16 +53,18 @@ namespace SoundSphere.Database.Repositories
             songToUpdate.Album = song.Album;
             songToUpdate.Artists = song.Artists;
             songToUpdate.SimilarSongs = song.SimilarSongs;
+            if (_context.Entry(songToUpdate).State == EntityState.Modified)
+                songToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return songToUpdate;
         }
 
-        public Song DisableById(Guid id)
+        public Song DeleteById(Guid id)
         {
-            Song songToDisable = FindById(id);
-            songToDisable.IsActive = false;
+            Song songToDelete = GetById(id);
+            songToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
-            return songToDisable;
+            return songToDelete;
         }
 
         public void LinkSongToAlbum(Song song)

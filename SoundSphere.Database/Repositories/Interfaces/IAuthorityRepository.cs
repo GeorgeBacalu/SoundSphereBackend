@@ -4,10 +4,10 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IAuthorityRepository
     {
-        IList<Authority> FindAll();
+        IList<Authority> GetAll();
 
-        Authority FindById(Guid id);
+        Authority GetById(Guid id);
 
-        Authority Save(Authority authority);
+        Authority Add(Authority authority);
     }
 }

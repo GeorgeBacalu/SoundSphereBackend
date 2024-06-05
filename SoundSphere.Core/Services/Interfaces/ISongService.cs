@@ -5,20 +5,14 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface ISongService
     {
-        IList<SongDto> FindAll();
+        IList<SongDto> GetAll(SongPaginationRequest payload);
 
-        IList<SongDto> FindAllActive();
+        SongDto GetById(Guid id);
 
-        IList<SongDto> FindAllPagination(SongPaginationRequest payload);
-
-        IList<SongDto> FindAllActivePagination(SongPaginationRequest payload);
-
-        SongDto FindById(Guid id);
-
-        SongDto Save(SongDto songDto);
+        SongDto Add(SongDto songDto);
 
         SongDto UpdateById(SongDto songDto, Guid id);
 
-        SongDto DisableById(Guid id);
+        SongDto DeleteById(Guid id);
     }
 }
