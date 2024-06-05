@@ -28,7 +28,7 @@ namespace SoundSphere.Database.Dtos.Common
          */
         [Required(ErrorMessage = "Password is required")]
         [RegularExpression(@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+-=()])(\S){8,30}$", ErrorMessage = "Invalid password format")]
-        public string Password { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
 
         public string PasswordSalt { get; set; } = null!;
 
@@ -67,7 +67,7 @@ namespace SoundSphere.Database.Dtos.Common
             Id.Equals(userDto.Id) &&
             Name.Equals(userDto.Name) &&
             Email.Equals(userDto.Email) &&
-            Password.Equals(userDto.Password) &&
+            PasswordHash.Equals(userDto.PasswordHash) &&
             Mobile.Equals(userDto.Mobile) &&
             Address.Equals(userDto.Address) &&
             Birthday.Equals(userDto.Birthday) &&
@@ -78,6 +78,6 @@ namespace SoundSphere.Database.Dtos.Common
             UpdatedAt.Equals(userDto.UpdatedAt) &&
             DeletedAt.Equals(userDto.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, Password, Mobile, Address, Birthday, HashCode.Combine(Avatar, RoleId, AuthoritiesIds, CreatedAt, UpdatedAt, DeletedAt));
+        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, PasswordHash, Mobile, Address, Birthday, HashCode.Combine(Avatar, RoleId, AuthoritiesIds, CreatedAt, UpdatedAt, DeletedAt));
     }
 }

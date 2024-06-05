@@ -9,7 +9,9 @@ namespace SoundSphere.Core.Services.Interfaces
 
         UserDto GetById(Guid id);
 
-        UserDto Add(UserDto userDto);
+        UserDto? Register(RegisterRequest payLoad);
+
+        string? Login(LoginRequest payLoad);
 
         UserDto UpdateById(UserDto userDto, Guid id);
 

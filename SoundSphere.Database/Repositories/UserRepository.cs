@@ -52,7 +52,7 @@ namespace SoundSphere.Database.Repositories
             User userToUpdate = GetById(id);
             userToUpdate.Name = user.Name;
             userToUpdate.Email = user.Email;
-            userToUpdate.Password = user.Password;
+            userToUpdate.PasswordHash = user.PasswordHash;
             userToUpdate.Mobile = user.Mobile;
             userToUpdate.Address = user.Address;
             userToUpdate.Birthday = user.Birthday;

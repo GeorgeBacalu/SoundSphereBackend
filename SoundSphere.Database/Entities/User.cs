@@ -10,7 +10,7 @@ namespace SoundSphere.Database.Entities
         
         public string Email { get; set; } = null!;
         
-        public string Password { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
 
         public string PasswordSalt { get; set; } = null!;
 
@@ -34,7 +34,7 @@ namespace SoundSphere.Database.Entities
             Id.Equals(user.Id) &&
             Name.Equals(user.Name) &&
             Email.Equals(user.Email) &&
-            Password.Equals(user.Password) &&
+            PasswordHash.Equals(user.PasswordHash) &&
             Mobile.Equals(user.Mobile) &&
             Address.Equals(user.Address) &&
             Birthday.Equals(user.Birthday) &&
@@ -45,6 +45,6 @@ namespace SoundSphere.Database.Entities
             UpdatedAt.Equals(user.UpdatedAt) &&
             DeletedAt.Equals(user.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, Password, Mobile, Address, Birthday, HashCode.Combine(Avatar, Role, Authorities, UserSongs, UserArtists, CreatedAt, UpdatedAt, DeletedAt));
+        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, PasswordHash, Mobile, Address, Birthday, HashCode.Combine(Avatar, Role, Authorities, UserSongs, UserArtists, CreatedAt, UpdatedAt, DeletedAt));
     }
 }
