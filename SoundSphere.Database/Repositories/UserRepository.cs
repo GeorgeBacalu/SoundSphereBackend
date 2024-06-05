@@ -31,6 +31,13 @@ namespace SoundSphere.Database.Repositories
             .FirstOrDefault(user => user.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(UserNotFound, id));
 
+        public User GetByEmail(string email) => _context.Users
+            .Include(user => user.Role)
+            .Include(user => user.Authorities)
+            .Where(user => user.DeletedAt == null)
+            .FirstOrDefault(user => user.Email.Equals(email))
+            ?? throw new ResourceNotFoundException(string.Format(UserEmailNotFound, email));
+
         public User Add(User user)
         {
             if (user.Id == Guid.Empty) user.Id = Guid.NewGuid();

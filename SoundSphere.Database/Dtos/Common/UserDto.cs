@@ -30,6 +30,8 @@ namespace SoundSphere.Database.Dtos.Common
         [RegularExpression(@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+-=()])(\S){8,30}$", ErrorMessage = "Invalid password format")]
         public string Password { get; set; } = null!;
 
+        public string PasswordSalt { get; set; } = null!;
+
         /**
          * Mobile must follow the following format:
          * - should start with 00 or +40 or 0

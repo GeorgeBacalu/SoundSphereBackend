@@ -9,6 +9,8 @@ namespace SoundSphere.Database.Repositories.Interfaces
 
         User GetById(Guid id);
 
+        User GetByEmail(string email);
+
         User Add(User user);
 
         User UpdateById(User user, Guid id);

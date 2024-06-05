@@ -18,6 +18,18 @@ namespace SoundSphere.Database.Repositories
             .FirstOrDefault(authority => authority.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(AuthorityNotFound, id));
 
+        public IList<Authority> GetByRole(Role role) => role.Type switch
+        {
+            RoleType.Listener => _context.Authorities
+                .Where(authority => authority.Type == AuthorityType.Read)
+                .ToList(),
+            RoleType.Moderator => _context.Authorities
+                .Where(authority => authority.Type != AuthorityType.Delete)
+                .ToList(),
+            RoleType.Administrator => _context.Authorities.ToList(),
+            _ => throw new ResourceNotFoundException(string.Format(RoleTypeNotFound, role.Type))
+        };
+
         public Authority Add(Authority authority)
         {
             if (authority.Id == Guid.Empty) authority.Id = Guid.NewGuid();

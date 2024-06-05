@@ -14,6 +14,9 @@
         public static readonly string SongNotFound = "Song with id {0} not found";
         public static readonly string UserNotFound = "User with id {0} not found";
 
+        public static readonly string UserEmailNotFound = "User with email {0} not found";
+        public static readonly string RoleTypeNotFound = "Role type {0} not found";
+
         public static readonly Guid ValidAlbumGuid = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb");
         public static readonly Guid ValidArtistGuid = Guid.Parse("4e75ecdd-aafe-4c35-836b-1b83fc7b8f88");
         public static readonly Guid ValidAuthorityGuid = Guid.Parse("75e924c3-34e7-46ef-b521-7331e36caadd");

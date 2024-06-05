@@ -11,7 +11,9 @@ namespace SoundSphere.Database.Entities
         public string Email { get; set; } = null!;
         
         public string Password { get; set; } = null!;
-        
+
+        public string PasswordSalt { get; set; } = null!;
+
         public string Mobile { get; set; } = null!;
         
         public string Address { get; set; } = null!;
