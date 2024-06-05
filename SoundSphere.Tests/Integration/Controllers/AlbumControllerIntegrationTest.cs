@@ -25,9 +25,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly AlbumDto _albumDto1 = GetMockedAlbumDto1();
         private readonly AlbumDto _albumDto2 = GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = GetMockedAlbumDtos();
-        private readonly IList<AlbumDto> _activeAlbumDtos = GetMockedActiveAlbumDtos();
         private readonly IList<AlbumDto> _paginatedAlbumDtos = GetMockedPaginatedAlbumDtos();
-        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = GetMockedActivePaginatedAlbumDtos();
         private readonly AlbumPaginationRequest _paginationRequest = GetMockedAlbumsPaginationRequest();
 
         public AlbumControllerIntegrationTest()
@@ -53,38 +51,11 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task GetAll_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(ApiAlbum);
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_albumDtos);
-        });
-
-        [Fact] public async Task GetAllActive_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.GetAsync($"{ApiAlbum}/active");
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activeAlbumDtos);
-        });
-
-        [Fact] public async Task GetAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiAlbum}/pagination", new StringContent(SerializeObject(_paginationRequest)));
+            var response = await _httpClient.PostAsync($"{ApiAlbum}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(OK);
             var responseBody = DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_paginatedAlbumDtos);
-        });
-
-        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiAlbum}/active/pagination", new StringContent(SerializeObject(_paginationRequest)));
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<AlbumDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activePaginatedAlbumDtos);
         });
 
         [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
@@ -123,7 +94,7 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
-            Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
+            Album updatedAlbum = GetAlbum(_album2, true);
             AlbumDto updatedAlbumDto = ToDto(updatedAlbum);
             var updateResponse = await _httpClient.PutAsync($"{ApiAlbum}/{ValidAlbumGuid}", new StringContent(SerializeObject(updatedAlbumDto)));
             updateResponse.Should().NotBeNull();
@@ -180,7 +151,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,
             SimilarAlbums = album.SimilarAlbums,
-            IsActive = isActive
+            CreatedAt = album.CreatedAt,
+            UpdatedAt = album.UpdatedAt,
+            DeletedAt = album.DeletedAt
         };
 
         private AlbumDto ToDto(Album album) => new AlbumDto
@@ -190,7 +163,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,
             SimilarAlbumsIds = album.SimilarAlbums.Select(albumLink => albumLink.SimilarAlbumId).ToList(),
-            IsActive = album.IsActive
+            CreatedAt = album.CreatedAt,
+            UpdatedAt = album.UpdatedAt,
+            DeletedAt = album.DeletedAt
         };
     }
 }

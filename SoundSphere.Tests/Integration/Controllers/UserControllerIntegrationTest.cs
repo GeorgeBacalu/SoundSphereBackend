@@ -27,9 +27,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly UserDto _userDto1 = GetMockedUserDto1();
         private readonly UserDto _userDto2 = GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = GetMockedUserDtos();
-        private readonly IList<UserDto> _activeUserDtos = GetMockedActiveUserDtos();
         private readonly IList<UserDto> _paginatedUserDtos = GetMockedPaginatedUserDtos();
-        private readonly IList<UserDto> _activePaginatedUserDtos = GetMockedActivePaginatedUserDtos();
         private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
         private readonly IList<Role> _roles = GetMockedRoles();
         private readonly IList<Authority> _authorities = GetMockedAuthorities();
@@ -58,40 +56,13 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
-        [Fact] public async Task GetAll_Test() => await Execute(async () =>
+        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(ApiUser);
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<UserDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_userDtos);
-        });
-
-        [Fact] public async Task GetAllActive_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.GetAsync($"{ApiUser}/active");
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<UserDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activeUserDtos);
-        });
-
-        [Fact] public async Task GetAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiUser}/pagination", new StringContent(SerializeObject(_paginationRequest)));
+            var response = await _httpClient.PostAsync($"{ApiUser}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(OK);
             var responseBody = DeserializeObject<IList<UserDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_paginatedUserDtos);
-        });
-
-        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiUser}/active/pagination", new StringContent(SerializeObject(_paginationRequest)));
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<UserDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activePaginatedUserDtos);
         });
 
         [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
@@ -130,7 +101,7 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
-            User updatedUser = GetUser(_user2, _user1.IsActive);
+            User updatedUser = GetUser(_user2, true);
             UserDto updatedUserDto = ToDto(updatedUser);
             var updateResponse = await _httpClient.PutAsync($"{ApiUser}/{ValidUserGuid}", new StringContent(SerializeObject(updatedUserDto)));
             updateResponse.Should().NotBeNull();
@@ -192,7 +163,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             Avatar = user.Avatar,
             Role = user.Role,
             Authorities = user.Authorities,
-            IsActive = isActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
 
         private UserDto ToDto(User user) => new UserDto
@@ -206,7 +179,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             Avatar = user.Avatar,
             RoleId = user.Role.Id,
             AuthoritiesIds = user.Authorities.Select(authority => authority.Id).ToList(),
-            IsActive = user.IsActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
     }
 }

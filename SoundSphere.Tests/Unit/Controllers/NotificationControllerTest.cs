@@ -24,19 +24,10 @@ namespace SoundSphere.Tests.Unit.Controllers
 
         public NotificationControllerTest() => _notificationController = new(_notificationServiceMock.Object);
 
-        [Fact] public void GetAll_Test()
-        {
-            _notificationServiceMock.Setup(mock => mock.GetAll()).Returns(_notificationDtos);
-            OkObjectResult? result = _notificationController.GetAll() as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(Status200OK);
-            result?.Value.Should().Be(_notificationDtos);
-        }
-
         [Fact] public void GetAllPagination_Test()
         {
-            _notificationServiceMock.Setup(mock => mock.GetAllPagination(_paginationRequest)).Returns(_paginatedNotificationDtos);
-            OkObjectResult? result = _notificationController.GetAllPagination(_paginationRequest) as OkObjectResult;
+            _notificationServiceMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedNotificationDtos);
+            OkObjectResult? result = _notificationController.GetAll(_paginationRequest) as OkObjectResult;
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_paginatedNotificationDtos);
@@ -68,8 +59,8 @@ namespace SoundSphere.Tests.Unit.Controllers
                 UserId = _notificationDto1.UserId,
                 Type = _notificationDto2.Type,
                 Message = _notificationDto2.Message,
-                SentAt = _notificationDto1.SentAt,
-                IsRead = _notificationDto2.IsRead
+                IsRead = _notificationDto2.IsRead,
+                CreatedAt = _notificationDto1.CreatedAt
             };
             _notificationServiceMock.Setup(mock => mock.UpdateById(_notificationDto2, ValidNotificationGuid)).Returns(updatedNotificationDto);
             OkObjectResult? result = _notificationController.UpdateById(_notificationDto2, ValidNotificationGuid) as OkObjectResult;

@@ -25,9 +25,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly ArtistDto _artistDto1 = GetMockedArtistDto1();
         private readonly ArtistDto _artistDto2 = GetMockedArtistDto2();
         private readonly IList<ArtistDto> _artistDtos = GetMockedArtistDtos();
-        private readonly IList<ArtistDto> _activeArtistDtos = GetMockedActiveArtistDtos();
         private readonly IList<ArtistDto> _paginatedArtistDtos = GetMockedPaginatedArtistDtos();
-        private readonly IList<ArtistDto> _activePaginatedArtistDtos = GetMockedActivePaginatedArtistDtos();
         private readonly ArtistPaginationRequest _paginationRequest = GetMockedArtistsPaginationRequest();
 
         public ArtistControllerIntegrationTest()
@@ -53,38 +51,11 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task GetAll_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(ApiArtist);
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_artistDtos);
-        });
-
-        [Fact] public async Task GetAllActive_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.GetAsync($"{ApiArtist}/active");
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activeArtistDtos);
-        });
-
-        [Fact] public async Task GetAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiArtist}/pagination", new StringContent(SerializeObject(_paginationRequest)));
+            var response = await _httpClient.PostAsync($"{ApiArtist}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(OK);
             var responseBody = DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_paginatedArtistDtos);
-        });
-
-        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiArtist}/active/pagination", new StringContent(SerializeObject(_paginationRequest)));
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<ArtistDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activePaginatedArtistDtos);
         });
 
         [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
@@ -123,7 +94,7 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
-            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
+            Artist updatedArtist = GetArtist(_artist2, true);
             ArtistDto updatedArtistDto = ToDto(updatedArtist);
             var updateResponse = await _httpClient.PutAsync($"{ApiArtist}/{ValidArtistGuid}", new StringContent(SerializeObject(updatedArtistDto)));
             updateResponse.Should().NotBeNull();
@@ -180,7 +151,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             ImageUrl = artist.ImageUrl,
             Bio = artist.Bio,
             SimilarArtists = artist.SimilarArtists,
-            IsActive = isActive
+            CreatedAt = artist.CreatedAt,
+            UpdatedAt = artist.UpdatedAt,
+            DeletedAt = artist.DeletedAt
         };
 
         private ArtistDto ToDto(Artist artist) => new ArtistDto
@@ -190,7 +163,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             ImageUrl = artist.ImageUrl,
             Bio = artist.Bio,
             SimilarArtistsIds = artist.SimilarArtists.Select(artistLink => artistLink.SimilarArtistId).ToList(),
-            IsActive = artist.IsActive
+            CreatedAt = artist.CreatedAt,
+            UpdatedAt = artist.UpdatedAt,
+            DeletedAt = artist.DeletedAt
         };
     }
 }

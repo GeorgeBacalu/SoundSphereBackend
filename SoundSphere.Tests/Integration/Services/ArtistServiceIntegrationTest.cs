@@ -23,9 +23,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly ArtistDto _artistDto1 = GetMockedArtistDto1();
         private readonly ArtistDto _artistDto2 = GetMockedArtistDto2();
         private readonly IList<ArtistDto> _artistDtos = GetMockedArtistDtos();
-        private readonly IList<ArtistDto> _activeArtistDtos = GetMockedActiveArtistDtos();
         private readonly IList<ArtistDto> _paginatedArtistDtos = GetMockedPaginatedArtistDtos();
-        private readonly IList<ArtistDto> _activePaginatedArtistDtos = GetMockedActivePaginatedArtistDtos();
         private readonly ArtistPaginationRequest _paginationRequest = GetMockedArtistsPaginationRequest();
 
         public ArtistServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Artist, ArtistDto>(); config.CreateMap<ArtistDto, Artist>(); }).CreateMapper());
@@ -41,13 +39,7 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((artistService, context) => artistService.GetAll().Should().BeEquivalentTo(_artistDtos));
-
-        [Fact] public void GetAllActive_Test() => Execute((artistService, context) => artistService.GetAllActive().Should().BeEquivalentTo(_activeArtistDtos));
-
-        [Fact] public void GetAllPagination_Test() => Execute((artistService, context) => artistService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtistDtos));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((artistService, context) => artistService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtistDtos));
+        [Fact] public void GetAll_Test() => Execute((artistService, context) => artistService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedArtistDtos));
         
         [Fact] public void GetById_Test() => Execute((artistService, context) => artistService.GetById(ValidArtistGuid).Should().Be(_artistDto1));
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void UpdateById_Test() => Execute((artistService, context) =>
         {
-            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
+            Artist updatedArtist = GetArtist(_artist2, true);
             ArtistDto updatedArtistDto = updatedArtist.ToDto(_mapper);
             ArtistDto result = artistService.UpdateById(_artistDto2, ValidArtistGuid);
             context.Artists.Find(ValidArtistGuid).Should().Be(updatedArtist);
@@ -84,7 +76,9 @@ namespace SoundSphere.Tests.Integration.Services
             ImageUrl = artist.ImageUrl,
             Bio = artist.Bio,
             SimilarArtists = artist.SimilarArtists,
-            IsActive = isActive
+            CreatedAt = artist.CreatedAt,
+            UpdatedAt = artist.UpdatedAt,
+            DeletedAt = artist.DeletedAt
         };
     }
 }

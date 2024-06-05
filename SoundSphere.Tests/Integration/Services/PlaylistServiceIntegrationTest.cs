@@ -23,9 +23,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly PlaylistDto _playlistDto1 = GetMockedPlaylistDto1();
         private readonly PlaylistDto _playlistDto2 = GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = GetMockedPlaylistDtos();
-        private readonly IList<PlaylistDto> _activePlaylistDtos = GetMockedActivePlaylistDtos();
         private readonly IList<PlaylistDto> _paginatedPlaylistDtos = GetMockedPaginatedPlaylistDtos();
-        private readonly IList<PlaylistDto> _activePaginatedPlaylistDtos = GetMockedActivePaginatedPlaylistDtos();
         private readonly PlaylistPaginationRequest _paginationRequest = GetMockedPlaylistsPaginationRequest();
 
         public PlaylistServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Playlist, PlaylistDto>(); config.CreateMap<PlaylistDto, Playlist>(); }).CreateMapper());
@@ -41,13 +39,7 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((playlistService, context) => playlistService.GetAll().Should().BeEquivalentTo(_playlistDtos));
-
-        [Fact] public void GetAllActive_Test() => Execute((playlistService, context) => playlistService.GetAllActive().Should().BeEquivalentTo(_activePlaylistDtos));
-
-        [Fact] public void GetAllPagination_Test() => Execute((playlistService, context) => playlistService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylistDtos));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((playlistService, context) => playlistService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylistDtos));
+        [Fact] public void GetAll_Test() => Execute((playlistService, context) => playlistService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylistDtos));
         
         [Fact] public void GetById_Test() => Execute((playlistService, context) => playlistService.GetById(ValidPlaylistGuid).Should().Be(_playlistDto1));
 
@@ -67,8 +59,7 @@ namespace SoundSphere.Tests.Integration.Services
                 Title = _playlist2.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = _playlist1.IsActive
+                CreatedAt = _playlist1.CreatedAt
             };
             PlaylistDto updatedPlaylistDto = updatedPlaylist.ToDto(_mapper);
             PlaylistDto result = playlistService.UpdateById(_playlistDto2, ValidPlaylistGuid);
@@ -84,8 +75,7 @@ namespace SoundSphere.Tests.Integration.Services
                 Title = _playlist1.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = false
+                CreatedAt = _playlist1.CreatedAt
             };
             PlaylistDto deletedPlaylistDto = deletePlaylist.ToDto(_mapper);
             PlaylistDto result = playlistService.DeleteById(ValidPlaylistGuid);

@@ -20,7 +20,7 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active notifications paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with notifications pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("query")] public IActionResult GetAll(NotificationPaginationRequest payload) => Ok(_notificationService.GetAll(payload));
+        [HttpPost("get")] public IActionResult GetAll(NotificationPaginationRequest payload) => Ok(_notificationService.GetAll(payload));
 
         /// <summary>Get active notification by ID</summary>
         /// <remarks>Return active notification with given ID</remarks>

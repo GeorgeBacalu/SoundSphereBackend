@@ -23,9 +23,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly SongDto _songDto1 = GetMockedSongDto1();
         private readonly SongDto _songDto2 = GetMockedSongDto2();
         private readonly IList<SongDto> _songDtos = GetMockedSongDtos();
-        private readonly IList<SongDto> _activeSongDtos = GetMockedActiveSongDtos();
         private readonly IList<SongDto> _paginatedSongDtos = GetMockedPaginatedSongDtos();
-        private readonly IList<SongDto> _activePaginatedSongDtos = GetMockedActivePaginatedSongDtos();
         private readonly SongPaginationRequest _paginationRequest = GetMockedSongsPaginationRequest();
 
         public SongServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Song, SongDto>(); config.CreateMap<SongDto, Song>(); }).CreateMapper());
@@ -41,13 +39,7 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((songService, context) => songService.GetAll().Should().BeEquivalentTo(_songDtos));
-
-        [Fact] public void GetAllActive_Test() => Execute((songService, context) => songService.GetAllActive().Should().BeEquivalentTo(_activeSongDtos));
-
-        [Fact] public void GetAllPagination_Test() => Execute((songService, context) => songService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedSongDtos));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((songService, context) => songService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedSongDtos));
+        [Fact] public void GetAll_Test() => Execute((songService, context) => songService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedSongDtos));
         
         [Fact] public void GetById_Test() => Execute((songService, context) => songService.GetById(ValidSongGuid).Should().Be(_songDto1));
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void UpdateById_Test() => Execute((songService, context) =>
         {
-            Song updatedSong = GetSong(_song2, _song1.IsActive);
+            Song updatedSong = GetSong(_song2, true);
             SongDto updatedSongDto = updatedSong.ToDto(_mapper);
             SongDto result = songService.UpdateById(_songDto2, ValidSongGuid);
             context.Songs.Find(ValidSongGuid).Should().Be(updatedSong);
@@ -88,7 +80,9 @@ namespace SoundSphere.Tests.Integration.Services
             Album = song.Album,
             Artists = song.Artists,
             SimilarSongs = song.SimilarSongs,
-            IsActive = isActive
+            CreatedAt = song.CreatedAt,
+            UpdatedAt = song.UpdatedAt,
+            DeletedAt = song.DeletedAt
         };
     }
 }

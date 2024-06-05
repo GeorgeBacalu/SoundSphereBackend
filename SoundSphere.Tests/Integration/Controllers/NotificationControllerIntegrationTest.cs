@@ -54,16 +54,7 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task GetAll_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(ApiNotification);
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<NotificationDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_notificationDtos);
-        });
-
-        [Fact] public async Task GetAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiNotification}/pagination", new StringContent(SerializeObject(_paginationRequest)));
+            var response = await _httpClient.PostAsync($"{ApiNotification}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(OK);
             var responseBody = DeserializeObject<IList<NotificationDto>>(await response.Content.ReadAsStringAsync());
@@ -95,7 +86,7 @@ namespace SoundSphere.Tests.Integration.Controllers
             saveResponse.Should().NotBeNull();
             saveResponse.StatusCode.Should().Be(Created);
             var saveResponseBody = DeserializeObject<NotificationDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResponseBody.Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.SentAt));
+            saveResponseBody.Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.CreatedAt));
 
             var getAllResponse = await _httpClient.GetAsync(ApiNotification);
             getAllResponse.Should().NotBeNull();
@@ -112,8 +103,8 @@ namespace SoundSphere.Tests.Integration.Controllers
                 User = _notification1.User,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
-                SentAt = _notification1.SentAt,
-                IsRead = _notification2.IsRead
+                IsRead = _notification2.IsRead,
+                CreatedAt = _notification1.CreatedAt
             };
             NotificationDto updatedNotificationDto = ToDto(updatedNotification);
             var updateResponse = await _httpClient.PutAsync($"{ApiNotification}/{ValidNotificationGuid}", new StringContent(SerializeObject(updatedNotificationDto)));
@@ -166,8 +157,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             UserId = notification.User.Id,
             Type = notification.Type,
             Message = notification.Message,
-            SentAt = notification.SentAt,
-            IsRead = notification.IsRead
+            IsRead = notification.IsRead,
+            CreatedAt = notification.CreatedAt
         };
     }
 }

@@ -16,9 +16,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Song _song1 = GetMockedSong1();
         private readonly Song _song2 = GetMockedSong2();
         private readonly IList<Song> _songs = GetMockedSongs();
-        private readonly IList<Song> _activeSongs = GetMockedActiveSongs();
         private readonly IList<Song> _paginatedSongs = GetMockedPaginatedSongs();
-        private readonly IList<Song> _activePaginatedSongs = GetMockedActivePaginatedSongs();
         private readonly SongPaginationRequest _paginationRequest = GetMockedSongsPaginationRequest();
 
         public SongRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
@@ -34,13 +32,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((songRepository, context) => songRepository.GetAll().Should().BeEquivalentTo(_songs));
-
-        [Fact] public void GetAllActive_Test() => Execute((songRepository, context) => songRepository.GetAllActive().Should().BeEquivalentTo(_activeSongs));
-
-        [Fact] public void GetAllPagination_Test() => Execute((songRepository, context) => songRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedSongs));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((songRepository, context) => songRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedSongs));
+        [Fact] public void GetAll_Test() => Execute((songRepository, context) => songRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedSongs));
         
         [Fact] public void GetById_ValidId_Test() => Execute((songRepository, context) => songRepository.GetById(ValidSongGuid).Should().Be(_song1));
 
@@ -58,7 +50,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((songRepository, context) =>
         {
-            Song updatedSong = GetSong(_song2, _song1.IsActive);
+            Song updatedSong = GetSong(_song2, true);
             songRepository.UpdateById(_song2, ValidSongGuid);
             context.Songs.Find(ValidSongGuid).Should().Be(updatedSong);
         });
@@ -91,7 +83,9 @@ namespace SoundSphere.Tests.Integration.Repositories
             Album = song.Album,
             Artists = song.Artists,
             SimilarSongs = song.SimilarSongs,
-            IsActive = isActive
+            CreatedAt = song.CreatedAt,
+            UpdatedAt = song.UpdatedAt,
+            DeletedAt = song.DeletedAt
         };
     }
 }

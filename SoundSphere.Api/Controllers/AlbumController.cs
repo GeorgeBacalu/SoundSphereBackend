@@ -20,7 +20,7 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active albums paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with albums pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("query")] public IActionResult GetAll(AlbumPaginationRequest payload) => Ok(_albumService.GetAll(payload));
+        [HttpPost("get")] public IActionResult GetAll(AlbumPaginationRequest payload) => Ok(_albumService.GetAll(payload));
 
         /// <summary>Get active album by ID</summary>
         /// <remarks>Return active album with given ID</remarks>

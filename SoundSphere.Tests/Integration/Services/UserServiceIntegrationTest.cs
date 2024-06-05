@@ -23,9 +23,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly UserDto _userDto1 = GetMockedUserDto1();
         private readonly UserDto _userDto2 = GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = GetMockedUserDtos();
-        private readonly IList<UserDto> _activeUserDtos = GetMockedActiveUserDtos();
         private readonly IList<UserDto> _paginatedUserDtos = GetMockedPaginatedUserDtos();
-        private readonly IList<UserDto> _activePaginatedUserDtos = GetMockedActivePaginatedUserDtos();
         private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
 
         public UserServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<User, UserDto>(); config.CreateMap<UserDto, User>(); }).CreateMapper());
@@ -41,13 +39,7 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((userService, context) => userService.GetAll().Should().BeEquivalentTo(_userDtos));
-
-        [Fact] public void GetAllActive_Test() => Execute((userService, context) => userService.GetAllActive().Should().BeEquivalentTo(_activeUserDtos));
-
-        [Fact] public void GetAllPagination_Test() => Execute((userService, context) => userService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((userService, context) => userService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUserDtos));
+        [Fact] public void GetAll_Test() => Execute((userService, context) => userService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos));
         
         [Fact] public void GetById_Test() => Execute((userService, context) => userService.GetById(ValidUserGuid).Should().Be(_userDto1));
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void UpdateById_Test() => Execute((userService, context) =>
         {
-            User updatedUser = GetUser(_user2, _user1.IsActive);
+            User updatedUser = GetUser(_user2, true);
             UserDto updatedUserDto = updatedUser.ToDto(_mapper);
             UserDto result = userService.UpdateById(_userDto2, ValidUserGuid);
             context.Users.Find(ValidUserGuid).Should().Be(updatedUser);
@@ -89,7 +81,9 @@ namespace SoundSphere.Tests.Integration.Services
             Avatar = user.Avatar,
             Role = user.Role,
             Authorities = user.Authorities,
-            IsActive = isActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
     }
 }

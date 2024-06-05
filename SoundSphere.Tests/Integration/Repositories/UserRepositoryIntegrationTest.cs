@@ -16,9 +16,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly User _user1 = GetMockedUser1();
         private readonly User _user2 = GetMockedUser2();
         private readonly IList<User> _users = GetMockedUsers();
-        private readonly IList<User> _activeUsers = GetMockedActiveUsers();
         private readonly IList<User> _paginatedUsers = GetMockedPaginatedUsers();
-        private readonly IList<User> _activePaginatedUsers = GetMockedActivePaginatedUsers();
         private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
 
         public UserRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
@@ -34,13 +32,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((userRepository, context) => userRepository.GetAll().Should().BeEquivalentTo(_users));
-
-        [Fact] public void GetAllActive_Test() => Execute((userRepository, context) => userRepository.GetAllActive().Should().BeEquivalentTo(_activeUsers));
-
-        [Fact] public void GetAllPagination_Test() => Execute((userRepository, context) => userRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUsers));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((userRepository, context) => userRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUsers));
+        [Fact] public void GetAll_Test() => Execute((userRepository, context) => userRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedUsers));
         
         [Fact] public void GetById_ValidId_Test() => Execute((userRepository, context) => userRepository.GetById(ValidUserGuid).Should().Be(_user1));
 
@@ -58,7 +50,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((userRepository, context) =>
         {
-            User updatedUser = GetUser(_user2, _user1.IsActive);
+            User updatedUser = GetUser(_user2, true);
             userRepository.UpdateById(_user2, ValidUserGuid);
             context.Users.Find(ValidUserGuid).Should().Be(updatedUser);
         });
@@ -92,7 +84,9 @@ namespace SoundSphere.Tests.Integration.Repositories
             Avatar = user.Avatar,
             Role = user.Role,
             Authorities = user.Authorities,
-            IsActive = isActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
     }
 }

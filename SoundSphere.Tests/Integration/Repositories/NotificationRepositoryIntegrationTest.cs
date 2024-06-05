@@ -32,9 +32,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((notificationRepository, context) => notificationRepository.GetAll().Should().BeEquivalentTo(_notifications));
-
-        [Fact] public void GetAllPagination_Test() => Execute((notificationRepository, context) => notificationRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotifications));
+        [Fact] public void GetAll_Test() => Execute((notificationRepository, context) => notificationRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotifications));
         
         [Fact] public void GetById_ValidId_Test() => Execute((notificationRepository, context) => notificationRepository.GetById(ValidNotificationGuid).Should().Be(_notification1));
 
@@ -47,7 +45,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         {
             Notification newNotification = GetMockedNotification37();
             notificationRepository.Add(newNotification);
-            context.Notifications.Find(newNotification.Id).Should().BeEquivalentTo(newNotification, options => options.Excluding(notification => notification.SentAt));
+            context.Notifications.Find(newNotification.Id).Should().BeEquivalentTo(newNotification, options => options.Excluding(notification => notification.CreatedAt));
         });
 
         [Fact] public void UodateById_ValidId_Test() => Execute((notificationRepository, context) =>
@@ -58,8 +56,8 @@ namespace SoundSphere.Tests.Integration.Repositories
                 User = _notification1.User,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
-                SentAt = _notification1.SentAt,
-                IsRead = _notification2.IsRead
+                IsRead = _notification2.IsRead,
+                CreatedAt = _notification1.CreatedAt
             };
             notificationRepository.UpdateById(_notification2, ValidNotificationGuid);
             context.Notifications.Find(ValidNotificationGuid).Should().Be(updatedNotification);

@@ -16,9 +16,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Artist _artist1 = GetMockedArtist1();
         private readonly Artist _artist2 = GetMockedArtist2();
         private readonly IList<Artist> _artists = GetMockedArtists();
-        private readonly IList<Artist> _activeArtists = GetMockedActiveArtists();
         private readonly IList<Artist> _paginatedArtists = GetMockedPaginatedArtists();
-        private readonly IList<Artist> _activePaginatedArtists = GetMockedActivePaginatedArtists();
         private readonly ArtistPaginationRequest _paginationRequest = GetMockedArtistsPaginationRequest();
 
         public ArtistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
@@ -34,13 +32,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((artistRepository, context) => artistRepository.GetAll().Should().BeEquivalentTo(_artists));
-
-        [Fact] public void GetAllActive_Test() => Execute((artistRepository, context) => artistRepository.GetAllActive().Should().BeEquivalentTo(_activeArtists));
-
-        [Fact] public void GetAllPagination_Test() => Execute((artistRepository, context) => artistRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((artistRepository, context) => artistRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtists));
+        [Fact] public void GetAll_Test() => Execute((artistRepository, context) => artistRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists));
         
         [Fact] public void GetById_ValidId_Test() => Execute((artistRepository, context) => artistRepository.GetById(ValidArtistGuid).Should().Be(_artist1));
 
@@ -58,7 +50,7 @@ namespace SoundSphere.Tests.Integration.Repositories
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((artistRepository, context) =>
         {
-            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
+            Artist updatedArtist = GetArtist(_artist2, true);
             artistRepository.UpdateById(_artist2, ValidArtistGuid);
             context.Artists.Find(ValidArtistGuid).Should().Be(updatedArtist);
         });
@@ -87,7 +79,9 @@ namespace SoundSphere.Tests.Integration.Repositories
             ImageUrl = artist.ImageUrl,
             Bio = artist.Bio,
             SimilarArtists = artist.SimilarArtists,
-            IsActive = isActive,
+            CreatedAt = artist.CreatedAt,
+            UpdatedAt = artist.UpdatedAt,
+            DeletedAt = artist.DeletedAt
         };
     }
 }

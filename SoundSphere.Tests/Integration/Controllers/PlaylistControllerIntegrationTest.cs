@@ -27,9 +27,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly PlaylistDto _playlistDto1 = GetMockedPlaylistDto1();
         private readonly PlaylistDto _playlistDto2 = GetMockedPlaylistDto2();
         private readonly IList<PlaylistDto> _playlistDtos = GetMockedPlaylistDtos();
-        private readonly IList<PlaylistDto> _activePlaylistDtos = GetMockedActivePlaylistDtos();
         private readonly IList<PlaylistDto> _paginatedPlaylistDtos = GetMockedPaginatedPlaylistDtos();
-        private readonly IList<PlaylistDto> _activePaginatedPlaylistDtos = GetMockedActivePaginatedPlaylistDtos();
         private readonly PlaylistPaginationRequest _paginationRequest = GetMockedPlaylistsPaginationRequest();
         private readonly IList<User> _users = GetMockedUsers();
         private readonly IList<Song> _songs = GetMockedSongs();
@@ -58,40 +56,13 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
-        [Fact] public async Task GetAll_Test() => await Execute(async () =>
+        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(ApiPlaylist);
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_playlistDtos);
-        });
-
-        [Fact] public async Task GetAllActive_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.GetAsync($"{ApiPlaylist}/active");
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activePlaylistDtos);
-        });
-
-        [Fact] public async Task GetAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiPlaylist}/pagination", new StringContent(SerializeObject(_paginationRequest)));
+            var response = await _httpClient.PostAsync($"{ApiPlaylist}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(OK);
             var responseBody = DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_paginatedPlaylistDtos);
-        });
-
-        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiPlaylist}/active/pagination", new StringContent(SerializeObject(_paginationRequest)));
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<PlaylistDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activePaginatedPlaylistDtos);
         });
 
         [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
@@ -136,8 +107,7 @@ namespace SoundSphere.Tests.Integration.Controllers
                 Title = _playlist2.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = _playlist1.IsActive
+                CreatedAt = _playlist1.CreatedAt
             };
             PlaylistDto updatedPlaylistDto = ToDto(updatedPlaylist);
             var updateResponse = await _httpClient.PutAsync($"{ApiPlaylist}/{ValidPlaylistGuid}", new StringContent(SerializeObject(updatedPlaylistDto)));
@@ -170,8 +140,7 @@ namespace SoundSphere.Tests.Integration.Controllers
                 Title = _playlist1.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = false
+                CreatedAt = _playlist1.CreatedAt
             };
             PlaylistDto deletedPlaylistDto = ToDto(deletedPlaylist);
             var deleteResponse = await _httpClient.DeleteAsync($"{ApiPlaylist}/{ValidPlaylistGuid}");
@@ -203,7 +172,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             UserId = playlist.User.Id,
             SongsIds = playlist.Songs.Select(song => song.Id).ToList(),
             CreatedAt = playlist.CreatedAt,
-            IsActive = playlist.IsActive
+            UpdatedAt = playlist.UpdatedAt,
+            DeletedAt = playlist.DeletedAt
         };
     }
 }

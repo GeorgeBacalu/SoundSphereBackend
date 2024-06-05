@@ -20,7 +20,7 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active users paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with users pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("query")] public IActionResult GetAll(UserPaginationRequest payload) => Ok(_userService.GetAll(payload));
+        [HttpPost("get")] public IActionResult GetAll(UserPaginationRequest payload) => Ok(_userService.GetAll(payload));
 
         /// <summary>Get active user by ID</summary>
         /// <remarks>Return active user with given ID</remarks>

@@ -26,17 +26,8 @@ namespace SoundSphere.Tests.Unit.Controllers
 
         [Fact] public void GetAll_Test()
         {
-            _feedbackServiceMock.Setup(mock => mock.GetAll()).Returns(_feedbackDtos);
-            OkObjectResult? result = _feedbackController.GetAll() as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(Status200OK);
-            result?.Value.Should().Be(_feedbackDtos);
-        }
-
-        [Fact] public void GetAllPagination_Test()
-        {
-            _feedbackServiceMock.Setup(mock => mock.GetAllPagination(_paginationRequest)).Returns(_paginatedFeedbackDtos);
-            OkObjectResult? result = _feedbackController.GetAllPagination(_paginationRequest) as OkObjectResult;
+            _feedbackServiceMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedFeedbackDtos);
+            OkObjectResult? result = _feedbackController.GetAll(_paginationRequest) as OkObjectResult;
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_paginatedFeedbackDtos);
@@ -68,7 +59,7 @@ namespace SoundSphere.Tests.Unit.Controllers
                 UserId = _feedbackDto1.UserId,
                 Type = _feedbackDto2.Type,
                 Message = _feedbackDto2.Message,
-                SentAt = _feedbackDto1.SentAt
+                CreatedAt = _feedbackDto1.CreatedAt
             };
             _feedbackServiceMock.Setup(mock => mock.UpdateById(_feedbackDto2, ValidFeedbackGuid)).Returns(updatedFeedbackDto);
             OkObjectResult? result = _feedbackController.UpdateById(_feedbackDto2, ValidFeedbackGuid) as OkObjectResult;

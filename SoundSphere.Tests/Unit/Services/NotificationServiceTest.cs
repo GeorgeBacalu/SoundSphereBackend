@@ -42,14 +42,8 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void GetAll_Test()
         {
-            _notificationRepositoryMock.Setup(mock => mock.GetAll()).Returns(_notifications);
-            _notificationService.GetAll().Should().BeEquivalentTo(_notificationDtos);
-        }
-
-        [Fact] public void GetAllPagination_Test()
-        {
-            _notificationRepositoryMock.Setup(mock => mock.GetAllPagination(_paginationRequest)).Returns(_paginatedNotifications);
-            _notificationService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos);
+            _notificationRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedNotifications);
+            _notificationService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos);
         }
 
         [Fact] public void GetById_Test()
@@ -73,8 +67,8 @@ namespace SoundSphere.Tests.Unit.Services
                 User = _notification1.User,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
-                SentAt = _notification1.SentAt,
-                IsRead = _notification2.IsRead
+                IsRead = _notification2.IsRead,
+                CreatedAt = _notification1.CreatedAt,
             };
             NotificationDto updatedNotificationDto = ToDto(updatedNotification);
             _mapperMock.Setup(mock => mock.Map<NotificationDto>(updatedNotification)).Returns(updatedNotificationDto);
@@ -94,8 +88,10 @@ namespace SoundSphere.Tests.Unit.Services
             UserId = notification.User.Id,
             Type = notification.Type,
             Message = notification.Message,
-            SentAt = notification.SentAt,
-            IsRead = notification.IsRead
+            IsRead = notification.IsRead,
+            CreatedAt = notification.CreatedAt,
+            UpdatedAt = notification.UpdatedAt,
+            DeletedAt = notification.DeletedAt
         };
     }
 }

@@ -20,7 +20,7 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active feedbacks paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with feedbacks pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("query")] public IActionResult GetAll(FeedbackPaginationRequest payload) => Ok(_feedbackService.GetAll(payload));
+        [HttpPost("get")] public IActionResult GetAll(FeedbackPaginationRequest payload) => Ok(_feedbackService.GetAll(payload));
 
         /// <summary>Get active feedback by ID</summary>
         /// <remarks>Return active feedback with given ID</remarks>

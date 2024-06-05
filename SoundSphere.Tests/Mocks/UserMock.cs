@@ -248,7 +248,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = user.Avatar,
             RoleId = user.Role.Id,
             AuthoritiesIds = user.Authorities.Select(authority => authority.Id).ToList(),
-            IsActive = user.IsActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
     }
 }

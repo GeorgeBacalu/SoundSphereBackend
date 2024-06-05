@@ -42,14 +42,8 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void GetAll_Test()
         {
-            _feedbackRepositoryMock.Setup(mock => mock.GetAll()).Returns(_feedbacks);
-            _feedbackService.GetAll().Should().BeEquivalentTo(_feedbackDtos);
-        }
-
-        [Fact] public void GetAllPagination_Test()
-        {
-            _feedbackRepositoryMock.Setup(mock => mock.GetAllPagination(_paginationRequest)).Returns(_paginatedFeedbacks);
-            _feedbackService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos);
+            _feedbackRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedFeedbacks);
+            _feedbackService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos);
         }
 
         [Fact] public void GetById_Test()
@@ -73,7 +67,7 @@ namespace SoundSphere.Tests.Unit.Services
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
             FeedbackDto updatedFeedbackDto = ToDto(updatedFeedback);
             _mapperMock.Setup(mock => mock.Map<FeedbackDto>(updatedFeedback)).Returns(updatedFeedbackDto);
@@ -93,7 +87,9 @@ namespace SoundSphere.Tests.Unit.Services
             UserId = feedback.User.Id,
             Type = feedback.Type,
             Message = feedback.Message,
-            SentAt = feedback.SentAt
+            CreatedAt = feedback.CreatedAt,
+            UpdatedAt = feedback.UpdatedAt,
+            DeletedAt = feedback.DeletedAt
         };
     }
 }

@@ -39,9 +39,7 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((notificationService, context) => notificationService.GetAll().Should().BeEquivalentTo(_notificationDtos));
-
-        [Fact] public void GetAllPagination_Test() => Execute((notificationService, context) => notificationService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos));
+        [Fact] public void GetAll_Test() => Execute((notificationService, context) => notificationService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos));
         
         [Fact] public void GetById_Test() => Execute((notificationService, context) => notificationService.GetById(ValidNotificationGuid).Should().Be(_notificationDto1));
 
@@ -49,7 +47,7 @@ namespace SoundSphere.Tests.Integration.Services
         {
             NotificationDto newNotificationDto = GetMockedNotificationDto37();
             NotificationDto result = notificationService.Add(newNotificationDto);
-            context.Notifications.Find(newNotificationDto.Id).Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.SentAt));
+            context.Notifications.Find(newNotificationDto.Id).Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.CreatedAt));
             result.Should().Be(newNotificationDto);
         });
 
@@ -61,8 +59,8 @@ namespace SoundSphere.Tests.Integration.Services
                 User = _notification1.User,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
-                SentAt = _notification1.SentAt,
-                IsRead = _notification2.IsRead
+                IsRead = _notification2.IsRead,
+                CreatedAt = _notification1.CreatedAt
             };
             NotificationDto updatedNotificationDto = updatedNotification.ToDto(_mapper);
             NotificationDto result = notificationService.UpdateById(_notificationDto2, ValidNotificationGuid);

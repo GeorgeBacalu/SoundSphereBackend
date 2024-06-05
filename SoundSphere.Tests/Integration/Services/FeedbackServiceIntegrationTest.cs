@@ -39,9 +39,7 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((feedbackService, context) => feedbackService.GetAll().Should().BeEquivalentTo(_feedbackDtos));
-
-        [Fact] public void GetAllPagination_Test() => Execute((feedbackService, context) => feedbackService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos));
+        [Fact] public void GetAll_Test() => Execute((feedbackService, context) => feedbackService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbackDtos));
 
         [Fact] public void GetById_Test() => Execute((feedbackService, context) => feedbackService.GetById(ValidFeedbackGuid).Should().Be(_feedbackDto1));
 
@@ -49,7 +47,7 @@ namespace SoundSphere.Tests.Integration.Services
         {
             FeedbackDto newFeedbackDto = GetMockedFeedbackDto37();
             FeedbackDto result = feedbackService.Add(newFeedbackDto);
-            context.Feedbacks.Find(newFeedbackDto.Id).Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.SentAt));
+            context.Feedbacks.Find(newFeedbackDto.Id).Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.CreatedAt));
             result.Should().Be(newFeedbackDto);
         });
 
@@ -61,7 +59,7 @@ namespace SoundSphere.Tests.Integration.Services
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
             FeedbackDto updatedFeedbackDto = updatedFeedback.ToDto(_mapper);
             FeedbackDto result = feedbackService.UpdateById(_feedbackDto2, ValidFeedbackGuid);

@@ -19,47 +19,18 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly UserDto _userDto1 = GetMockedUserDto1();
         private readonly UserDto _userDto2 = GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = GetMockedUserDtos();
-        private readonly IList<UserDto> _activeUserDtos = GetMockedActiveUserDtos();
         private readonly IList<UserDto> _paginatedUserDtos = GetMockedPaginatedUserDtos();
-        private readonly IList<UserDto> _activePaginatedUserDtos = GetMockedActivePaginatedUserDtos();
         private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
 
         public UserControllerTest() => _userController = new(_userServiceMock.Object);
 
-        [Fact] public void GetAll_Test()
+        [Fact] public void GetAllActivePagination_Test()
         {
-            _userServiceMock.Setup(mock => mock.GetAll()).Returns(_userDtos);
-            OkObjectResult? result = _userController.GetAll() as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(Status200OK);
-            result?.Value.Should().Be(_userDtos);
-        }
-
-        [Fact] public void GetAllActive_Test()
-        {
-            _userServiceMock.Setup(mock => mock.GetAllActive()).Returns(_activeUserDtos);
-            OkObjectResult? result = _userController.GetAllActive() as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(Status200OK);
-            result?.Value.Should().Be(_activeUserDtos);
-        }
-
-        [Fact] public void GetAllPagination_Test()
-        {
-            _userServiceMock.Setup(mock => mock.GetAllPagination(_paginationRequest)).Returns(_paginatedUserDtos);
-            OkObjectResult? result = _userController.GetAllPagination(_paginationRequest) as OkObjectResult;
+            _userServiceMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedUserDtos);
+            OkObjectResult? result = _userController.GetAll(_paginationRequest) as OkObjectResult;
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(Status200OK);
             result?.Value.Should().Be(_paginatedUserDtos);
-        }
-
-        [Fact] public void GetAllActivePagination_Test()
-        {
-            _userServiceMock.Setup(mock => mock.GetAllActivePagination(_paginationRequest)).Returns(_activePaginatedUserDtos);
-            OkObjectResult? result = _userController.GetAllActivePagination(_paginationRequest) as OkObjectResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(Status200OK);
-            result?.Value.Should().Be(_activePaginatedUserDtos);
         }
 
         [Fact] public void GetById_Test()
@@ -82,7 +53,7 @@ namespace SoundSphere.Tests.Unit.Controllers
 
         [Fact] public void UpdateById_Test()
         {
-            UserDto updatedUserDto = GetUserDto(_userDto2, _userDto1.IsActive);
+            UserDto updatedUserDto = GetUserDto(_userDto2, true);
             _userServiceMock.Setup(mock => mock.UpdateById(_userDto2, ValidUserGuid)).Returns(updatedUserDto);
             OkObjectResult? result = _userController.UpdateById(_userDto2, ValidUserGuid) as OkObjectResult;
             result?.Should().NotBeNull();
@@ -111,7 +82,9 @@ namespace SoundSphere.Tests.Unit.Controllers
             Avatar = userDto.Avatar,
             RoleId = userDto.RoleId,
             AuthoritiesIds = userDto.AuthoritiesIds,
-            IsActive = isActive
+            CreatedAt = userDto.CreatedAt,
+            UpdatedAt = userDto.UpdatedAt,
+            DeletedAt = userDto.DeletedAt
         };
     }
 }

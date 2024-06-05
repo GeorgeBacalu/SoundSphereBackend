@@ -32,9 +32,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((feedbackRepository, context) => feedbackRepository.GetAll().Should().BeEquivalentTo(_feedbacks));
-
-        [Fact] public void GetAllPagination_Test() => Execute((feedbackRepository, context) => feedbackRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks));
+        [Fact] public void GetAll_Test() => Execute((feedbackRepository, context) => feedbackRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks));
         
         [Fact] public void GetById_ValidId_Test() => Execute((feedbackRepository, context) => feedbackRepository.GetById(ValidFeedbackGuid).Should().Be(_feedback1));
 
@@ -47,7 +45,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         {
             Feedback newFeedback = GetMockedFeedback37();
             feedbackRepository.Add(newFeedback);
-            context.Feedbacks.Find(newFeedback.Id).Should().BeEquivalentTo(newFeedback, options => options.Excluding(feedback => feedback.SentAt));
+            context.Feedbacks.Find(newFeedback.Id).Should().BeEquivalentTo(newFeedback, options => options.Excluding(feedback => feedback.CreatedAt));
         });
 
         [Fact] public void UpdateById_ValidId_Test() => Execute((feedbackRepository, context) =>
@@ -58,7 +56,7 @@ namespace SoundSphere.Tests.Integration.Repositories
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
             feedbackRepository.UpdateById(_feedback2, ValidFeedbackGuid);
             context.Feedbacks.Find(ValidFeedbackGuid).Should().Be(updatedFeedback);

@@ -20,7 +20,7 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active playlists paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with playlists pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("query")] public IActionResult GetAll(PlaylistPaginationRequest payload) => Ok(_playlistService.GetAll(payload));
+        [HttpPost("get")] public IActionResult GetAll(PlaylistPaginationRequest payload) => Ok(_playlistService.GetAll(payload));
 
         /// <summary>Get active playlist by ID</summary>
         /// <remarks>Return active playlist with given ID</remarks>

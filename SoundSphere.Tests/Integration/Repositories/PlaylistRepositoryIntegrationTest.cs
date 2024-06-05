@@ -16,9 +16,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly Playlist _playlist1 = GetMockedPlaylist1();
         private readonly Playlist _playlist2 = GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = GetMockedPlaylists();
-        private readonly IList<Playlist> _activePlaylists = GetMockedActivePlaylists();
         private readonly IList<Playlist> _paginatedPlaylists = GetMockedPaginatedPlaylists();
-        private readonly IList<Playlist> _activePaginatedPlaylists = GetMockedActivePaginatedPlaylists();
         private readonly PlaylistPaginationRequest _paginationRequest = GetMockedPlaylistsPaginationRequest();
 
         public PlaylistRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
@@ -34,13 +32,7 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((playlistRepository, context) => playlistRepository.GetAll().Should().BeEquivalentTo(_playlists));
-
-        [Fact] public void GetAllActive_Test() => Execute((playlistRepository, context) => playlistRepository.GetAllActive().Should().BeEquivalentTo(_activePlaylists));
-
-        [Fact] public void GetAllPagination_Test() => Execute((playlistRepository, context) => playlistRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((playlistRepository, context) => playlistRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylists));
+        [Fact] public void GetAll_Test() => Execute((playlistRepository, context) => playlistRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists));
         
         [Fact] public void GetById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.GetById(ValidPlaylistGuid).Should().Be(_playlist1));
 
@@ -64,8 +56,7 @@ namespace SoundSphere.Tests.Integration.Repositories
                 Title = _playlist2.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = _playlist1.IsActive
+                CreatedAt = _playlist1.CreatedAt
             };
             playlistRepository.UpdateById(_playlist2, ValidPlaylistGuid);
             context.Playlists.Find(ValidPlaylistGuid).Should().Be(updatedPlaylist);
@@ -84,8 +75,7 @@ namespace SoundSphere.Tests.Integration.Repositories
                 Title = _playlist1.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = false
+                CreatedAt = _playlist1.CreatedAt
             };
             playlistRepository.DeleteById(ValidPlaylistGuid);
             context.Playlists.Find(ValidPlaylistGuid).Should().Be(deletedPlaylist);

@@ -25,15 +25,11 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly User _user1 = GetMockedUser1();
         private readonly User _user2 = GetMockedUser2();
         private readonly IList<User> _users = GetMockedUsers();
-        private readonly IList<User> _activeUsers = GetMockedActiveUsers();
         private readonly IList<User> _paginatedUsers = GetMockedPaginatedUsers();
-        private readonly IList<User> _activePaginatedUsers = GetMockedActivePaginatedUsers();
         private readonly UserDto _userDto1 = GetMockedUserDto1();
         private readonly UserDto _userDto2 = GetMockedUserDto2();
         private readonly IList<UserDto> _userDtos = GetMockedUserDtos();
-        private readonly IList<UserDto> _activeUserDtos = GetMockedActiveUserDtos();
         private readonly IList<UserDto> _paginatedUserDtos = GetMockedPaginatedUserDtos();
-        private readonly IList<UserDto> _activePaginatedUserDtos = GetMockedActivePaginatedUserDtos();
         private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
         private readonly Role _role1 = GetMockedRole1();
         private readonly IList<Authority> _authorities1 = GetMockedAuthorities1();
@@ -49,26 +45,8 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void GetAll_Test()
         {
-            _userRepositoryMock.Setup(mock => mock.GetAll()).Returns(_users);
-            _userService.GetAll().Should().BeEquivalentTo(_userDtos);
-        }
-
-        [Fact] public void GetAllActive_Test()
-        {
-            _userRepositoryMock.Setup(mock => mock.GetAllActive()).Returns(_activeUsers);
-            _userService.GetAllActive().Should().BeEquivalentTo(_activeUserDtos);
-        }
-
-        [Fact] public void GetAllPagination_Test()
-        {
-            _userRepositoryMock.Setup(mock => mock.GetAllPagination(_paginationRequest)).Returns(_paginatedUsers);
-            _userService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos);
-        }
-
-        [Fact] public void GetAllActivePagination_Test()
-        {
-            _userRepositoryMock.Setup(mock => mock.GetAllActivePagination(_paginationRequest)).Returns(_activePaginatedUsers);
-            _userService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUserDtos);
+            _userRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedUsers);
+            _userService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos);
         }
 
         [Fact] public void GetById_Test()
@@ -87,7 +65,7 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void UpdateById_Test()
         {
-            User updatedUser = GetUser(_user2, _user1.IsActive);
+            User updatedUser = GetUser(_user2, true);
             UserDto updatedUserDto = ToDto(updatedUser);
             _mapperMock.Setup(mock => mock.Map<UserDto>(updatedUser)).Returns(updatedUserDto);
             _userRepositoryMock.Setup(mock => mock.UpdateById(_user2, ValidUserGuid)).Returns(updatedUser);
@@ -114,8 +92,7 @@ namespace SoundSphere.Tests.Unit.Services
             Birthday = user.Birthday,
             Avatar = user.Avatar,
             Role = user.Role,
-            Authorities = user.Authorities,
-            IsActive = isActive
+            Authorities = user.Authorities
         };
 
         private UserDto ToDto(User user) => new UserDto
@@ -129,7 +106,9 @@ namespace SoundSphere.Tests.Unit.Services
             Avatar = user.Avatar,
             RoleId = user.Role.Id,
             AuthoritiesIds = user.Authorities.Select(authority => authority.Id).ToList(),
-            IsActive = user.IsActive
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            DeletedAt = user.DeletedAt
         };
     }
 }

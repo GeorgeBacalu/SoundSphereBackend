@@ -23,9 +23,7 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly AlbumDto _albumDto1 = GetMockedAlbumDto1();
         private readonly AlbumDto _albumDto2 = GetMockedAlbumDto2();
         private readonly IList<AlbumDto> _albumDtos = GetMockedAlbumDtos();
-        private readonly IList<AlbumDto> _activeAlbumDtos = GetMockedActiveAlbumDtos();
         private readonly IList<AlbumDto> _paginatedAlbumDtos = GetMockedPaginatedAlbumDtos();
-        private readonly IList<AlbumDto> _activePaginatedAlbumDtos = GetMockedActivePaginatedAlbumDtos();
         private readonly AlbumPaginationRequest _paginationRequest = GetMockedAlbumsPaginationRequest();
 
         public AlbumServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Album, AlbumDto>(); config.CreateMap<AlbumDto, Album>(); }).CreateMapper());
@@ -41,13 +39,7 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((albumService, context) => albumService.GetAll().Should().BeEquivalentTo(_albumDtos));
-
-        [Fact] public void GetAllActive_Test() => Execute((albumService, context) => albumService.GetAllActive().Should().BeEquivalentTo(_activeAlbumDtos));
-
-        [Fact] public void GetAllPagination_Test() => Execute((albumService, context) => albumService.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedAlbumDtos));
-
-        [Fact] public void GetAllActivePagination_Test() => Execute((albumService, context) => albumService.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbumDtos));
+        [Fact] public void GetAll_Test() => Execute((albumService, context) => albumService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedAlbumDtos));
         
         [Fact] public void GetById_Test() => Execute((albumService, context) => albumService.GetById(ValidAlbumGuid).Should().Be(_albumDto1));
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Integration.Services
 
         [Fact] public void UpdateById_Test() => Execute((albumService, context) =>
         {
-            Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
+            Album updatedAlbum = GetAlbum(_album2, true);
             AlbumDto updatedAlbumDto = updatedAlbum.ToDto(_mapper);
             AlbumDto result = albumService.UpdateById(_albumDto2, ValidAlbumGuid);
             context.Albums.Find(ValidAlbumGuid).Should().Be(updatedAlbum);
@@ -84,7 +76,9 @@ namespace SoundSphere.Tests.Integration.Services
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,
             SimilarAlbums = album.SimilarAlbums,
-            IsActive = isActive
+            CreatedAt = album.CreatedAt,
+            UpdatedAt = album.UpdatedAt,
+            DeletedAt = album.DeletedAt
         };
     }
 }

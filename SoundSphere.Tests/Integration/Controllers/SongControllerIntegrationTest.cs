@@ -27,9 +27,7 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly SongDto _songDto1 = GetMockedSongDto1();
         private readonly SongDto _songDto2 = GetMockedSongDto2();
         private readonly IList<SongDto> _songDtos = GetMockedSongDtos();
-        private readonly IList<SongDto> _activeSongDtos = GetMockedActiveSongDtos();
         private readonly IList<SongDto> _paginatedSongDtos = GetMockedPaginatedSongDtos();
-        private readonly IList<SongDto> _activePaginatedSongDtos = GetMockedActivePaginatedSongDtos();
         private readonly SongPaginationRequest _paginationRequest = GetMockedSongsPaginationRequest();
         private readonly IList<Album> _albums = GetMockedAlbums();
         private readonly IList<Artist> _artists = GetMockedArtists();
@@ -59,40 +57,13 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
-        [Fact] public async Task GetAll_Test() => await Execute(async () =>
+        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(ApiSong);
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<SongDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_songDtos);
-        });
-
-        [Fact] public async Task GetAllActive_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.GetAsync($"{ApiSong}/active");
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<SongDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activeSongDtos);
-        });
-
-        [Fact] public async Task GetAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiSong}/pagination", new StringContent(SerializeObject(_paginationRequest)));
+            var response = await _httpClient.PostAsync($"{ApiSong}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(OK);
             var responseBody = DeserializeObject<IList<SongDto>>(await response.Content.ReadAsStringAsync());
             responseBody.Should().BeEquivalentTo(_paginatedSongDtos);
-        });
-
-        [Fact] public async Task GetAllActivePagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiSong}/active/pagination", new StringContent(SerializeObject(_paginationRequest)));
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<SongDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_activePaginatedSongDtos);
         });
 
         [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
@@ -131,7 +102,7 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
-            Song updatedSong = GetSong(_song2, _song1.IsActive);
+            Song updatedSong = GetSong(_song2, true);
             SongDto updatedSongDto = ToDto(updatedSong);
             var updateResponse = await _httpClient.PutAsync($"{ApiSong}/{ValidSongGuid}", new StringContent(SerializeObject(updatedSongDto)));
             updateResponse.Should().NotBeNull();
@@ -192,7 +163,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             Album = song.Album,
             Artists = song.Artists,
             SimilarSongs = song.SimilarSongs,
-            IsActive = isActive
+            CreatedAt = song.CreatedAt,
+            UpdatedAt = song.UpdatedAt,
+            DeletedAt = song.DeletedAt
         };
 
         private SongDto ToDto(Song song) => new SongDto
@@ -206,7 +179,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             AlbumId = song.Album.Id,
             ArtistsIds = song.Artists.Select(artist => artist.Id).ToList(),
             SimilarSongsIds = song.SimilarSongs.Select(songLink => songLink.SimilarSongId).ToList(),
-            IsActive = song.IsActive
+            CreatedAt = song.CreatedAt,
+            UpdatedAt = song.UpdatedAt,
+            DeletedAt = song.DeletedAt
         };
     }
 }

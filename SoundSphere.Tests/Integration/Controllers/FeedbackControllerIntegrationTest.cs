@@ -54,16 +54,7 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         [Fact] public async Task GetAll_Test() => await Execute(async () =>
         {
-            var response = await _httpClient.GetAsync(ApiFeedback);
-            response.Should().NotBeNull();
-            response.StatusCode.Should().Be(OK);
-            var responseBody = DeserializeObject<IList<FeedbackDto>>(await response.Content.ReadAsStringAsync());
-            responseBody.Should().BeEquivalentTo(_feedbackDtos);
-        });
-
-        [Fact] public async Task GetAllPagination_Test() => await Execute(async () =>
-        {
-            var response = await _httpClient.PostAsync($"{ApiFeedback}/pagination", new StringContent(SerializeObject(_paginationRequest)));
+            var response = await _httpClient.PostAsync($"{ApiFeedback}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(OK);
             var responseBody = DeserializeObject<IList<FeedbackDto>>(await response.Content.ReadAsStringAsync());
@@ -95,7 +86,7 @@ namespace SoundSphere.Tests.Integration.Controllers
             saveResponse.Should().NotBeNull();
             saveResponse.StatusCode.Should().Be(Created);
             var saveResponseBody = DeserializeObject<FeedbackDto>(await saveResponse.Content.ReadAsStringAsync());
-            saveResponseBody.Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.SentAt));
+            saveResponseBody.Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.CreatedAt));
 
             var getAllResponse = await _httpClient.GetAsync(ApiFeedback);
             getAllResponse.Should().NotBeNull();
@@ -112,7 +103,7 @@ namespace SoundSphere.Tests.Integration.Controllers
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
             FeedbackDto updatedFeedbackDto = ToDto(updatedFeedback);
             var updateResponse = await _httpClient.PutAsync($"{ApiFeedback}/{ValidFeedbackGuid}", new StringContent(SerializeObject(updatedFeedbackDto)));
@@ -165,7 +156,9 @@ namespace SoundSphere.Tests.Integration.Controllers
             UserId = feedback.User.Id,
             Type = feedback.Type,
             Message = feedback.Message,
-            SentAt = feedback.SentAt
+            CreatedAt = feedback.CreatedAt,
+            UpdatedAt = feedback.UpdatedAt,
+            DeletedAt = feedback.DeletedAt
         };
     }
 }
