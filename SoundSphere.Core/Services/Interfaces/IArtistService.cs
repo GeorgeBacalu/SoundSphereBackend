@@ -5,13 +5,7 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IArtistService
     {
-        IList<ArtistDto> GetAll();
-
-        IList<ArtistDto> GetAllActive();
-
-        IList<ArtistDto> GetAllPagination(ArtistPaginationRequest payload);
-
-        IList<ArtistDto> GetAllActivePagination(ArtistPaginationRequest payload);
+        IList<ArtistDto> GetAll(ArtistPaginationRequest payload);
 
         ArtistDto GetById(Guid id);
 

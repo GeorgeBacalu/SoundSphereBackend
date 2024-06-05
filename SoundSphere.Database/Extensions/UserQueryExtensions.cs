@@ -18,12 +18,12 @@ namespace SoundSphere.Database.Extensions
             });
 
         public static IQueryable<User> Sort(this IQueryable<User> query, UserPaginationRequest payload) =>
-            payload.SortCriteria == null || !payload.SortCriteria.Any() ? query :
+            payload.SortCriteria == null || !payload.SortCriteria.Any() ? query.OrderBy(user => user.CreatedAt) :
             payload.SortCriteria.Aggregate(query, (current, sortCriterion) => sortCriterion.Key switch
             {
                 UserSortCriterion.ByName => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(user => user.Name) : current.OrderByDescending(user => user.Name),
                 UserSortCriterion.ByEmail => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(user => user.Email) : current.OrderByDescending(user => user.Email),
-                _ => current
+                _ => current.OrderBy(user => user.CreatedAt)
             });
 
         public static IQueryable<User> Paginate(this IQueryable<User> query, UserPaginationRequest payload) => query.Skip(payload.Page * payload.Size).Take(payload.Size);

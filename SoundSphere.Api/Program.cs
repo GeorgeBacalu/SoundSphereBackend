@@ -5,7 +5,7 @@ using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
-using SoundSphere.Infrastructure.Exceptions;
+using SoundSphere.Infrastructure.Middlewares;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -20,7 +20,8 @@ public class Program
         builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
         builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(SoundSphere.Core.Mappings.AutoMapperProfile).Assembly);
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
+        builder.Services.AddTransient<LoggingMiddleware>();
+        builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
         builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
         builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
@@ -53,10 +54,11 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-            //ExecuteSql(app.Services, Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.sql"));
+            ExecuteSql(app.Services, Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.sql"));
         }
         app.UseHttpsRedirection();
-        app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+        app.UseMiddleware<LoggingMiddleware>();
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseAuthorization();
         app.MapControllers();
         app.Run();

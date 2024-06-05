@@ -2,7 +2,7 @@
 
 namespace SoundSphere.Database.Entities
 {
-    public class Song
+    public class Song : BaseEntity
     {
         public Guid Id { get; set; }
 
@@ -24,8 +24,6 @@ namespace SoundSphere.Database.Entities
 
         public IList<SongLink> SimilarSongs { get; set; } = null!;
 
-        public bool IsActive { get; set; } = true;
-
         public override bool Equals(object? obj) => obj is Song song &&
             Id.Equals(song.Id) &&
             Title.Equals(song.Title) &&
@@ -36,9 +34,11 @@ namespace SoundSphere.Database.Entities
             Album.Equals(song.Album) &&
             Artists.SequenceEqual(song.Artists) &&
             SimilarSongs.SequenceEqual(song.SimilarSongs) &&
-            IsActive == song.IsActive;
+            CreatedAt.Equals(song.CreatedAt) &&
+            UpdatedAt.Equals(song.UpdatedAt) &&
+            DeletedAt.Equals(song.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, Genre, ReleaseDate, DurationSeconds, Album, HashCode.Combine(Artists, Playlists, SimilarSongs, IsActive));
+        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, Genre, ReleaseDate, DurationSeconds, Album, HashCode.Combine(Artists, Playlists, SimilarSongs, CreatedAt, UpdatedAt, DeletedAt));
     }
 
     public enum GenreType { Pop, Rock, Rnb, HipHop, Dance, Techno, Latino, Hindi, Reggae, Jazz, Classical, Country, Electronic }

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SoundSphere.Database.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace SoundSphere.Database.Dtos.Common
 {
-    public class PlaylistDto
+    public class PlaylistDto : BaseEntity
     {
         [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
@@ -17,18 +18,15 @@ namespace SoundSphere.Database.Dtos.Common
         [MaxLength(100, ErrorMessage = "There can't be more than 100 songs in a playlist")]
         public IList<Guid> SongsIds { get; set; } = new List<Guid>();
 
-        public DateTime CreatedAt { get; set; }
-
-        public bool IsActive { get; set; } = true;
-
         public override bool Equals(object? obj) => obj is PlaylistDto playlistDto &&
             Id.Equals(playlistDto.Id) &&
             Title.Equals(playlistDto.Title) &&
             UserId.Equals(playlistDto.UserId) &&
             SongsIds.SequenceEqual(playlistDto.SongsIds) &&
             CreatedAt.Equals(playlistDto.CreatedAt) &&
-            IsActive == playlistDto.IsActive;
+            UpdatedAt.Equals(playlistDto.UpdatedAt) &&
+            DeletedAt.Equals(playlistDto.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Title, UserId, SongsIds, CreatedAt, IsActive);
+        public override int GetHashCode() => HashCode.Combine(Id, Title, UserId, SongsIds, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 }

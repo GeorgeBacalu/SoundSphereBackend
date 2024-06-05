@@ -16,30 +16,14 @@ namespace SoundSphere.Api.Controllers
 
         public PlaylistController(IPlaylistService playlistService) => _playlistService = playlistService;
 
-        /// <summary>Get all playlists</summary>
-        /// <remarks>Return list with all playlists</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_playlistService.GetAll());
-
-        /// <summary>Get all active playlists</summary>
-        /// <remarks>Return list with all active playlists</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("active")] public IActionResult GetAllActive() => Ok(_playlistService.GetAllActive());
-
-        /// <summary>Get playlists paginated, sorted and filtered</summary>
-        /// <remarks>Return list with playlists paginated, sorted and filtered</remarks>
-        /// <param name="payload">Request body with playlists pagination rules</param>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("pagination")] public IActionResult GetAllPagination(PlaylistPaginationRequest payload) => Ok(_playlistService.GetAllPagination(payload));
-
         /// <summary>Get active playlists paginated, sorted and filtered</summary>
-        /// <remarks>Return list with playlists paginated, sorted and filtered</remarks>
+        /// <remarks>Return list with active playlists paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with playlists pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("active/pagination")] public IActionResult GetAllActivePagination(PlaylistPaginationRequest payload) => Ok(_playlistService.GetAllActivePagination(payload));
+        [HttpPost("query")] public IActionResult GetAll(PlaylistPaginationRequest payload) => Ok(_playlistService.GetAll(payload));
 
-        /// <summary>Get playlist by ID</summary>
-        /// <remarks>Return playlist with given ID</remarks>
+        /// <summary>Get active playlist by ID</summary>
+        /// <remarks>Return active playlist with given ID</remarks>
         /// <param name="id">Playlist fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,8 +36,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost] public IActionResult Add(PlaylistDto playlistDto)
         {
-            PlaylistDto addedPlaylistDto = _playlistService.Add(playlistDto);
-            return CreatedAtAction(nameof(GetById), new { id = addedPlaylistDto.Id }, addedPlaylistDto);
+            PlaylistDto createdPlaylistDto = _playlistService.Add(playlistDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdPlaylistDto.Id }, createdPlaylistDto);
         }
 
         /// <summary>Update playlist by ID</summary>

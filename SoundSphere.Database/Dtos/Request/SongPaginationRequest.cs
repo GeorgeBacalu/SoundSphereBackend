@@ -12,7 +12,7 @@ namespace SoundSphere.Database.Dtos.Request
         DateRange? DateRange,
         DurationRange? DurationRange,
         string? AlbumTitle,
-        Guid ArtistId
+        string ArtistName
         ) : PaginationRequest;
 
     public enum SongSortCriterion { ByTitle = 10, ByReleaseDate = 20 }

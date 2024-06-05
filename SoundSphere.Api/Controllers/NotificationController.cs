@@ -16,19 +16,14 @@ namespace SoundSphere.Api.Controllers
 
         public NotificationController(INotificationService notificationService) => _notificationService = notificationService;
 
-        /// <summary>Get all notifications</summary>
-        /// <remarks>Return list with all notifications</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_notificationService.GetAll());
-
-        /// <summary>Get notifications paginated, sorted and filtered</summary>
-        /// <remarks>Return list with notifications paginated, sorted and filtered</remarks>
+        /// <summary>Get active notifications paginated, sorted and filtered</summary>
+        /// <remarks>Return list with active notifications paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with notifications pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("pagination")] public IActionResult GetAllPagination(NotificationPaginationRequest payload) => Ok(_notificationService.GetAllPagination(payload));
+        [HttpPost("query")] public IActionResult GetAll(NotificationPaginationRequest payload) => Ok(_notificationService.GetAll(payload));
 
-        /// <summary>Get notification by ID</summary>
-        /// <remarks>Return notification with given ID</remarks>
+        /// <summary>Get active notification by ID</summary>
+        /// <remarks>Return active notification with given ID</remarks>
         /// <param name="id">Notification fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -41,8 +36,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost] public IActionResult Add(NotificationDto notificationDto)
         {
-            NotificationDto addedNotificationDto = _notificationService.Add(notificationDto);
-            return CreatedAtAction(nameof(GetById), new { id = addedNotificationDto.Id }, addedNotificationDto);
+            NotificationDto createdNotificationDto = _notificationService.Add(notificationDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdNotificationDto.Id }, createdNotificationDto);
         }
 
         /// <summary>Update notification by ID</summary>
@@ -55,14 +50,10 @@ namespace SoundSphere.Api.Controllers
         [HttpPut("{id}")] public IActionResult UpdateById(NotificationDto notificationDto, Guid id) => Ok(_notificationService.UpdateById(notificationDto, id));
 
         /// <summary>Delete notification by ID</summary>
-        /// <remarks>Hard delete notification with given ID</remarks>
+        /// <remarks>Soft delete notification with given ID</remarks>
         /// <param name="id">Notification deleting ID</param>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
-        {
-            _notificationService.DeleteById(id);
-            return NoContent();
-        }
+        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id) => Ok(_notificationService.DeleteById(id));
     }
 }

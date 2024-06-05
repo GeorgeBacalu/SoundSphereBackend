@@ -15,25 +15,9 @@ namespace SoundSphere.Database.Repositories
 
         public ArtistRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Artist> GetAll() => _context.Artists
+        public IList<Artist> GetAll(ArtistPaginationRequest payload) => _context.Artists
             .Include(artist => artist.SimilarArtists)
-            .ToList();
-
-        public IList<Artist> GetAllActive() => _context.Artists
-            .Include(artist => artist.SimilarArtists)
-            .Where(artist => artist.IsActive)
-            .ToList();
-
-        public IList<Artist> GetAllPagination(ArtistPaginationRequest payload) => _context.Artists
-            .Include(artist => artist.SimilarArtists)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
-
-        public IList<Artist> GetAllActivePagination(ArtistPaginationRequest payload) => _context.Artists
-            .Include (artist => artist.SimilarArtists)
-            .Where(artist => artist.IsActive)
+            .Where(artist => artist.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
@@ -41,13 +25,14 @@ namespace SoundSphere.Database.Repositories
 
         public Artist GetById(Guid id) => _context.Artists
             .Include(artist => artist.SimilarArtists)
+            .Where(artist => artist.DeletedAt == null)
             .FirstOrDefault(artist => artist.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(ArtistNotFound, id));
 
         public Artist Add(Artist artist)
         {
             if (artist.Id == Guid.Empty) artist.Id = Guid.NewGuid();
-            artist.IsActive = true;
+            artist.CreatedAt = DateTime.Now;
             _context.Artists.Add(artist);
             _context.SaveChanges();
             return artist;
@@ -60,6 +45,8 @@ namespace SoundSphere.Database.Repositories
             artistToUpdate.ImageUrl = artist.ImageUrl;
             artistToUpdate.Bio = artist.Bio;
             artistToUpdate.SimilarArtists = artist.SimilarArtists;
+            if (_context.Entry(artistToUpdate).State == EntityState.Modified)
+                artistToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return artistToUpdate;
         }
@@ -67,7 +54,7 @@ namespace SoundSphere.Database.Repositories
         public Artist DeleteById(Guid id)
         {
             Artist artistToDelete = GetById(id);
-            artistToDelete.IsActive = false;
+            artistToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
             return artistToDelete;
         }

@@ -35,9 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _notificationRepository = new NotificationRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _notificationRepository.GetAll().Should().BeEquivalentTo(_notifications);
-
-        [Fact] public void GetAllPagination_Test() => _notificationRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedNotifications);
+        [Fact] public void GetAll_Test() => _notificationRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotifications);
 
         [Fact] public void GetById_ValidId_Test() => _notificationRepository.GetById(ValidNotificationGuid).Should().Be(_notification1);
 
@@ -61,8 +59,8 @@ namespace SoundSphere.Tests.Unit.Repositories
                 User = _notification1.User,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
-                SentAt = _notification1.SentAt,
-                IsRead = _notification2.IsRead
+                IsRead = _notification2.IsRead,
+                CreatedAt = _notification1.CreatedAt
             };
             _notificationRepository.UpdateById(_notification2, ValidNotificationGuid).Should().Be(updatedNotification);
             _dbContextMock.Verify(mock => mock.SaveChanges());

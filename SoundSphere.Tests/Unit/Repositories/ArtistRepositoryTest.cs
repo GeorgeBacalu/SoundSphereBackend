@@ -21,9 +21,7 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Artist _artist1 = GetMockedArtist1();
         private readonly Artist _artist2 = GetMockedArtist2();
         private readonly IList<Artist> _artists = GetMockedArtists();
-        private readonly IList<Artist> _activeArtists = GetMockedActiveArtists();
         private readonly IList<Artist> _paginatedArtists = GetMockedPaginatedArtists();
-        private readonly IList<Artist> _activePaginatedArtists = GetMockedActivePaginatedArtists();
         private readonly ArtistPaginationRequest _paginationRequest = GetMockedArtistsPaginationRequest();
 
         public ArtistRepositoryTest()
@@ -37,13 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _artistRepository = new ArtistRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _artistRepository.GetAll().Should().BeEquivalentTo(_artists);
-
-        [Fact] public void GetAllActive_Test() => _artistRepository.GetAllActive().Should().BeEquivalentTo(_activeArtists);
-
-        [Fact] public void GetAllPagination_Test() => _artistRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists);
-
-        [Fact] public void GetAllActivePagination_Test() => _artistRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedArtists);
+        [Fact] public void GetAll_Test() => _artistRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedArtists);
 
         [Fact] public void GetById_ValidId_Test() => _artistRepository.GetById(ValidArtistGuid).Should().Be(_artist1);
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void UpdateById_ValidId_Test()
         {
-            Artist updatedArtist = GetArtist(_artist2, _artist1.IsActive);
+            Artist updatedArtist = GetArtist(_artist2, true);
             _artistRepository.UpdateById(_artist2, ValidArtistGuid).Should().Be(updatedArtist);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -89,8 +81,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             Name = artist.Name,
             ImageUrl = artist.ImageUrl,
             Bio = artist.Bio,
-            SimilarArtists = artist.SimilarArtists,
-            IsActive = isActive,
+            SimilarArtists = artist.SimilarArtists
         };
     }
 }

@@ -21,9 +21,7 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Song _song1 = GetMockedSong1();
         private readonly Song _song2 = GetMockedSong2();
         private readonly IList<Song> _songs = GetMockedSongs();
-        private readonly IList<Song> _activeSongs = GetMockedActiveSongs();
         private readonly IList<Song> _paginatedSongs = GetMockedPaginatedSongs();
-        private readonly IList<Song> _activePaginatedSongs = GetMockedActivePaginatedSongs();
         private readonly SongPaginationRequest _paginationRequest = GetMockedSongsPaginationRequest();
 
         public SongRepositoryTest()
@@ -37,13 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _songRepository = new SongRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _songRepository.GetAll().Should().BeEquivalentTo(_songs);
-
-        [Fact] public void GetAllActive_Test() => _songRepository.GetAllActive().Should().BeEquivalentTo(_activeSongs);
-
-        [Fact] public void GetAllPagination_Test() => _songRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedSongs);
-
-        [Fact] public void GetAllActivePagination_Test() => _songRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedSongs);
+        [Fact] public void GetAll_Test() => _songRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedSongs);
 
         [Fact] public void GetById_ValidId_Test() => _songRepository.GetById(ValidSongGuid).Should().Be(_song1);
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void UpdateById_ValidId_Test()
         {
-            Song updatedSong = GetSong(_song2, _song1.IsActive);
+            Song updatedSong = GetSong(_song2, true);
             _songRepository.UpdateById(_song2, ValidSongGuid).Should().Be(updatedSong);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -93,8 +85,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             DurationSeconds = song.DurationSeconds,
             Album = song.Album,
             Artists = song.Artists,
-            SimilarSongs = song.SimilarSongs,
-            IsActive = isActive
+            SimilarSongs = song.SimilarSongs
         };
     }
 }

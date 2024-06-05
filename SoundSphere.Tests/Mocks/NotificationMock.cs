@@ -21,13 +21,13 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<NotificationDto> GetMockedNotificationDtos() => GetMockedNotifications().Select(ToDto).ToList();
 
-        public static IList<Notification> GetMockedPaginatedNotifications() => new List<Notification> { GetMockedNotification31(), GetMockedNotification32(), GetMockedNotification33(), GetMockedNotification34(), GetMockedNotification35(), GetMockedNotification36() };
+        public static IList<Notification> GetMockedPaginatedNotifications() => GetMockedNotifications().Where(notification => notification.DeletedAt == null).Take(10).ToList();
 
-        public static IList<NotificationDto> GetMockedPaginatedNotificationDtos() => new List<NotificationDto> { GetMockedNotificationDto31(), GetMockedNotificationDto32(), GetMockedNotificationDto33(), GetMockedNotificationDto34(), GetMockedNotificationDto35(), GetMockedNotificationDto36() };
+        public static IList<NotificationDto> GetMockedPaginatedNotificationDtos() => GetMockedPaginatedNotifications().Select(ToDto).ToList();
 
         public static NotificationPaginationRequest GetMockedNotificationsPaginationRequest() => new NotificationPaginationRequest(
-            SortCriteria: new Dictionary<NotificationSortCriterion, SortOrder> { { NotificationSortCriterion.BySendDate, SortOrder.Ascending }, { NotificationSortCriterion.ByMessage, SortOrder.Ascending }, { NotificationSortCriterion.ByUserName, SortOrder.Ascending } },
-            SearchCriteria: new List<NotificationSearchCriterion> { NotificationSearchCriterion.BySendDateRange, NotificationSearchCriterion.ByMessage, NotificationSearchCriterion.ByUserName, NotificationSearchCriterion.ByIsRead },
+            SortCriteria: new Dictionary<NotificationSortCriterion, SortOrder> { { NotificationSortCriterion.ByCreateDate, SortOrder.Ascending }, { NotificationSortCriterion.ByMessage, SortOrder.Ascending }, { NotificationSortCriterion.ByUserName, SortOrder.Ascending } },
+            SearchCriteria: new List<NotificationSearchCriterion> { NotificationSearchCriterion.ByCreateDateRange, NotificationSearchCriterion.ByMessage, NotificationSearchCriterion.ByUserName, NotificationSearchCriterion.ByIsRead },
             Message: "A",
             DateRange: new DateTimeRange(new DateTime(1950, 1, 1), new DateTime(2024, 5, 31)),
             UserName: "A",
@@ -39,8 +39,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser1(),
             Type = NotificationType.Music,
             Message = "Your favorite artist just released a new album!",
-            SentAt = new DateTime(2024, 5, 7, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification2() => new Notification
@@ -49,8 +51,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser2(),
             Type = NotificationType.Music,
             Message = "Exclusive concert tickets available now for followers.",
-            SentAt = new DateTime(2024, 5, 6, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification3() => new Notification
@@ -59,8 +63,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser3(),
             Type = NotificationType.Music,
             Message = "Updated playlist based on your recent listens.",
-            SentAt = new DateTime(2024, 5, 5, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification4() => new Notification
@@ -69,8 +75,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser4(),
             Type = NotificationType.Social,
             Message = "New friend suggestions are available.",
-            SentAt = new DateTime(2024, 5, 4, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification5() => new Notification
@@ -79,8 +87,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser5(),
             Type = NotificationType.Social,
             Message = "You have new followers waiting for your approval.",
-            SentAt = new DateTime(2024, 5, 3, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification6() => new Notification
@@ -89,8 +99,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser6(),
             Type = NotificationType.Social,
             Message = "Your post has been shared over 100 times!",
-            SentAt = new DateTime(2024, 5, 2, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification7() => new Notification
@@ -99,8 +111,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser7(),
             Type = NotificationType.Account,
             Message = "Security alert: New sign-in from an unrecognized device.",
-            SentAt = new DateTime(2024, 5, 1, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification8() => new Notification
@@ -109,8 +123,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser8(),
             Type = NotificationType.Account,
             Message = "Your account details have been successfully updated.",
-            SentAt = new DateTime(2024, 4, 30, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification9() => new Notification
@@ -119,8 +135,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser9(),
             Type = NotificationType.Account,
             Message = "Password change confirmation.",
-            SentAt = new DateTime(2024, 4, 29, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification10() => new Notification
@@ -129,8 +147,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser10(),
             Type = NotificationType.System,
             Message = "Scheduled maintenance will occur this Sunday at 3 AM.",
-            SentAt = new DateTime(2024, 4, 28, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification11() => new Notification
@@ -139,8 +159,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser1(),
             Type = NotificationType.System,
             Message = "System update completed successfully.",
-            SentAt = new DateTime(2024, 4, 27, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification12() => new Notification
@@ -149,8 +171,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser2(),
             Type = NotificationType.System,
             Message = "New features available in the latest system update.",
-            SentAt = new DateTime(2024, 4, 26, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification13() => new Notification
@@ -159,8 +183,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser3(),
             Type = NotificationType.Music,
             Message = "Live session alert: Join your favorite band's Q&A today!",
-            SentAt = new DateTime(2024, 4, 25, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification14() => new Notification
@@ -169,8 +195,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser4(),
             Type = NotificationType.Music,
             Message = "Your music subscription has been upgraded.",
-            SentAt = new DateTime(2024, 4, 24, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification15() => new Notification
@@ -179,8 +207,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser5(),
             Type = NotificationType.Music,
             Message = "Playlist update: New tracks added to your favorite genre.",
-            SentAt = new DateTime(2024, 4, 23, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification16() => new Notification
@@ -189,8 +219,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser6(),
             Type = NotificationType.Social,
             Message = "You have been tagged in 10 new photos.",
-            SentAt = new DateTime(2024, 4, 22, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification17() => new Notification
@@ -199,8 +231,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser7(),
             Type = NotificationType.Social,
             Message = "Your story received over 200 views!",
-            SentAt = new DateTime(2024, 4, 21, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification18() => new Notification
@@ -209,8 +243,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser8(),
             Type = NotificationType.Social,
             Message = "You have new comments to respond to.",
-            SentAt = new DateTime(2024, 4, 20, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification19() => new Notification
@@ -219,8 +255,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser9(),
             Type = NotificationType.Account,
             Message = "Account notification: You've earned a new loyalty badge.",
-            SentAt = new DateTime(2024, 4, 19, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification20() => new Notification
@@ -229,8 +267,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser10(),
             Type = NotificationType.Account,
             Message = "Reminder: Your subscription renewal is due next week.",
-            SentAt = new DateTime(2024, 4, 18, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification21() => new Notification
@@ -239,8 +279,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser1(),
             Type = NotificationType.Account,
             Message = "Security alert: Unusual activity detected on your account.",
-            SentAt = new DateTime(2024, 4, 17, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 21, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification22() => new Notification
@@ -249,8 +291,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser2(),
             Type = NotificationType.System,
             Message = "A new update is available for your app.",
-            SentAt = new DateTime(2024, 4, 16, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 22, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification23() => new Notification
@@ -259,8 +303,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser3(),
             Type = NotificationType.System,
             Message = "Security notice: Please update your password.",
-            SentAt = new DateTime(2024, 4, 15, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 23, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification24() => new Notification
@@ -269,8 +315,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser4(),
             Type = NotificationType.System,
             Message = "Performance enhancements have been applied successfully.",
-            SentAt = new DateTime(2024, 4, 14, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 24, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification25() => new Notification
@@ -279,8 +327,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser5(),
             Type = NotificationType.Music,
             Message = "Check out the newest albums released this week!",
-            SentAt = new DateTime(2024, 4, 13, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 25, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification26() => new Notification
@@ -289,8 +339,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser6(),
             Type = NotificationType.Music,
             Message = "Your favorite artist just released a new single!",
-            SentAt = new DateTime(2024, 4, 12, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 26, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification27() => new Notification
@@ -299,8 +351,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser7(),
             Type = NotificationType.Music,
             Message = "Live concert alert: Your favorite band is touring near you! Get your tickets now.",
-            SentAt = new DateTime(2024, 4, 11, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 27, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification28() => new Notification
@@ -309,8 +363,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser8(),
             Type = NotificationType.Social,
             Message = "You have a new follower!",
-            SentAt = new DateTime(2024, 4, 10, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 28, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification29() => new Notification
@@ -319,8 +375,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser9(),
             Type = NotificationType.Social,
             Message = "Your recent post has gone viral!",
-            SentAt = new DateTime(2024, 4, 9, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 29, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification30() => new Notification
@@ -329,8 +387,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser10(),
             Type = NotificationType.Social,
             Message = "Thank you for your feedback on social features! We have implemented your suggestions.",
-            SentAt = new DateTime(2024, 4, 8, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 30, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification31() => new Notification
@@ -339,8 +399,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser1(),
             Type = NotificationType.Account,
             Message = "Performance enhancements have been applied successfully.",
-            SentAt = new DateTime(2024, 4, 7, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 3, 31, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Notification GetMockedNotification32() => new Notification
@@ -349,8 +411,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser2(),
             Type = NotificationType.Account,
             Message = "Scheduled maintenance will occur this Sunday.",
-            SentAt = new DateTime(2024, 4, 6, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 4, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 1, 12, 0, 0)
         };
 
         public static Notification GetMockedNotification33() => new Notification
@@ -359,8 +423,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser3(),
             Type = NotificationType.Account,
             Message = "Feature update: New tools available in your account management.",
-            SentAt = new DateTime(2024, 4, 5, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 4, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 2, 12, 0, 0)
         };
 
         public static Notification GetMockedNotification34() => new Notification
@@ -369,8 +435,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser4(),
             Type = NotificationType.System,
             Message = "Update: Your requested features are now live!",
-            SentAt = new DateTime(2024, 4, 4, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 4, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 3, 12, 0, 0)
         };
 
         public static Notification GetMockedNotification35() => new Notification
@@ -379,8 +447,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser5(),
             Type = NotificationType.System,
             Message = "Your app interface has been updated for a better experience.",
-            SentAt = new DateTime(2024, 4, 3, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 4, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 4, 12, 0, 0)
         };
 
         public static Notification GetMockedNotification36() => new Notification
@@ -389,8 +459,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser6(),
             Type = NotificationType.System,
             Message = "We've upgraded your service to include new benefits.",
-            SentAt = new DateTime(2024, 4, 2, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 4, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 5, 12, 0, 0)
         };
 
         public static Notification GetMockedNotification37() => new Notification
@@ -399,8 +471,10 @@ namespace SoundSphere.Tests.Mocks
             User = GetMockedUser7(),
             Type = NotificationType.System,
             Message = "The latest update includes several performance enhancements.",
-            SentAt = new DateTime(2024, 4, 1, 9, 0, 0),
-            IsRead = false
+            IsRead = false,
+            CreatedAt = new DateTime(2024, 4, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static NotificationDto GetMockedNotificationDto1() => ToDto(GetMockedNotification1());
@@ -483,8 +557,10 @@ namespace SoundSphere.Tests.Mocks
             UserId = notification.User.Id,
             Type = notification.Type,
             Message = notification.Message,
-            SentAt = notification.SentAt,
-            IsRead = notification.IsRead
+            IsRead = notification.IsRead,
+            CreatedAt = notification.CreatedAt,
+            UpdatedAt = notification.UpdatedAt,
+            DeletedAt = notification.DeletedAt
         };
     }
 }

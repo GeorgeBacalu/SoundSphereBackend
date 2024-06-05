@@ -16,30 +16,14 @@ namespace SoundSphere.Api.Controllers
 
         public SongController(ISongService songService) => _songService = songService;
 
-        /// <summary>Get all songs</summary>
-        /// <remarks>Return list with all songs</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_songService.GetAll());
-
-        /// <summary>Get all active songs</summary>
-        /// <remarks>Return list with all active songs</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("active")] public IActionResult GetAllActive() => Ok(_songService.GetAllActive());
-
-        /// <summary>Get songs paginated, sorted and filtered</summary>
-        /// <remarks>Return list with songs paginated, sorted and filtered</remarks>
-        /// <param name="payload">Request body with songs pagination rules</param>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("pagination")] public IActionResult GetAllPagination(SongPaginationRequest payload) => Ok(_songService.GetAllPagination(payload));
-
         /// <summary>Get active songs paginated, sorted and filtered</summary>
         /// <remarks>Return list with active songs paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with songs pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("active/pagination")] public IActionResult GetAllActivePagination(SongPaginationRequest payload) => Ok(_songService.GetAllActivePagination(payload));
+        [HttpPost("query")] public IActionResult GetAll(SongPaginationRequest payload) => Ok(_songService.GetAll(payload));
 
-        /// <summary>Get song by ID</summary>
-        /// <remarks>Return song with given ID</remarks>
+        /// <summary>Get active song by ID</summary>
+        /// <remarks>Return active song with given ID</remarks>
         /// <param name="id">Song fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,8 +36,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost] public IActionResult Add(SongDto songDto)
         {
-            SongDto addedSongDto = _songService.Add(songDto);
-            return CreatedAtAction(nameof(GetById), new { id = addedSongDto.Id }, addedSongDto);
+            SongDto createdSongDto = _songService.Add(songDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdSongDto.Id }, createdSongDto);
         }
 
         /// <summary>Update song by ID</summary>

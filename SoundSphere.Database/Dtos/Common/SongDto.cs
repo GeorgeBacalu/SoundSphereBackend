@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SoundSphere.Database.Dtos.Common
 {
-    public class SongDto
+    public class SongDto : BaseEntity
     {
         [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
@@ -36,8 +36,6 @@ namespace SoundSphere.Database.Dtos.Common
         [MaxLength(15, ErrorMessage = "There can't be more than 15 similar songs")]
         public IList<Guid> SimilarSongsIds { get; set; } = new List<Guid>();
 
-        public bool IsActive { get; set; } = true;
-
         public override bool Equals(object? obj) => obj is SongDto songDto &&
             Id.Equals(songDto.Id) &&
             Title.Equals(songDto.Title) &&
@@ -48,8 +46,10 @@ namespace SoundSphere.Database.Dtos.Common
             AlbumId.Equals(songDto.AlbumId) &&
             ArtistsIds.SequenceEqual(songDto.ArtistsIds) &&
             SimilarSongsIds.SequenceEqual(songDto.SimilarSongsIds) &&
-            IsActive == songDto.IsActive;
+            CreatedAt.Equals(songDto.CreatedAt) &&
+            UpdatedAt.Equals(songDto.UpdatedAt) &&
+            DeletedAt.Equals(songDto.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, Genre, ReleaseDate, DurationSeconds, AlbumId, HashCode.Combine(ArtistsIds, SimilarSongsIds, IsActive));
+        public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, Genre, ReleaseDate, DurationSeconds, AlbumId, HashCode.Combine(ArtistsIds, SimilarSongsIds, CreatedAt, UpdatedAt, DeletedAt));
     }
 }

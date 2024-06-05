@@ -6,12 +6,12 @@ namespace SoundSphere.Database.Dtos.Request
     public record FeedbackPaginationRequest(
         IDictionary<FeedbackSortCriterion, SortOrder>? SortCriteria,
         IList<FeedbackSearchCriterion>? SearchCriteria,
-        string? Message,
         DateTimeRange? DateRange,
+        string? Message,
         string? UserName
         ) : PaginationRequest;
 
-    public enum FeedbackSortCriterion { BySendDate = 10, ByMessage = 20, ByUserName = 30 }
+    public enum FeedbackSortCriterion { ByCreateDate = 10, ByMessage = 20, ByUserName = 30 }
 
-    public enum FeedbackSearchCriterion { BySendDateRange = 10, ByMessage = 20, ByUserName = 30 }
+    public enum FeedbackSearchCriterion { ByCreateDateRange = 10, ByMessage = 20, ByUserName = 30 }
 }

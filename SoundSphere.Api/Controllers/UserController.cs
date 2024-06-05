@@ -16,30 +16,14 @@ namespace SoundSphere.Api.Controllers
 
         public UserController(IUserService userService) => _userService = userService;
 
-        /// <summary>Get all users</summary>
-        /// <remarks>Return list with all users</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_userService.GetAll());
-
-        /// <summary>Get all active users</summary>
-        /// <remarks>Return list with all active users</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("active")] public IActionResult GetAllActive() => Ok(_userService.GetAllActive());
-
-        /// <summary>Get users paginated, sorted and filtered</summary>
-        /// <remarks>Return list with users paginated, sorted and filtered</remarks>
-        /// <param name="payload">Request body with users pagination rules</param>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("pagination")] public IActionResult GetAllPagination(UserPaginationRequest payload) => Ok(_userService.GetAllPagination(payload));
-
         /// <summary>Get active users paginated, sorted and filtered</summary>
         /// <remarks>Return list with active users paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with users pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("active/pagination")] public IActionResult GetAllActivePagination(UserPaginationRequest payload) => Ok(_userService.GetAllActivePagination(payload));
+        [HttpPost("query")] public IActionResult GetAll(UserPaginationRequest payload) => Ok(_userService.GetAll(payload));
 
-        /// <summary>Get user by ID</summary>
-        /// <remarks>Return user with given ID</remarks>
+        /// <summary>Get active user by ID</summary>
+        /// <remarks>Return active user with given ID</remarks>
         /// <param name="id">User fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,8 +36,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost] public IActionResult Add(UserDto userDto)
         {
-            UserDto addedUserDto = _userService.Add(userDto);
-            return CreatedAtAction(nameof(GetById), new { id = addedUserDto.Id }, addedUserDto);
+            UserDto createdUserDto = _userService.Add(userDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdUserDto.Id }, createdUserDto);
         }
 
         /// <summary>Update user by ID</summary>

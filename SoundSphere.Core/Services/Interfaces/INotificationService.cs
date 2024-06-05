@@ -5,9 +5,7 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface INotificationService
     {
-        IList<NotificationDto> GetAll();
-
-        IList<NotificationDto> GetAllPagination(NotificationPaginationRequest payload);
+        IList<NotificationDto> GetAll(NotificationPaginationRequest payload);
 
         NotificationDto GetById(Guid id);
 
@@ -15,6 +13,6 @@ namespace SoundSphere.Core.Services.Interfaces
 
         NotificationDto UpdateById(NotificationDto notificationDto, Guid id);
 
-        void DeleteById(Guid id);
+        NotificationDto DeleteById(Guid id);
     }
 }

@@ -21,9 +21,7 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Album _album1 = GetMockedAlbum1();
         private readonly Album _album2 = GetMockedAlbum2();
         private readonly IList<Album> _albums = GetMockedAlbums();
-        private readonly IList<Album> _activeAlbums = GetMockedActiveAlbums();
         private readonly IList<Album> _paginedAlbums = GetMockedPaginatedAlbums();
-        private readonly IList<Album> _activePaginatedAlbums = GetMockedActivePaginatedAlbums();
         private readonly AlbumPaginationRequest _paginationRequest = GetMockedAlbumsPaginationRequest();
 
         public AlbumRepositoryTest()
@@ -37,13 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _albumRepository = new AlbumRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _albumRepository.GetAll().Should().BeEquivalentTo(_albums);
-
-        [Fact] public void GetAllActive_Test() => _albumRepository.GetAllActive().Should().BeEquivalentTo(_activeAlbums);
-
-        [Fact] public void GetAllPagination_Test() => _albumRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginedAlbums);
-
-        [Fact] public void GetAllActivePagination_Test() => _albumRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedAlbums);
+        [Fact] public void GetAll_Test() => _albumRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginedAlbums);
 
         [Fact] public void GetById_ValidId_Test() => _albumRepository.GetById(ValidAlbumGuid).Should().Be(_album1);
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void UpdateById_ValidId_Test()
         {
-            Album updatedAlbum = GetAlbum(_album2, _album1.IsActive);
+            Album updatedAlbum = GetAlbum(_album2, true);
             _albumRepository.UpdateById(_album2, ValidAlbumGuid).Should().Be(updatedAlbum);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -89,8 +81,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             Title = album.Title,
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,
-            SimilarAlbums = album.SimilarAlbums,
-            IsActive = isActive
+            SimilarAlbums = album.SimilarAlbums
         };
     }
 }

@@ -16,9 +16,7 @@ namespace SoundSphere.Core.Services
 
         public FeedbackService(IFeedbackRepository feedbackRepository, IUserRepository userRepository, IMapper mapper) => (_feedbackRepository, _userRepository, _mapper) = (feedbackRepository, userRepository, mapper);
 
-        public IList<FeedbackDto> GetAll() => _feedbackRepository.GetAll().ToDtos(_mapper);
-
-        public IList<FeedbackDto> GetAllPagination(FeedbackPaginationRequest payload) => _feedbackRepository.GetAllPagination(payload).ToDtos(_mapper);
+        public IList<FeedbackDto> GetAll(FeedbackPaginationRequest payload) => _feedbackRepository.GetAll(payload).ToDtos(_mapper);
 
         public FeedbackDto GetById(Guid id) => _feedbackRepository.GetById(id).ToDto(_mapper);
 
@@ -31,6 +29,6 @@ namespace SoundSphere.Core.Services
 
         public FeedbackDto UpdateById(FeedbackDto feedbackDto, Guid id) => _feedbackRepository.UpdateById(feedbackDto.ToEntity(_userRepository, _mapper), id).ToDto(_mapper);
 
-        public void DeleteById(Guid id) => _feedbackRepository.DeleteById(id);
+        public FeedbackDto DeleteById(Guid id) => _feedbackRepository.DeleteById(id).ToDto(_mapper);
     }
 }

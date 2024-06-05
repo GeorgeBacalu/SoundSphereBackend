@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SoundSphere.Database.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace SoundSphere.Database.Dtos.Common
 {
-    public class ArtistDto
+    public class ArtistDto : BaseEntity
     {
         [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
@@ -21,16 +22,16 @@ namespace SoundSphere.Database.Dtos.Common
         [MaxLength(15, ErrorMessage = "There can't be more than 15 similar artists")]
         public IList<Guid> SimilarArtistsIds { get; set; } = new List<Guid>();
 
-        public bool IsActive { get; set; } = true;
-
         public override bool Equals(object? obj) => obj is ArtistDto artistDto &&
             Id.Equals(artistDto.Id) &&
             Name.Equals(artistDto.Name) &&
             ImageUrl.Equals(artistDto.ImageUrl) &&
             Bio.Equals(artistDto.Bio) &&
             SimilarArtistsIds.SequenceEqual(artistDto.SimilarArtistsIds) &&
-            IsActive == artistDto.IsActive;
+            CreatedAt.Equals(artistDto.CreatedAt) &&
+            UpdatedAt.Equals(artistDto.UpdatedAt) &&
+            DeletedAt.Equals(artistDto.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, ImageUrl, Bio, SimilarArtistsIds, IsActive);
+        public override int GetHashCode() => HashCode.Combine(Id, Name, ImageUrl, Bio, SimilarArtistsIds, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 }

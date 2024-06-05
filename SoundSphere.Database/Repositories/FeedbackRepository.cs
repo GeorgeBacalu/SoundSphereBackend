@@ -15,12 +15,9 @@ namespace SoundSphere.Database.Repositories
 
         public FeedbackRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Feedback> GetAll() => _context.Feedbacks
+        public IList<Feedback> GetAll(FeedbackPaginationRequest payload) => _context.Feedbacks
             .Include(feedback => feedback.User)
-            .ToList();
-
-        public IList<Feedback> GetAllPagination(FeedbackPaginationRequest payload) => _context.Feedbacks
-            .Include(feedback => feedback.User)
+            .Where(feedback => feedback.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
@@ -28,13 +25,14 @@ namespace SoundSphere.Database.Repositories
 
         public Feedback GetById(Guid id) => _context.Feedbacks
             .Include(feedback => feedback.User)
+            .Where(feedback => feedback.DeletedAt == null)
             .FirstOrDefault(feedback => feedback.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(FeedbackNotFound, id));
 
         public Feedback Add(Feedback feedback)
         {
             if (feedback.Id == Guid.Empty) feedback.Id = Guid.NewGuid();
-            feedback.SentAt = DateTime.Now;
+            feedback.CreatedAt = DateTime.Now;
             _context.Feedbacks.Add(feedback);
             _context.SaveChanges();
             return feedback;
@@ -45,15 +43,18 @@ namespace SoundSphere.Database.Repositories
             Feedback feedbackToUpdate = GetById(id);
             feedbackToUpdate.Type = feedback.Type;
             feedbackToUpdate.Message = feedback.Message;
+            if (_context.Entry(feedbackToUpdate).State == EntityState.Modified)
+                feedbackToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return feedbackToUpdate;
         }
 
-        public void DeleteById(Guid id)
+        public Feedback DeleteById(Guid id)
         {
             Feedback feedbackToDelete = GetById(id);
-            _context.Feedbacks.Remove(feedbackToDelete);
+            feedbackToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
+            return feedbackToDelete;
         }
 
         public void LinkFeedbackToUser(Feedback feedback)

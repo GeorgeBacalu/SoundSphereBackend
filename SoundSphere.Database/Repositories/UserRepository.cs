@@ -15,29 +15,10 @@ namespace SoundSphere.Database.Repositories
 
         public UserRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<User> GetAll() => _context.Users
+        public IList<User> GetAll(UserPaginationRequest payload) => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
-            .ToList();
-
-        public IList<User> GetAllActive() => _context.Users
-            .Include(user => user.Role)
-            .Include(user => user.Authorities)
-            .Where(user => user.IsActive)
-            .ToList();
-
-        public IList<User> GetAllPagination(UserPaginationRequest payload) => _context.Users
-            .Include(user => user.Role)
-            .Include(user => user.Authorities)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
-
-        public IList<User> GetAllActivePagination(UserPaginationRequest payload) => _context.Users
-            .Include(user => user.Role)
-            .Include(user => user.Authorities)
-            .Where(user => user.IsActive)
+            .Where(user => user.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
@@ -46,11 +27,14 @@ namespace SoundSphere.Database.Repositories
         public User GetById(Guid id) => _context.Users
             .Include(user => user.Role)
             .Include(user => user.Authorities)
+            .Where(user => user.DeletedAt == null)
             .FirstOrDefault(user => user.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(UserNotFound, id));
 
         public User Add(User user)
         {
+            if (user.Id == Guid.Empty) user.Id = Guid.NewGuid();
+            user.CreatedAt = DateTime.Now;
             _context.Users.Add(user);
             _context.SaveChanges();
             return user;
@@ -68,6 +52,8 @@ namespace SoundSphere.Database.Repositories
             userToUpdate.Avatar = user.Avatar;
             userToUpdate.Role = user.Role;
             userToUpdate.Authorities = user.Authorities;
+            if (_context.Entry(userToUpdate).State == EntityState.Modified)
+                userToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return userToUpdate;
         }
@@ -75,7 +61,7 @@ namespace SoundSphere.Database.Repositories
         public User DeleteById(Guid id)
         {
             User userToDelete = GetById(id);
-            userToDelete.IsActive = false;
+            userToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
             return userToDelete;
         }

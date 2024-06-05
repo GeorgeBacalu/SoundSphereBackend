@@ -15,25 +15,9 @@ namespace SoundSphere.Database.Repositories
 
         public AlbumRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Album> GetAll() => _context.Albums
+        public IList<Album> GetAll(AlbumPaginationRequest payload) => _context.Albums
             .Include(album => album.SimilarAlbums)
-            .ToList();
-
-        public IList<Album> GetAllActive() => _context.Albums
-            .Include(album => album.SimilarAlbums)
-            .Where(album => album.IsActive)
-            .ToList();
-
-        public IList<Album> GetAllPagination(AlbumPaginationRequest payload) => _context.Albums
-            .Include(album => album.SimilarAlbums)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
-
-        public IList<Album> GetAllActivePagination(AlbumPaginationRequest payload) => _context.Albums
-            .Include(album => album.SimilarAlbums)
-            .Where(album => album.IsActive)
+            .Where(album => album.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
@@ -41,13 +25,14 @@ namespace SoundSphere.Database.Repositories
 
         public Album GetById(Guid id) => _context.Albums
             .Include(album => album.SimilarAlbums)
+            .Where(album => album.DeletedAt == null)
             .FirstOrDefault(album => album.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(AlbumNotFound, id));
 
         public Album Add(Album album)
         {
             if (album.Id == Guid.Empty) album.Id = Guid.NewGuid();
-            album.IsActive = true;
+            album.CreatedAt = DateTime.Now;
             _context.Albums.Add(album);
             _context.SaveChanges();
             return album;
@@ -60,6 +45,8 @@ namespace SoundSphere.Database.Repositories
             albumToUpdate.ImageUrl = album.ImageUrl;
             albumToUpdate.ReleaseDate = album.ReleaseDate;
             albumToUpdate.SimilarAlbums = album.SimilarAlbums;
+            if (_context.Entry(albumToUpdate).State == EntityState.Modified)
+                albumToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return albumToUpdate;
         }
@@ -67,7 +54,7 @@ namespace SoundSphere.Database.Repositories
         public Album DeleteById(Guid id)
         {
             Album albumToDelete = GetById(id);
-            albumToDelete.IsActive = false;
+            albumToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
             return albumToDelete;
         }

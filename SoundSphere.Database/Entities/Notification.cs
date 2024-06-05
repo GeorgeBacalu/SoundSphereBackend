@@ -1,6 +1,6 @@
 ﻿namespace SoundSphere.Database.Entities
 {
-    public class Notification
+    public class Notification : BaseEntity
     {
         public Guid Id { get; set; }
         
@@ -10,8 +10,6 @@
         
         public string Message { get; set; } = null!;
         
-        public DateTime SentAt { get; set; }
-        
         public bool IsRead { get; set; } = false;
 
         public override bool Equals(object? obj) => obj is Notification notification &&
@@ -19,10 +17,12 @@
             User.Equals(notification.User) &&
             Type == notification.Type &&
             Message.Equals(notification.Message) &&
-            SentAt.Equals(notification.SentAt) &&
-            IsRead == notification.IsRead;
+            IsRead == notification.IsRead &&
+            CreatedAt.Equals(notification.CreatedAt) &&
+            UpdatedAt.Equals(notification.UpdatedAt) &&
+            DeletedAt.Equals(notification.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, User, Type, Message, SentAt, IsRead);
+        public override int GetHashCode() => HashCode.Combine(Id, User, Type, Message, IsRead, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 
     public enum NotificationType { Music, Social, Account, System }

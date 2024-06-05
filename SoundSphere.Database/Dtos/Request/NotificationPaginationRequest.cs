@@ -6,13 +6,13 @@ namespace SoundSphere.Database.Dtos.Request
     public record NotificationPaginationRequest(
         IDictionary<NotificationSortCriterion, SortOrder>? SortCriteria,
         IList<NotificationSearchCriterion>? SearchCriteria,
-        string? Message,
         DateTimeRange? DateRange,
+        string? Message,
         string? UserName,
         bool? IsRead
         ) : PaginationRequest;
 
-    public enum NotificationSortCriterion { BySendDate = 10, ByMessage = 20, ByUserName = 30 }
+    public enum NotificationSortCriterion { ByCreateDate = 10, ByMessage = 20, ByUserName = 30 }
 
-    public enum NotificationSearchCriterion { BySendDateRange = 10, ByMessage = 20, ByUserName = 30, ByIsRead = 40 }
+    public enum NotificationSearchCriterion { ByCreateDateRange = 10, ByMessage = 20, ByUserName = 30, ByIsRead = 40 }
 }

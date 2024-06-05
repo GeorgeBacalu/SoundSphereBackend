@@ -21,9 +21,7 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly Playlist _playlist1 = GetMockedPlaylist1();
         private readonly Playlist _playlist2 = GetMockedPlaylist2();
         private readonly IList<Playlist> _playlists = GetMockedPlaylists();
-        private readonly IList<Playlist> _activePlaylists = GetMockedActivePlaylists();
         private readonly IList<Playlist> _paginatedPlaylists = GetMockedPaginatedPlaylists();
-        private readonly IList<Playlist> _activePaginatedPlaylists = GetMockedActivePaginatedPlaylists();
         private readonly PlaylistPaginationRequest _paginationRequest = GetMockedPlaylistsPaginationRequest();
 
         public PlaylistRepositoryTest()
@@ -37,13 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _playlistRepository = new PlaylistRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _playlistRepository.GetAll().Should().BeEquivalentTo(_playlists);
-
-        [Fact] public void GetAllActive_Test() => _playlistRepository.GetAllActive().Should().BeEquivalentTo(_activePlaylists);
-
-        [Fact] public void GetAllPagination_Test() => _playlistRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists);
-
-        [Fact] public void GetAllActivePagination_Test() => _playlistRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedPlaylists);
+        [Fact] public void GetAll_Test() => _playlistRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists);
 
         [Fact] public void GetById_ValidId_Test() => _playlistRepository.GetById(ValidPlaylistGuid).Should().Be(_playlist1);
 
@@ -67,8 +59,7 @@ namespace SoundSphere.Tests.Unit.Repositories
                 Title = _playlist2.Title,
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
-                CreatedAt = _playlist1.CreatedAt,
-                IsActive = _playlist1.IsActive
+                CreatedAt = _playlist1.CreatedAt
             };
             _playlistRepository.UpdateById(_playlist2, ValidPlaylistGuid).Should().Be(updatedPlaylist);
             _dbContextMock.Verify(mock => mock.SaveChanges());
@@ -88,7 +79,6 @@ namespace SoundSphere.Tests.Unit.Repositories
                 User = _playlist1.User,
                 Songs = _playlist1.Songs,
                 CreatedAt = _playlist1.CreatedAt,
-                IsActive = false
             };
             _playlistRepository.DeleteById(ValidPlaylistGuid).Should().Be(deletedPlaylist);
             _dbContextMock.Verify(mock => mock.SaveChanges());

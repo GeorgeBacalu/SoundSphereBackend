@@ -5,13 +5,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface ISongRepository
     {
-        IList<Song> GetAll();
-
-        IList<Song> GetAllActive();
-
-        IList<Song> GetAllPagination(SongPaginationRequest payload);
-
-        IList<Song> GetAllActivePagination(SongPaginationRequest payload);
+        IList<Song> GetAll(SongPaginationRequest payload);
 
         Song GetById(Guid id);
 

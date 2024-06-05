@@ -18,13 +18,7 @@ namespace SoundSphere.Core.Services
         public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, IMapper mapper) => 
             (_userRepository, _roleRepository, _authorityRepository, _mapper) = (userRepository, roleRepository, authorityRepository, mapper);
 
-        public IList<UserDto> GetAll() => _userRepository.GetAll().ToDtos(_mapper);
-
-        public IList<UserDto> GetAllActive() => _userRepository.GetAllActive().ToDtos(_mapper);
-
-        public IList<UserDto> GetAllPagination(UserPaginationRequest payload) => _userRepository.GetAllPagination(payload).ToDtos(_mapper);
-
-        public IList<UserDto> GetAllActivePagination(UserPaginationRequest payload) => _userRepository.GetAllActivePagination(payload).ToDtos(_mapper);
+        public IList<UserDto> GetAll(UserPaginationRequest payload) => _userRepository.GetAll(payload).ToDtos(_mapper);
 
         public UserDto GetById(Guid id) => _userRepository.GetById(id).ToDto(_mapper);
 

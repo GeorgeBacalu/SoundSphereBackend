@@ -15,12 +15,9 @@ namespace SoundSphere.Database.Repositories
 
         public NotificationRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Notification> GetAll() => _context.Notifications
+        public IList<Notification> GetAll(NotificationPaginationRequest payload) => _context.Notifications
             .Include(notification => notification.User)
-            .ToList();
-
-        public IList<Notification> GetAllPagination(NotificationPaginationRequest payload) => _context.Notifications
-            .Include(notification => notification.User)
+            .Where(notification => notification.DeletedAt == null)
             .Filter(payload)
             .Sort(payload)
             .Paginate(payload)
@@ -28,13 +25,14 @@ namespace SoundSphere.Database.Repositories
 
         public Notification GetById(Guid id) => _context.Notifications
             .Include(notification => notification.User)
+            .Where(notification => notification.DeletedAt == null)
             .FirstOrDefault(notification => notification.Id == id)
             ?? throw new ResourceNotFoundException(string.Format(NotificationNotFound, id));
 
         public Notification Add(Notification notification)
         {
             if (notification.Id == Guid.Empty) notification.Id = Guid.NewGuid();
-            notification.SentAt = DateTime.Now;
+            notification.CreatedAt = DateTime.Now;
             notification.IsRead = false;
             _context.Notifications.Add(notification);
             _context.SaveChanges();
@@ -47,15 +45,18 @@ namespace SoundSphere.Database.Repositories
             notificationToUpdate.Type = notification.Type;
             notificationToUpdate.Message = notification.Message;
             notificationToUpdate.IsRead = notification.IsRead;
+            if (_context.Entry(notificationToUpdate).State == EntityState.Modified)
+                notificationToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();
             return notificationToUpdate;
         }
 
-        public void DeleteById(Guid id)
+        public Notification DeleteById(Guid id)
         {
             Notification notificationToDelete = GetById(id);
-            _context.Notifications.Remove(notificationToDelete);
+            notificationToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
+            return notificationToDelete;
         }
 
         public void LinkNotificationToUser(Notification notification)

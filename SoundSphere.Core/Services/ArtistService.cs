@@ -15,13 +15,7 @@ namespace SoundSphere.Core.Services
 
         public ArtistService(IArtistRepository artistRepository, IMapper mapper) => (_artistRepository, _mapper) = (artistRepository, mapper);
 
-        public IList<ArtistDto> GetAll() => _artistRepository.GetAll().ToDtos(_mapper);
-
-        public IList<ArtistDto> GetAllActive() => _artistRepository.GetAllActive().ToDtos(_mapper);
-
-        public IList<ArtistDto> GetAllPagination(ArtistPaginationRequest payload) => _artistRepository.GetAllPagination(payload).ToDtos(_mapper);
-
-        public IList<ArtistDto> GetAllActivePagination(ArtistPaginationRequest payload) => _artistRepository.GetAllActivePagination(payload).ToDtos(_mapper);
+        public IList<ArtistDto> GetAll(ArtistPaginationRequest payload) => _artistRepository.GetAll(payload).ToDtos(_mapper);
 
         public ArtistDto GetById(Guid id) => _artistRepository.GetById(id).ToDto(_mapper);
 

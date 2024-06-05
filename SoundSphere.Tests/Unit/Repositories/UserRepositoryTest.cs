@@ -21,9 +21,7 @@ namespace SoundSphere.Tests.Unit.Repositories
         private readonly User _user1 = GetMockedUser1();
         private readonly User _user2 = GetMockedUser2();
         private readonly IList<User> _users = GetMockedUsers();
-        private readonly IList<User> _activeUsers = GetMockedActiveUsers();
         private readonly IList<User> _paginatedUsers = GetMockedPaginatedUsers();
-        private readonly IList<User> _activePaginatedUsers = GetMockedActivePaginatedUsers();
         private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
 
         public UserRepositoryTest()
@@ -37,13 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _userRepository = new UserRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _userRepository.GetAll().Should().BeEquivalentTo(_users);
-
-        [Fact] public void GetAllActive_Test() => _userRepository.GetAllActive().Should().BeEquivalentTo(_activeUsers);
-
-        [Fact] public void GetAllPagination_Test() => _userRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedUsers);
-
-        [Fact] public void GetAllActivePagination_Test() => _userRepository.GetAllActivePagination(_paginationRequest).Should().BeEquivalentTo(_activePaginatedUsers);
+        [Fact] public void GetAll_Test() => _userRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedUsers);
 
         [Fact] public void GetById_ValidId_Test() => _userRepository.GetById(ValidUserGuid).Should().Be(_user1);
 
@@ -61,7 +53,7 @@ namespace SoundSphere.Tests.Unit.Repositories
 
         [Fact] public void UpdateById_ValidId_Test()
         {
-            User updatedUser = GetUser(_user2, _user1.IsActive);
+            User updatedUser = GetUser(_user2, true);
             _userRepository.UpdateById(_user2, ValidUserGuid).Should().Be(updatedUser);
             _dbContextMock.Verify(mock => mock.SaveChanges());
         }
@@ -94,8 +86,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             Birthday = user.Birthday,
             Avatar = user.Avatar,
             Role = user.Role,
-            Authorities = user.Authorities,
-            IsActive = isActive
+            Authorities = user.Authorities
         };
     }
 }

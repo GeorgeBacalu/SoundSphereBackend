@@ -16,12 +16,12 @@ namespace SoundSphere.Database.Extensions
             });
 
         public static IQueryable<Album> Sort(this IQueryable<Album> query, AlbumPaginationRequest payload) =>
-            payload.SortCriteria == null || !payload.SortCriteria.Any() ? query :
+            payload.SortCriteria == null || !payload.SortCriteria.Any() ? query.OrderBy(album => album.CreatedAt) :
             payload.SortCriteria.Aggregate(query, (current, sortCriterion) => sortCriterion.Key switch
             {
                 AlbumSortCriterion.ByTitle => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(album => album.Title) : current.OrderByDescending(album => album.Title),
                 AlbumSortCriterion.ByReleaseDate => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(album => album.ReleaseDate) : current.OrderByDescending(album => album.ReleaseDate),
-                _ => current
+                _ => current.OrderBy(album => album.CreatedAt)
             });
 
         public static IQueryable<Album> Paginate(this IQueryable<Album> query, AlbumPaginationRequest payload) => query.Skip(payload.Page * payload.Size).Take(payload.Size);

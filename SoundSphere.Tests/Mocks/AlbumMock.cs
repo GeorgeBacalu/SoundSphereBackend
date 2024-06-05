@@ -21,17 +21,9 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<AlbumDto> GetMockedAlbumDtos() => GetMockedAlbums().Select(ToDto).ToList();
 
-        public static IList<Album> GetMockedActiveAlbums() => GetMockedAlbums().Where(album => album.IsActive).ToList();
+        public static IList<Album> GetMockedPaginatedAlbums() => GetMockedAlbums().Where(album => album.DeletedAt == null).Take(10).ToList();
 
-        public static IList<AlbumDto> GetMockedActiveAlbumDtos() => GetMockedAlbumDtos().Where(album => album.IsActive).ToList();
-
-        public static IList<Album> GetMockedPaginatedAlbums() => new List<Album> { GetMockedAlbum45(), GetMockedAlbum46(), GetMockedAlbum47(), GetMockedAlbum48(), GetMockedAlbum49(), GetMockedAlbum50() };
-
-        public static IList<AlbumDto> GetMockedPaginatedAlbumDtos() => new List<AlbumDto> { GetMockedAlbumDto45(), GetMockedAlbumDto46(), GetMockedAlbumDto47(), GetMockedAlbumDto48(), GetMockedAlbumDto49(), GetMockedAlbumDto50() };
-
-        public static IList<Album> GetMockedActivePaginatedAlbums() => GetMockedPaginatedAlbums().Where(album => album.IsActive).ToList();
-
-        public static IList<AlbumDto> GetMockedActivePaginatedAlbumDtos() => GetMockedPaginatedAlbumDtos().Where(album => album.IsActive).ToList();
+        public static IList<AlbumDto> GetMockedPaginatedAlbumDtos() => GetMockedPaginatedAlbums().Select(ToDto).ToList();
 
         public static AlbumPaginationRequest GetMockedAlbumsPaginationRequest() => new AlbumPaginationRequest(
             SortCriteria: new Dictionary<AlbumSortCriterion, SortOrder> { { AlbumSortCriterion.ByTitle, SortOrder.Ascending }, { AlbumSortCriterion.ByReleaseDate, SortOrder.Ascending } },
@@ -50,7 +42,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb"), SimilarAlbumId = Guid.Parse("b58f5f3f-d5e8-49f3-8b12-cfe33f762b4f") },
                 new AlbumLink { AlbumId = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb"), SimilarAlbumId = Guid.Parse("05c4fe5d-8c0f-4eff-8ff2-e2e0e91218db") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum2() => new Album
@@ -64,7 +58,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("b58f5f3f-d5e8-49f3-8b12-cfe33f762b4f"), SimilarAlbumId = Guid.Parse("05c4fe5d-8c0f-4eff-8ff2-e2e0e91218db") },
                 new AlbumLink { AlbumId = Guid.Parse("b58f5f3f-d5e8-49f3-8b12-cfe33f762b4f"), SimilarAlbumId = Guid.Parse("77953b24-e1c0-4d1f-a730-a12d5460b0d1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum3() => new Album
@@ -78,7 +74,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("05c4fe5d-8c0f-4eff-8ff2-e2e0e91218db"), SimilarAlbumId = Guid.Parse("77953b24-e1c0-4d1f-a730-a12d5460b0d1") },
                 new AlbumLink { AlbumId = Guid.Parse("05c4fe5d-8c0f-4eff-8ff2-e2e0e91218db"), SimilarAlbumId = Guid.Parse("e6d397e8-c355-4d68-b9e4-4a1c67daf6fa") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum4() => new Album
@@ -92,7 +90,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("77953b24-e1c0-4d1f-a730-a12d5460b0d1"), SimilarAlbumId = Guid.Parse("e6d397e8-c355-4d68-b9e4-4a1c67daf6fa") },
                 new AlbumLink { AlbumId = Guid.Parse("77953b24-e1c0-4d1f-a730-a12d5460b0d1"), SimilarAlbumId = Guid.Parse("c0ec7e3d-8d8b-47b5-9b29-8a4b4c5357c1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum5() => new Album
@@ -106,7 +106,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("e6d397e8-c355-4d68-b9e4-4a1c67daf6fa"), SimilarAlbumId = Guid.Parse("c0ec7e3d-8d8b-47b5-9b29-8a4b4c5357c1") },
                 new AlbumLink { AlbumId = Guid.Parse("e6d397e8-c355-4d68-b9e4-4a1c67daf6fa"), SimilarAlbumId = Guid.Parse("8f70a802-6741-48de-9f2f-7f1d184b1687") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum6() => new Album
@@ -120,7 +122,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("c0ec7e3d-8d8b-47b5-9b29-8a4b4c5357c1"), SimilarAlbumId = Guid.Parse("8f70a802-6741-48de-9f2f-7f1d184b1687") },
                 new AlbumLink { AlbumId = Guid.Parse("c0ec7e3d-8d8b-47b5-9b29-8a4b4c5357c1"), SimilarAlbumId = Guid.Parse("bd2096d2-5b54-432a-9363-a99ed0078c7a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum7() => new Album
@@ -134,7 +138,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("8f70a802-6741-48de-9f2f-7f1d184b1687"), SimilarAlbumId = Guid.Parse("bd2096d2-5b54-432a-9363-a99ed0078c7a") },
                 new AlbumLink { AlbumId = Guid.Parse("8f70a802-6741-48de-9f2f-7f1d184b1687"), SimilarAlbumId = Guid.Parse("6542c145-0f0e-432f-8b8c-9a6a53c6b8e8") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum8() => new Album
@@ -148,7 +154,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("bd2096d2-5b54-432a-9363-a99ed0078c7a"), SimilarAlbumId = Guid.Parse("6542c145-0f0e-432f-8b8c-9a6a53c6b8e8") },
                 new AlbumLink { AlbumId = Guid.Parse("bd2096d2-5b54-432a-9363-a99ed0078c7a"), SimilarAlbumId = Guid.Parse("c3e92b3d-f3b7-4935-baac-68b47054e897") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum9() => new Album
@@ -162,7 +170,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("6542c145-0f0e-432f-8b8c-9a6a53c6b8e8"), SimilarAlbumId = Guid.Parse("c3e92b3d-f3b7-4935-baac-68b47054e897") },
                 new AlbumLink { AlbumId = Guid.Parse("6542c145-0f0e-432f-8b8c-9a6a53c6b8e8"), SimilarAlbumId = Guid.Parse("d4b7c7f3-8c6f-4f1a-91ff-ee2a850b2f3e") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum10() => new Album
@@ -176,7 +186,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("c3e92b3d-f3b7-4935-baac-68b47054e897"), SimilarAlbumId = Guid.Parse("d4b7c7f3-8c6f-4f1a-91ff-ee2a850b2f3e") },
                 new AlbumLink { AlbumId = Guid.Parse("c3e92b3d-f3b7-4935-baac-68b47054e897"), SimilarAlbumId = Guid.Parse("f30c8c10-d54f-498c-8423-6e1d2dcaae4d") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum11() => new Album
@@ -190,7 +202,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("d4b7c7f3-8c6f-4f1a-91ff-ee2a850b2f3e"), SimilarAlbumId = Guid.Parse("f30c8c10-d54f-498c-8423-6e1d2dcaae4d") },
                 new AlbumLink { AlbumId = Guid.Parse("d4b7c7f3-8c6f-4f1a-91ff-ee2a850b2f3e"), SimilarAlbumId = Guid.Parse("5fefa585-5a2f-4f4b-b6f5-850768f7c7b8") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum12() => new Album
@@ -204,7 +218,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("f30c8c10-d54f-498c-8423-6e1d2dcaae4d"), SimilarAlbumId = Guid.Parse("5fefa585-5a2f-4f4b-b6f5-850768f7c7b8") },
                 new AlbumLink { AlbumId = Guid.Parse("f30c8c10-d54f-498c-8423-6e1d2dcaae4d"), SimilarAlbumId = Guid.Parse("9f1c4000-6f48-4bda-aa6d-22f0581629d1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum13() => new Album
@@ -218,7 +234,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("5fefa585-5a2f-4f4b-b6f5-850768f7c7b8"), SimilarAlbumId = Guid.Parse("9f1c4000-6f48-4bda-aa6d-22f0581629d1") },
                 new AlbumLink { AlbumId = Guid.Parse("5fefa585-5a2f-4f4b-b6f5-850768f7c7b8"), SimilarAlbumId = Guid.Parse("ae93288c-a804-4f40-a97c-6f3572da3b01") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum14() => new Album
@@ -232,7 +250,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("9f1c4000-6f48-4bda-aa6d-22f0581629d1"), SimilarAlbumId = Guid.Parse("ae93288c-a804-4f40-a97c-6f3572da3b01") },
                 new AlbumLink { AlbumId = Guid.Parse("9f1c4000-6f48-4bda-aa6d-22f0581629d1"), SimilarAlbumId = Guid.Parse("3e5b76a4-c2bf-4c7d-9abf-a59b3e8e0bc2") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum15() => new Album
@@ -246,7 +266,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("ae93288c-a804-4f40-a97c-6f3572da3b01"), SimilarAlbumId = Guid.Parse("3e5b76a4-c2bf-4c7d-9abf-a59b3e8e0bc2") },
                 new AlbumLink { AlbumId = Guid.Parse("ae93288c-a804-4f40-a97c-6f3572da3b01"), SimilarAlbumId = Guid.Parse("9d4a518b-6673-4a91-b179-2b8c68a4f3f3") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum16() => new Album
@@ -260,7 +282,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("3e5b76a4-c2bf-4c7d-9abf-a59b3e8e0bc2"), SimilarAlbumId = Guid.Parse("9d4a518b-6673-4a91-b179-2b8c68a4f3f3") },
                 new AlbumLink { AlbumId = Guid.Parse("3e5b76a4-c2bf-4c7d-9abf-a59b3e8e0bc2"), SimilarAlbumId = Guid.Parse("c5f5b360-fbfd-4e17-aca3-e2a1d5b25895") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum17() => new Album
@@ -274,7 +298,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("9d4a518b-6673-4a91-b179-2b8c68a4f3f3"), SimilarAlbumId = Guid.Parse("c5f5b360-fbfd-4e17-aca3-e2a1d5b25895") },
                 new AlbumLink { AlbumId = Guid.Parse("9d4a518b-6673-4a91-b179-2b8c68a4f3f3"), SimilarAlbumId = Guid.Parse("57d9b8a7-d36b-4975-bd4a-a4c5dbe5c5cc") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum18() => new Album
@@ -288,7 +314,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("c5f5b360-fbfd-4e17-aca3-e2a1d5b25895"), SimilarAlbumId = Guid.Parse("57d9b8a7-d36b-4975-bd4a-a4c5dbe5c5cc") },
                 new AlbumLink { AlbumId = Guid.Parse("c5f5b360-fbfd-4e17-aca3-e2a1d5b25895"), SimilarAlbumId = Guid.Parse("2d68f441-d532-4e0d-8f51-c5d086078dd9") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum19() => new Album
@@ -302,7 +330,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("57d9b8a7-d36b-4975-bd4a-a4c5dbe5c5cc"), SimilarAlbumId = Guid.Parse("2d68f441-d532-4e0d-8f51-c5d086078dd9") },
                 new AlbumLink { AlbumId = Guid.Parse("57d9b8a7-d36b-4975-bd4a-a4c5dbe5c5cc"), SimilarAlbumId = Guid.Parse("1b6d3a7a-d9d4-478e-b0c1-8d8c2a4f6c0f") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum20() => new Album
@@ -316,7 +346,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("2d68f441-d532-4e0d-8f51-c5d086078dd9"), SimilarAlbumId = Guid.Parse("1b6d3a7a-d9d4-478e-b0c1-8d8c2a4f6c0f") },
                 new AlbumLink { AlbumId = Guid.Parse("2d68f441-d532-4e0d-8f51-c5d086078dd9"), SimilarAlbumId = Guid.Parse("2e2f662e-c2df-4660-800c-3613b6001bf1") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum21() => new Album
@@ -330,7 +362,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("1b6d3a7a-d9d4-478e-b0c1-8d8c2a4f6c0f"), SimilarAlbumId = Guid.Parse("2e2f662e-c2df-4660-800c-3613b6001bf1") },
                 new AlbumLink { AlbumId = Guid.Parse("1b6d3a7a-d9d4-478e-b0c1-8d8c2a4f6c0f"), SimilarAlbumId = Guid.Parse("cc3cf857-e7f5-4c0b-9eaa-3f6e4c8d2045") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 21, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum22() => new Album
@@ -344,7 +378,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("2e2f662e-c2df-4660-800c-3613b6001bf1"), SimilarAlbumId = Guid.Parse("cc3cf857-e7f5-4c0b-9eaa-3f6e4c8d2045") },
                 new AlbumLink { AlbumId = Guid.Parse("2e2f662e-c2df-4660-800c-3613b6001bf1"), SimilarAlbumId = Guid.Parse("995a2c8e-cdd5-4c0f-b875-8b6192b6b014") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 22, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum23() => new Album
@@ -358,7 +394,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("cc3cf857-e7f5-4c0b-9eaa-3f6e4c8d2045"), SimilarAlbumId = Guid.Parse("995a2c8e-cdd5-4c0f-b875-8b6192b6b014") },
                 new AlbumLink { AlbumId = Guid.Parse("cc3cf857-e7f5-4c0b-9eaa-3f6e4c8d2045"), SimilarAlbumId = Guid.Parse("fb9eac8d-0aec-4cc2-b5c6-f9eca5c6d408") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 23, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum24() => new Album
@@ -372,7 +410,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("995a2c8e-cdd5-4c0f-b875-8b6192b6b014"), SimilarAlbumId = Guid.Parse("fb9eac8d-0aec-4cc2-b5c6-f9eca5c6d408") },
                 new AlbumLink { AlbumId = Guid.Parse("995a2c8e-cdd5-4c0f-b875-8b6192b6b014"), SimilarAlbumId = Guid.Parse("0fd3aee7-0bd0-4482-a78d-17e3c7d8b4d5") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 24, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum25() => new Album
@@ -386,7 +426,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("fb9eac8d-0aec-4cc2-b5c6-f9eca5c6d408"), SimilarAlbumId = Guid.Parse("0fd3aee7-0bd0-4482-a78d-17e3c7d8b4d5") },
                 new AlbumLink { AlbumId = Guid.Parse("fb9eac8d-0aec-4cc2-b5c6-f9eca5c6d408"), SimilarAlbumId = Guid.Parse("41ad644e-bdec-472c-ae5d-9f2d1e7fcb0d") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 25, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum26() => new Album
@@ -400,7 +442,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("0fd3aee7-0bd0-4482-a78d-17e3c7d8b4d5"), SimilarAlbumId = Guid.Parse("41ad644e-bdec-472c-ae5d-9f2d1e7fcb0d") },
                 new AlbumLink { AlbumId = Guid.Parse("0fd3aee7-0bd0-4482-a78d-17e3c7d8b4d5"), SimilarAlbumId = Guid.Parse("c7e1f8b6-d8df-4eca-b45e-736b5d63b4d5") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 26, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum27() => new Album
@@ -414,7 +458,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("41ad644e-bdec-472c-ae5d-9f2d1e7fcb0d"), SimilarAlbumId = Guid.Parse("c7e1f8b6-d8df-4eca-b45e-736b5d63b4d5") },
                 new AlbumLink { AlbumId = Guid.Parse("41ad644e-bdec-472c-ae5d-9f2d1e7fcb0d"), SimilarAlbumId = Guid.Parse("aac3f3d7-3146-421f-981d-68f02d1352f0") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 27, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum28() => new Album
@@ -428,7 +474,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("c7e1f8b6-d8df-4eca-b45e-736b5d63b4d5"), SimilarAlbumId = Guid.Parse("aac3f3d7-3146-421f-981d-68f02d1352f0") },
                 new AlbumLink { AlbumId = Guid.Parse("c7e1f8b6-d8df-4eca-b45e-736b5d63b4d5"), SimilarAlbumId = Guid.Parse("a393b54c-01fb-4fd3-a8bb-3395bf603934") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 28, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum29() => new Album
@@ -442,7 +490,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("aac3f3d7-3146-421f-981d-68f02d1352f0"), SimilarAlbumId = Guid.Parse("a393b54c-01fb-4fd3-a8bb-3395bf603934") },
                 new AlbumLink { AlbumId = Guid.Parse("aac3f3d7-3146-421f-981d-68f02d1352f0"), SimilarAlbumId = Guid.Parse("77f3f764-0a2e-4be2-a753-5555af2c4d52") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 29, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum30() => new Album
@@ -456,7 +506,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("a393b54c-01fb-4fd3-a8bb-3395bf603934"), SimilarAlbumId = Guid.Parse("77f3f764-0a2e-4be2-a753-5555af2c4d52") },
                 new AlbumLink { AlbumId = Guid.Parse("a393b54c-01fb-4fd3-a8bb-3395bf603934"), SimilarAlbumId = Guid.Parse("71b4bdec-c4a4-413b-b874-e3fc2b8a1235") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 30, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum31() => new Album
@@ -470,7 +522,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("77f3f764-0a2e-4be2-a753-5555af2c4d52"), SimilarAlbumId = Guid.Parse("71b4bdec-c4a4-413b-b874-e3fc2b8a1235") },
                 new AlbumLink { AlbumId = Guid.Parse("77f3f764-0a2e-4be2-a753-5555af2c4d52"), SimilarAlbumId = Guid.Parse("39fb8791-3b22-4aad-99d1-27b51a5a3e37") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 3, 31, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum32() => new Album
@@ -484,7 +538,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("71b4bdec-c4a4-413b-b874-e3fc2b8a1235"), SimilarAlbumId = Guid.Parse("39fb8791-3b22-4aad-99d1-27b51a5a3e37") },
                 new AlbumLink { AlbumId = Guid.Parse("71b4bdec-c4a4-413b-b874-e3fc2b8a1235"), SimilarAlbumId = Guid.Parse("7cd3c9a2-bc21-4797-b488-67e845a0e79b") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum33() => new Album
@@ -498,7 +554,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("39fb8791-3b22-4aad-99d1-27b51a5a3e37"), SimilarAlbumId = Guid.Parse("7cd3c9a2-bc21-4797-b488-67e845a0e79b") },
                 new AlbumLink { AlbumId = Guid.Parse("39fb8791-3b22-4aad-99d1-27b51a5a3e37"), SimilarAlbumId = Guid.Parse("ade35692-6d10-4c2f-8c3b-ff7b638d06e7") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum34() => new Album
@@ -512,7 +570,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("7cd3c9a2-bc21-4797-b488-67e845a0e79b"), SimilarAlbumId = Guid.Parse("ade35692-6d10-4c2f-8c3b-ff7b638d06e7") },
                 new AlbumLink { AlbumId = Guid.Parse("7cd3c9a2-bc21-4797-b488-67e845a0e79b"), SimilarAlbumId = Guid.Parse("89b992ff-29be-49d3-b786-8d2e8d44de55") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum35() => new Album
@@ -526,7 +586,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("ade35692-6d10-4c2f-8c3b-ff7b638d06e7"), SimilarAlbumId = Guid.Parse("89b992ff-29be-49d3-b786-8d2e8d44de55") },
                 new AlbumLink { AlbumId = Guid.Parse("ade35692-6d10-4c2f-8c3b-ff7b638d06e7"), SimilarAlbumId = Guid.Parse("ec2c9fe3-e8a2-4ec6-a7b5-885e10dd87ec") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum36() => new Album
@@ -540,7 +602,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("89b992ff-29be-49d3-b786-8d2e8d44de55"), SimilarAlbumId = Guid.Parse("ec2c9fe3-e8a2-4ec6-a7b5-885e10dd87ec") },
                 new AlbumLink { AlbumId = Guid.Parse("89b992ff-29be-49d3-b786-8d2e8d44de55"), SimilarAlbumId = Guid.Parse("3ef8d9f9-88f8-4f39-b73d-261b5a7f2c8a") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum37() => new Album
@@ -554,7 +618,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("ec2c9fe3-e8a2-4ec6-a7b5-885e10dd87ec"), SimilarAlbumId = Guid.Parse("3ef8d9f9-88f8-4f39-b73d-261b5a7f2c8a") },
                 new AlbumLink { AlbumId = Guid.Parse("ec2c9fe3-e8a2-4ec6-a7b5-885e10dd87ec"), SimilarAlbumId = Guid.Parse("07fa60f8-8b91-4c33-bf53-1e4f3b79f597") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum38() => new Album
@@ -568,7 +634,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("3ef8d9f9-88f8-4f39-b73d-261b5a7f2c8a"), SimilarAlbumId = Guid.Parse("07fa60f8-8b91-4c33-bf53-1e4f3b79f597") },
                 new AlbumLink { AlbumId = Guid.Parse("3ef8d9f9-88f8-4f39-b73d-261b5a7f2c8a"), SimilarAlbumId = Guid.Parse("d6a47f2d-bb31-4f1c-a9df-6b557b2f6b26") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum39() => new Album
@@ -582,7 +650,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("07fa60f8-8b91-4c33-bf53-1e4f3b79f597"), SimilarAlbumId = Guid.Parse("d6a47f2d-bb31-4f1c-a9df-6b557b2f6b26") },
                 new AlbumLink { AlbumId = Guid.Parse("07fa60f8-8b91-4c33-bf53-1e4f3b79f597"), SimilarAlbumId = Guid.Parse("b2d7f920-68b2-4ba4-a99e-abf3069f887c") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum40() => new Album
@@ -596,7 +666,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("d6a47f2d-bb31-4f1c-a9df-6b557b2f6b26"), SimilarAlbumId = Guid.Parse("b2d7f920-68b2-4ba4-a99e-abf3069f887c") },
                 new AlbumLink { AlbumId = Guid.Parse("d6a47f2d-bb31-4f1c-a9df-6b557b2f6b26"), SimilarAlbumId = Guid.Parse("1c3a213b-aa9b-4c8b-a393-4c881522eebb") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum41() => new Album
@@ -610,7 +682,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("b2d7f920-68b2-4ba4-a99e-abf3069f887c"), SimilarAlbumId = Guid.Parse("1c3a213b-aa9b-4c8b-a393-4c881522eebb") },
                 new AlbumLink { AlbumId = Guid.Parse("b2d7f920-68b2-4ba4-a99e-abf3069f887c"), SimilarAlbumId = Guid.Parse("a8a214b9-c3d1-420e-9e63-3418c9367e81") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum42() => new Album
@@ -624,7 +698,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("1c3a213b-aa9b-4c8b-a393-4c881522eebb"), SimilarAlbumId = Guid.Parse("a8a214b9-c3d1-420e-9e63-3418c9367e81") },
                 new AlbumLink { AlbumId = Guid.Parse("1c3a213b-aa9b-4c8b-a393-4c881522eebb"), SimilarAlbumId = Guid.Parse("8f5296a1-0df2-49d5-9b69-6c6afe6c8e18") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum43() => new Album
@@ -638,7 +714,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("a8a214b9-c3d1-420e-9e63-3418c9367e81"), SimilarAlbumId = Guid.Parse("8f5296a1-0df2-49d5-9b69-6c6afe6c8e18") },
                 new AlbumLink { AlbumId = Guid.Parse("a8a214b9-c3d1-420e-9e63-3418c9367e81"), SimilarAlbumId = Guid.Parse("5df3c97b-d624-4d55-8a33-4e4d49abdeba") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum44() => new Album
@@ -652,7 +730,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("8f5296a1-0df2-49d5-9b69-6c6afe6c8e18"), SimilarAlbumId = Guid.Parse("5df3c97b-d624-4d55-8a33-4e4d49abdeba") },
                 new AlbumLink { AlbumId = Guid.Parse("8f5296a1-0df2-49d5-9b69-6c6afe6c8e18"), SimilarAlbumId = Guid.Parse("2fd6f336-fc89-45e8-baae-2c8d3ec384cb") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum45() => new Album
@@ -666,7 +746,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("5df3c97b-d624-4d55-8a33-4e4d49abdeba"), SimilarAlbumId = Guid.Parse("2fd6f336-fc89-45e8-baae-2c8d3ec384cb") },
                 new AlbumLink { AlbumId = Guid.Parse("5df3c97b-d624-4d55-8a33-4e4d49abdeba"), SimilarAlbumId = Guid.Parse("71d6e3ac-413b-46f1-9aaf-c36d4056b7c2") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Album GetMockedAlbum46() => new Album
@@ -680,7 +762,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("2fd6f336-fc89-45e8-baae-2c8d3ec384cb"), SimilarAlbumId = Guid.Parse("71d6e3ac-413b-46f1-9aaf-c36d4056b7c2") },
                 new AlbumLink { AlbumId = Guid.Parse("2fd6f336-fc89-45e8-baae-2c8d3ec384cb"), SimilarAlbumId = Guid.Parse("67a03545-13d2-45b6-bf01-668c9ee315bb") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 15, 12, 0, 0)
         };
 
         public static Album GetMockedAlbum47() => new Album
@@ -694,7 +778,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("71d6e3ac-413b-46f1-9aaf-c36d4056b7c2"), SimilarAlbumId = Guid.Parse("67a03545-13d2-45b6-bf01-668c9ee315bb") },
                 new AlbumLink { AlbumId = Guid.Parse("71d6e3ac-413b-46f1-9aaf-c36d4056b7c2"), SimilarAlbumId = Guid.Parse("b8107cbb-18fb-49b0-876b-86777a3bafff") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 16, 12, 0, 0)
         };
 
         public static Album GetMockedAlbum48() => new Album
@@ -708,7 +794,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("67a03545-13d2-45b6-bf01-668c9ee315bb"), SimilarAlbumId = Guid.Parse("b8107cbb-18fb-49b0-876b-86777a3bafff") },
                 new AlbumLink { AlbumId = Guid.Parse("67a03545-13d2-45b6-bf01-668c9ee315bb"), SimilarAlbumId = Guid.Parse("11d77e95-f4f2-4a6f-980b-674d81d8c1d8") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 17, 12, 0, 0)
         };
 
         public static Album GetMockedAlbum49() => new Album
@@ -722,7 +810,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("b8107cbb-18fb-49b0-876b-86777a3bafff"), SimilarAlbumId = Guid.Parse("11d77e95-f4f2-4a6f-980b-674d81d8c1d8") },
                 new AlbumLink { AlbumId = Guid.Parse("b8107cbb-18fb-49b0-876b-86777a3bafff"), SimilarAlbumId = Guid.Parse("8a145bd2-7b7f-4188-bcdd-1c3a4a7c5e45") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 18, 12, 0, 0)
         };
 
         public static Album GetMockedAlbum50() => new Album
@@ -736,7 +826,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("11d77e95-f4f2-4a6f-980b-674d81d8c1d8"), SimilarAlbumId = Guid.Parse("8a145bd2-7b7f-4188-bcdd-1c3a4a7c5e45") },
                 new AlbumLink { AlbumId = Guid.Parse("11d77e95-f4f2-4a6f-980b-674d81d8c1d8"), SimilarAlbumId = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb") }
             },
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 19, 12, 0, 0)
         };
 
         public static Album GetMockedAlbum51() => new Album
@@ -750,7 +842,9 @@ namespace SoundSphere.Tests.Mocks
                 new AlbumLink { AlbumId = Guid.Parse("8a145bd2-7b7f-4188-bcdd-1c3a4a7c5e45"), SimilarAlbumId = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb") },
                 new AlbumLink { AlbumId = Guid.Parse("8a145bd2-7b7f-4188-bcdd-1c3a4a7c5e45"), SimilarAlbumId = Guid.Parse("b58f5f3f-d5e8-49f3-8b12-cfe33f762b4f") }
             },
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static AlbumDto GetMockedAlbumDto1() => ToDto(GetMockedAlbum1());
@@ -862,7 +956,9 @@ namespace SoundSphere.Tests.Mocks
             ImageUrl = album.ImageUrl,
             ReleaseDate = album.ReleaseDate,
             SimilarAlbumsIds = album.SimilarAlbums.Select(albumLink => albumLink.SimilarAlbumId).ToList(),
-            IsActive = album.IsActive
+            CreatedAt = album.CreatedAt,
+            UpdatedAt = album.UpdatedAt,
+            DeletedAt = album.DeletedAt
         };
     }
 }

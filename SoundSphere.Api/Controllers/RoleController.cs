@@ -34,8 +34,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost] public IActionResult Add(RoleDto roleDto)
         {
-            RoleDto addedRoleDto = _roleService.Add(roleDto);
-            return CreatedAtAction(nameof(GetById), new { id = addedRoleDto.Id }, addedRoleDto);
+            RoleDto createdRoleDto = _roleService.Add(roleDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdRoleDto.Id }, createdRoleDto);
         }
     }
 }

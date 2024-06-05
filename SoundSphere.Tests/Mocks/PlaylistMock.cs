@@ -21,25 +21,17 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<PlaylistDto> GetMockedPlaylistDtos() => GetMockedPlaylists().Select(ToDto).ToList();
 
-        public static IList<Playlist> GetMockedActivePlaylists() => GetMockedPlaylists().Where(playlist => playlist.IsActive).ToList();
+        public static IList<Playlist> GetMockedPaginatedPlaylists() => GetMockedPlaylists().Where(playlist => playlist.DeletedAt == null).Take(10).ToList();
 
-        public static IList<PlaylistDto> GetMockedActivePlaylistDtos() => GetMockedPlaylistDtos().Where(playlist => playlist.IsActive).ToList();
-
-        public static IList<Playlist> GetMockedPaginatedPlaylists() => new List<Playlist> { GetMockedPlaylist18(), GetMockedPlaylist19(), GetMockedPlaylist20(), GetMockedPlaylist21(), GetMockedPlaylist22() };
-
-        public static IList<PlaylistDto> GetMockedPaginatedPlaylistDtos() => new List<PlaylistDto> { GetMockedPlaylistDto18(), GetMockedPlaylistDto19(), GetMockedPlaylistDto20(), GetMockedPlaylistDto21(), GetMockedPlaylistDto22() };
-
-        public static IList<Playlist> GetMockedActivePaginatedPlaylists() => GetMockedPaginatedPlaylists().Where(playlist => playlist.IsActive).ToList();
-
-        public static IList<PlaylistDto> GetMockedActivePaginatedPlaylistDtos() => GetMockedPaginatedPlaylistDtos().Where(playlist => playlist.IsActive).ToList();
+        public static IList<PlaylistDto> GetMockedPaginatedPlaylistDtos() => GetMockedPaginatedPlaylists().Select(ToDto).ToList();
 
         public static PlaylistPaginationRequest GetMockedPlaylistsPaginationRequest() => new PlaylistPaginationRequest(
-            SortCriteria: new Dictionary<PlaylistSortCriterion, SortOrder> { { PlaylistSortCriterion.ByCreatedDate, SortOrder.Ascending }, { PlaylistSortCriterion.ByTitle, SortOrder.Ascending } },
-            SearchCriteria: new List<PlaylistSearchCriterion> { PlaylistSearchCriterion.ByUserName, PlaylistSearchCriterion.ByTitle, PlaylistSearchCriterion.ByCreatedDateRange },
+            SortCriteria: new Dictionary<PlaylistSortCriterion, SortOrder> { { PlaylistSortCriterion.ByCreateDate, SortOrder.Ascending }, { PlaylistSortCriterion.ByTitle, SortOrder.Ascending } },
+            SearchCriteria: new List<PlaylistSearchCriterion> { PlaylistSearchCriterion.ByUserName, PlaylistSearchCriterion.ByTitle, PlaylistSearchCriterion.ByCreateDateRange },
             Title: "A",
             DateRange: new DateTimeRange(new DateTime(1950, 1, 1), new DateTime(2024, 5, 31)),
             UserName: "A",
-            SongId: Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8"));
+            SongTitle: "Echo of Silence");
 
         public static Playlist GetMockedPlaylist1() => new Playlist
         {
@@ -47,8 +39,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 1",
             User = GetMockedUser1(),
             Songs = GetMockedSongs1(),
-            CreatedAt = new DateTime(2024, 5, 7),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist2() => new Playlist
@@ -57,8 +50,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 2",
             User = GetMockedUser2(),
             Songs = GetMockedSongs2(),
-            CreatedAt = new DateTime(2024, 5, 6),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist3() => new Playlist
@@ -67,8 +61,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 3",
             User = GetMockedUser3(),
             Songs = GetMockedSongs3(),
-            CreatedAt = new DateTime(2024, 5, 5),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist4() => new Playlist
@@ -77,8 +72,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 4",
             User = GetMockedUser4(),
             Songs = GetMockedSongs4(),
-            CreatedAt = new DateTime(2024, 5, 4),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist5() => new Playlist
@@ -87,8 +83,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 5",
             User = GetMockedUser5(),
             Songs = GetMockedSongs5(),
-            CreatedAt = new DateTime(2024, 5, 3),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist6() => new Playlist
@@ -97,8 +94,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 6",
             User = GetMockedUser6(),
             Songs = GetMockedSongs6(),
-            CreatedAt = new DateTime(2024, 5, 2),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist7() => new Playlist
@@ -107,8 +105,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 7",
             User = GetMockedUser7(),
             Songs = GetMockedSongs7(),
-            CreatedAt = new DateTime(2024, 5, 1),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist8() => new Playlist
@@ -117,8 +116,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 8",
             User = GetMockedUser8(),
             Songs = GetMockedSongs8(),
-            CreatedAt = new DateTime(2024, 4, 30),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist9() => new Playlist
@@ -127,8 +127,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 9",
             User = GetMockedUser9(),
             Songs = GetMockedSongs9(),
-            CreatedAt = new DateTime(2024, 4, 29),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist10() => new Playlist
@@ -137,8 +138,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 10",
             User = GetMockedUser10(),
             Songs = GetMockedSongs10(),
-            CreatedAt = new DateTime(2024, 4, 28),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist11() => new Playlist
@@ -147,8 +149,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 11",
             User = GetMockedUser1(),
             Songs = GetMockedSongs11(),
-            CreatedAt = new DateTime(2024, 4, 27),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist12() => new Playlist
@@ -157,8 +160,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 12",
             User = GetMockedUser2(),
             Songs = GetMockedSongs12(),
-            CreatedAt = new DateTime(2024, 4, 26),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 12, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist13() => new Playlist
@@ -167,8 +171,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 13",
             User = GetMockedUser3(),
             Songs = GetMockedSongs13(),
-            CreatedAt = new DateTime(2024, 4, 25),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 13, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist14() => new Playlist
@@ -177,8 +182,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 14",
             User = GetMockedUser4(),
             Songs = GetMockedSongs14(),
-            CreatedAt = new DateTime(2024, 4, 24),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 14, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist15() => new Playlist
@@ -187,8 +193,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 15",
             User = GetMockedUser5(),
             Songs = GetMockedSongs15(),
-            CreatedAt = new DateTime(2024, 4, 23),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 15, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist16() => new Playlist
@@ -197,8 +204,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 16",
             User = GetMockedUser6(),
             Songs = GetMockedSongs16(),
-            CreatedAt = new DateTime(2024, 4, 22),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 16, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist17() => new Playlist
@@ -207,8 +215,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 17",
             User = GetMockedUser7(),
             Songs = GetMockedSongs17(),
-            CreatedAt = new DateTime(2024, 4, 21),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 17, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist18() => new Playlist
@@ -217,8 +226,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 18",
             User = GetMockedUser8(),
             Songs = GetMockedSongs18(),
-            CreatedAt = new DateTime(2024, 4, 20),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 18, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static Playlist GetMockedPlaylist19() => new Playlist
@@ -227,8 +237,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 19",
             User = GetMockedUser9(),
             Songs = GetMockedSongs19(),
-            CreatedAt = new DateTime(2024, 4, 19),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 19, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 19, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist20() => new Playlist
@@ -237,8 +248,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 20",
             User = GetMockedUser10(),
             Songs = GetMockedSongs20(),
-            CreatedAt = new DateTime(2024, 4, 18),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 20, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 20, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist21() => new Playlist
@@ -247,8 +259,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 21",
             User = GetMockedUser1(),
             Songs = GetMockedSongs21(),
-            CreatedAt = new DateTime(2024, 4, 17),
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 21, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 21, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist22() => new Playlist
@@ -257,8 +270,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 22",
             User = GetMockedUser2(),
             Songs = GetMockedSongs22(),
-            CreatedAt = new DateTime(2024, 4, 16),
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 22, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 22, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist23() => new Playlist
@@ -267,8 +281,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 23",
             User = GetMockedUser3(),
             Songs = GetMockedSongs23(),
-            CreatedAt = new DateTime(2024, 4, 15),
-            IsActive = false
+            CreatedAt = new DateTime(2024, 4, 23, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 4, 23, 12, 0, 0)
         };
 
         public static Playlist GetMockedPlaylist24() => new Playlist
@@ -277,8 +292,9 @@ namespace SoundSphere.Tests.Mocks
             Title = "Playlist 24",
             User = GetMockedUser4(),
             Songs = GetMockedSongs1(),
-            CreatedAt = new DateTime(2024, 4, 14),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 4, 24, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static PlaylistDto GetMockedPlaylistDto1() => ToDto(GetMockedPlaylist1());
@@ -336,7 +352,8 @@ namespace SoundSphere.Tests.Mocks
             UserId = playlist.User.Id,
             SongsIds = playlist.Songs.Select(song => song.Id).ToList(),
             CreatedAt = playlist.CreatedAt,
-            IsActive = playlist.IsActive
+            UpdatedAt = playlist.UpdatedAt,
+            DeletedAt = playlist.DeletedAt
         };
     }
 }

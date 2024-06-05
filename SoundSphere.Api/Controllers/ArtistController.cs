@@ -16,30 +16,14 @@ namespace SoundSphere.Api.Controllers
 
         public ArtistController(IArtistService artistService) => _artistService = artistService;
 
-        /// <summary>Get all artists</summary>
-        /// <remarks>Return list with all artists</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_artistService.GetAll());
-
-        /// <summary>Get all active artists</summary>
-        /// <remarks>Return list with all active artists</remarks>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("active")] public IActionResult GetAllActive() => Ok(_artistService.GetAllActive());
-
-        ///<summary>Get artists paginated, sorted and filtered</summary>
-        ///<remarks>Return list with artists paginated, sorted and filtered</remarks>
-        /// <param name="payload">Request body with artists pagination rules</param>
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("pagination")] public IActionResult GetAllPagination(ArtistPaginationRequest payload) => Ok(_artistService.GetAllPagination(payload));
-
         ///<summary>Get active artists paginated, sorted and filtered</summary>
         ///<remarks>Return list with active artists paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with artists pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("active/pagination")] public IActionResult GetAllActivePagination(ArtistPaginationRequest payload) => Ok(_artistService.GetAllActivePagination(payload));
+        [HttpPost("query")] public IActionResult GetAll(ArtistPaginationRequest payload) => Ok(_artistService.GetAll(payload));
 
-        /// <summary>Get artist by ID</summary>
-        /// <remarks>Return artist with given ID</remarks>
+        /// <summary>Get active artist by ID</summary>
+        /// <remarks>Return active artist with given ID</remarks>
         /// <param name="id">Artist fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,8 +36,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost] public IActionResult Add(ArtistDto artistDto)
         {
-            ArtistDto addedArtistDto = _artistService.Add(artistDto);
-            return CreatedAtAction(nameof(GetById), new { id = addedArtistDto.Id }, addedArtistDto);
+            ArtistDto createdArtistDto = _artistService.Add(artistDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdArtistDto.Id }, createdArtistDto);
         }
 
         /// <summary>Update artist by ID</summary>

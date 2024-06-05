@@ -35,9 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _feedbackRepository = new FeedbackRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _feedbackRepository.GetAll().Should().BeEquivalentTo(_feedbacks);
-
-        [Fact] public void GetAllPagination_Test() => _feedbackRepository.GetAllPagination(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks);
+        [Fact] public void GetAll_Test() => _feedbackRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedFeedbacks);
 
         [Fact] public void GetById_ValidId_Test() => _feedbackRepository.GetById(ValidFeedbackGuid).Should().Be(_feedback1);
 
@@ -61,7 +59,7 @@ namespace SoundSphere.Tests.Unit.Repositories
                 User = _feedback1.User,
                 Type = _feedback2.Type,
                 Message = _feedback2.Message,
-                SentAt = _feedback1.SentAt
+                CreatedAt = _feedback1.CreatedAt
             };
             _feedbackRepository.UpdateById(_feedback2, ValidFeedbackGuid).Should().Be(updatedFeedback);
             _dbContextMock.Verify(mock => mock.SaveChanges());

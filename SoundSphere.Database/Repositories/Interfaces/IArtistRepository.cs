@@ -5,13 +5,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IArtistRepository
     {
-        IList<Artist> GetAll();
-
-        IList<Artist> GetAllActive();
-
-        IList<Artist> GetAllPagination(ArtistPaginationRequest payload);
-
-        IList<Artist> GetAllActivePagination(ArtistPaginationRequest payload);
+        IList<Artist> GetAll(ArtistPaginationRequest payload);
 
         Artist GetById(Guid id);
 

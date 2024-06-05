@@ -16,17 +16,9 @@ namespace SoundSphere.Tests.Mocks
 
         public static IList<UserDto> GetMockedUserDtos() => GetMockedUsers().Select(ToDto).ToList();
 
-        public static IList<User> GetMockedActiveUsers() => GetMockedUsers().Where(user => user.IsActive).ToList();
+        public static IList<User> GetMockedPaginatedUsers() => GetMockedUsers().Where(user => user.DeletedAt == null).Take(10).ToList();
 
-        public static IList<UserDto> GetMockedActiveUserDtos() => GetMockedUserDtos().Where(user => user.IsActive).ToList();
-
-        public static IList<User> GetMockedPaginatedUsers() => new List<User> { GetMockedUser5(), GetMockedUser6(), GetMockedUser7(), GetMockedUser8(), GetMockedUser9(), GetMockedUser10() };
-        
-        public static IList<UserDto> GetMockedPaginatedUserDtos() => new List<UserDto> { GetMockedUserDto5(), GetMockedUserDto6(), GetMockedUserDto7(), GetMockedUserDto8(), GetMockedUserDto9(), GetMockedUserDto10() };
-
-        public static IList<User> GetMockedActivePaginatedUsers() => GetMockedPaginatedUsers().Where(user => user.IsActive).ToList();
-
-        public static IList<UserDto> GetMockedActivePaginatedUserDtos() => GetMockedPaginatedUserDtos().Where(user => user.IsActive).ToList();
+        public static IList<UserDto> GetMockedPaginatedUserDtos() => GetMockedPaginatedUsers().Select(ToDto).ToList();
 
         public static UserPaginationRequest GetMockedUsersPaginationRequest() => new UserPaginationRequest(
             SortCriteria: new Dictionary<UserSortCriterion, SortOrder> { { UserSortCriterion.ByName, SortOrder.Ascending }, { UserSortCriterion.ByEmail, SortOrder.Ascending } },
@@ -48,7 +40,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://john-doe-avatar.jpg",
             Role = GetMockedRole1(),
             Authorities = GetMockedAuthorities(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 1, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser2() => new User
@@ -63,7 +57,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://jane-smith-avatar.jpg",
             Role = GetMockedRole1(),
             Authorities = GetMockedAuthorities(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 2, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser3() => new User
@@ -78,7 +74,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://michael-johnson-avatar.jpg",
             Role = GetMockedRole1(),
             Authorities = GetMockedAuthorities(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 3, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser4() => new User
@@ -93,7 +91,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://laura-brown-avatar.jpg",
             Role = GetMockedRole2(),
             Authorities = GetMockedAuthorities2(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 4, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser5() => new User
@@ -108,7 +108,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://robert-davis-avatar.jpg",
             Role = GetMockedRole2(),
             Authorities = GetMockedAuthorities2(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 5, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static User GetMockedUser6() => new User
@@ -123,7 +125,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://emily-wilson-avatar.jpg",
             Role = GetMockedRole2(),
             Authorities = GetMockedAuthorities2(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 6, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 6, 12, 0, 0)
         };
 
         public static User GetMockedUser7() => new User
@@ -138,7 +142,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://michaela-taylor-avatar.jpg",
             Role = GetMockedRole2(),
             Authorities = GetMockedAuthorities2(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 7, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 7, 12, 0, 0)
         };
 
         public static User GetMockedUser8() => new User
@@ -153,7 +159,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://david-anderson-avatar.jpg",
             Role = GetMockedRole3(),
             Authorities = GetMockedAuthorities1(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 8, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 8, 12, 0, 0)
         };
 
         public static User GetMockedUser9() => new User
@@ -168,7 +176,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://sophia-garcia-avatar.jpg",
             Role = GetMockedRole3(),
             Authorities = GetMockedAuthorities1(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 9, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 9, 12, 0, 0)
         };
 
         public static User GetMockedUser10() => new User
@@ -183,7 +193,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://joseph-wilson-avatar.jpg",
             Role = GetMockedRole3(),
             Authorities = GetMockedAuthorities1(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 10, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = new DateTime(2024, 5, 10, 12, 0, 0)
         };
 
         public static User GetMockedUser11() => new User
@@ -198,7 +210,9 @@ namespace SoundSphere.Tests.Mocks
             Avatar = "https://olivia-martinez-avatar.jpg",
             Role = GetMockedRole3(),
             Authorities = GetMockedAuthorities1(),
-            IsActive = true
+            CreatedAt = new DateTime(2024, 5, 11, 0, 0, 0),
+            UpdatedAt = null,
+            DeletedAt = null
         };
 
         public static UserDto GetMockedUserDto1() => ToDto(GetMockedUser1());

@@ -18,13 +18,7 @@ namespace SoundSphere.Core.Services
         public SongService(ISongRepository songRepository, IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper) => 
             (_songRepository, _albumRepository, _artistRepository, _mapper) = (songRepository, albumRepository, artistRepository, mapper);
 
-        public IList<SongDto> GetAll() => _songRepository.GetAll().ToDtos(_mapper);
-
-        public IList<SongDto> GetAllActive() => _songRepository.GetAllActive().ToDtos(_mapper);
-
-        public IList<SongDto> GetAllPagination(SongPaginationRequest payload) => _songRepository.GetAllPagination(payload).ToDtos(_mapper);
-
-        public IList<SongDto> GetAllActivePagination(SongPaginationRequest payload) => _songRepository.GetAllActivePagination(payload).ToDtos(_mapper);
+        public IList<SongDto> GetAll(SongPaginationRequest payload) => _songRepository.GetAll(payload).ToDtos(_mapper);
 
         public SongDto GetById(Guid id) => _songRepository.GetById(id).ToDto(_mapper);
 

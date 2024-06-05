@@ -16,9 +16,7 @@ namespace SoundSphere.Core.Services
 
         public NotificationService(INotificationRepository notificationRepository, IUserRepository userRepository, IMapper mapper) => (_notificationRepository, _userRepository, _mapper) = (notificationRepository, userRepository, mapper);
 
-        public IList<NotificationDto> GetAll() => _notificationRepository.GetAll().ToDtos(_mapper);
-
-        public IList<NotificationDto> GetAllPagination(NotificationPaginationRequest payload) => _notificationRepository.GetAllPagination(payload).ToDtos(_mapper);
+        public IList<NotificationDto> GetAll(NotificationPaginationRequest payload) => _notificationRepository.GetAll(payload).ToDtos(_mapper);
 
         public NotificationDto GetById(Guid id) => _notificationRepository.GetById(id).ToDto(_mapper);
 
@@ -31,6 +29,6 @@ namespace SoundSphere.Core.Services
 
         public NotificationDto UpdateById(NotificationDto notificationDto, Guid id) => _notificationRepository.UpdateById(notificationDto.ToEntity(_userRepository, _mapper), id).ToDto(_mapper);
 
-        public void DeleteById(Guid id) => _notificationRepository.DeleteById(id);
+        public NotificationDto DeleteById(Guid id) => _notificationRepository.DeleteById(id).ToDto(_mapper);
     }
 }
