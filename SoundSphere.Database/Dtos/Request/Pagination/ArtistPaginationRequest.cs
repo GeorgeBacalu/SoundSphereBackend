@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 
-namespace SoundSphere.Database.Dtos.Request
+namespace SoundSphere.Database.Dtos.Request.Pagination
 {
     public record ArtistPaginationRequest(
         IDictionary<ArtistSortCriterion, SortOrder>? SortCriteria,

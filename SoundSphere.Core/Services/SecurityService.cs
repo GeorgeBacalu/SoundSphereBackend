@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,7 +10,7 @@ using System.Text;
 
 namespace SoundSphere.Core.Services
 {
-    public class SecurityService
+    public class SecurityService : ISecurityService
     {
         private readonly string _securityKey;
 
@@ -18,8 +19,8 @@ namespace SoundSphere.Core.Services
         public string GetToken(User user, string role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_securityKey)); // verify signature encoded and set it as security key in appsettings.json
-                                                                                      // claims are used to store information about the user which are place in the second part of the token
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_securityKey)); // verify encoded signature and set it as security key in appsettings.Development.json
+            // claims are used to store information about the user which are placed in the second part of the token
             var roleClaim = new Claim("role", role);
             var idClaim = new Claim("userId", user.Id.ToString());
             var infoClaim = new Claim("username", user.Email);
@@ -28,12 +29,11 @@ namespace SoundSphere.Core.Services
                 Issuer = "Backend",
                 Audience = "Frontend",
                 Subject = new ClaimsIdentity(new[] { roleClaim, idClaim, infoClaim }),
-                Expires = DateTime.Now.AddYears(5),
+                Expires = DateTime.Now.AddHours(1),
                 SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256) // the token will be signed with this hashing algorithm
             };
             SecurityToken? securityToken = tokenHandler.CreateToken(tokenDescriptor);
-            string? token = tokenHandler.WriteToken(securityToken);
-            return token;
+            return tokenHandler.WriteToken(securityToken);
         }
 
         public bool ValidateToken(string tokenString)
@@ -60,8 +60,7 @@ namespace SoundSphere.Core.Services
         public byte[] GenerateSalt()
         {
             byte[] salt = new byte[128 / 8];
-            using (var rng = RandomNumberGenerator.Create())
-                rng.GetBytes(salt);
+            using (var randomNumberGenerator = RandomNumberGenerator.Create()) randomNumberGenerator.GetBytes(salt);
             return salt;
         }
 

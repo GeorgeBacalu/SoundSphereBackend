@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Tests.Mocks
@@ -27,7 +27,7 @@ namespace SoundSphere.Tests.Mocks
         public static ArtistPaginationRequest GetMockedArtistsPaginationRequest() => new ArtistPaginationRequest(
             SortCriteria: new Dictionary<ArtistSortCriterion, SortOrder> { { ArtistSortCriterion.ByName, SortOrder.Ascending } },
             SearchCriteria: new List<ArtistSearchCriterion>() { ArtistSearchCriterion.ByName },
-            Name: "A");
+            Name: "B");
 
         public static Artist GetMockedArtist1() => new Artist
         {

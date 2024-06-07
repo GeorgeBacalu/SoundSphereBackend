@@ -2,7 +2,8 @@
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
+using SoundSphere.Database.Dtos.Request.Auth;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
@@ -13,10 +14,10 @@ namespace SoundSphere.Core.Services
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IAuthorityRepository _authorityRepository;
-        private readonly SecurityService _securityService;
+        private readonly ISecurityService _securityService;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, SecurityService securityService, IMapper mapper) => 
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, ISecurityService securityService, IMapper mapper) => 
             (_userRepository, _roleRepository, _authorityRepository, _securityService, _mapper) = (userRepository, roleRepository, authorityRepository, securityService, mapper);
 
         public IList<UserDto> GetAll(UserPaginationRequest payload) => _userRepository.GetAll(payload).ToDtos(_mapper);
@@ -31,16 +32,19 @@ namespace SoundSphere.Core.Services
             {
                 Name = payload.Name,
                 Email = payload.Email,
-                Role = _roleRepository.GetById(payload.RoleId),
                 PasswordHash = _securityService.HashPassword(payload.Password, salt),
                 PasswordSalt = Convert.ToBase64String(salt),
+                Mobile = payload.Mobile,
+                Address = payload.Address,
+                Birthday = payload.Birthday,
+                Avatar = payload.Avatar,
+                Role = _roleRepository.GetById(payload.RoleId),
                 CreatedAt = DateTime.Now
             };
             user.Authorities = _authorityRepository.GetByRole(user.Role);
             _userRepository.LinkUserToRole(user);
             _userRepository.LinkUserToAuthorities(user);
-            UserDto registeredUserDto = _userRepository.Add(user).ToDto(_mapper);
-            return registeredUserDto;
+            return _userRepository.Add(user).ToDto(_mapper);
         }
 
         public string? Login(LoginRequest payload)

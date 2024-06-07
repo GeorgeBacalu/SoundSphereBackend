@@ -1,4 +1,4 @@
-﻿using SoundSphere.Database.Dtos.Request;
+﻿using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Database.Repositories.Interfaces

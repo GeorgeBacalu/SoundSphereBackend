@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using SoundSphere.Database.Dtos.Request.Models;
 
-namespace SoundSphere.Database.Dtos.Request
+namespace SoundSphere.Database.Dtos.Request.Pagination
 {
     public record FeedbackPaginationRequest(
         IDictionary<FeedbackSortCriterion, SortOrder>? SortCriteria,

@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public class NotificationController : ControllerBase
+    [Authorize]
+    public class NotificationController : BaseController
     {
         private readonly INotificationService _notificationService;
 
@@ -34,6 +35,7 @@ namespace SoundSphere.Api.Controllers
         /// <param name="notificationDto">Notification to add</param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "Moderator,Admin")]
         [HttpPost] public IActionResult Add(NotificationDto notificationDto)
         {
             NotificationDto createdNotificationDto = _notificationService.Add(notificationDto);
@@ -47,6 +49,7 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Moderator,Admin")]
         [HttpPut("{id}")] public IActionResult UpdateById(NotificationDto notificationDto, Guid id) => Ok(_notificationService.UpdateById(notificationDto, id));
 
         /// <summary>Delete notification by ID</summary>
@@ -54,6 +57,7 @@ namespace SoundSphere.Api.Controllers
         /// <param name="id">Notification deleting ID</param>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")] public IActionResult DeleteById(Guid id) => Ok(_notificationService.DeleteById(id));
     }
 }

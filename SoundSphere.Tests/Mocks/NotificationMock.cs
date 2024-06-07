@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
 using static SoundSphere.Tests.Mocks.UserMock;

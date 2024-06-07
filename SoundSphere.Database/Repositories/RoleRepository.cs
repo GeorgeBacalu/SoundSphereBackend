@@ -12,7 +12,9 @@ namespace SoundSphere.Database.Repositories
 
         public RoleRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Role> GetAll() => _context.Roles.ToList();
+        public IList<Role> GetAll() => _context.Roles
+            .OrderBy(role => role.CreatedAt)
+            .ToList();
 
         public Role GetById(Guid id) => _context.Roles
             .FirstOrDefault(role => role.Id == id)

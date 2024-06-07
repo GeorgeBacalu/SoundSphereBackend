@@ -5,11 +5,10 @@ using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public class AuthorityController : ControllerBase
+    public class AuthorityController : BaseController
     {
         private readonly IAuthorityService _authorityService;
 

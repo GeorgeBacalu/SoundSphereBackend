@@ -2,7 +2,7 @@
 using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
 
-namespace SoundSphere.Database.Dtos.Request
+namespace SoundSphere.Database.Dtos.Request.Pagination
 {
     public record UserPaginationRequest(
         IDictionary<UserSortCriterion, SortOrder>? SortCriteria,

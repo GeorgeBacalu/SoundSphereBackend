@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
+using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using static SoundSphere.Database.Constants;
@@ -16,6 +18,10 @@ namespace SoundSphere.Tests.Integration.Services
     {
         private readonly DbFixture _fixture;
         private readonly IMapper _mapper;
+        private readonly IConfiguration config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
 
         private readonly User _user1 = GetMockedUser1();
         private readonly User _user2 = GetMockedUser2();
@@ -31,7 +37,7 @@ namespace SoundSphere.Tests.Integration.Services
         private void Execute(Action<UserService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
-            var userService = new UserService(new UserRepository(context), new RoleRepository(context), new AuthorityRepository(context), _mapper);
+            var userService = new UserService(new UserRepository(context), new RoleRepository(context), new AuthorityRepository(context), new SecurityService(config), _mapper);
             using var transaction = context.Database.BeginTransaction();
             context.AddRange(_users);
             context.SaveChanges();
@@ -42,14 +48,6 @@ namespace SoundSphere.Tests.Integration.Services
         [Fact] public void GetAll_Test() => Execute((userService, context) => userService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedUserDtos));
         
         [Fact] public void GetById_Test() => Execute((userService, context) => userService.GetById(ValidUserGuid).Should().Be(_userDto1));
-
-        [Fact] public void Add_Test() => Execute((userService, context) =>
-        {
-            UserDto newUserDto = GetMockedUserDto11();
-            UserDto result = userService.Add(newUserDto);
-            context.Users.Find(newUserDto.Id).Should().Be(newUserDto);
-            result.Should().Be(newUserDto);
-        });
 
         [Fact] public void UpdateById_Test() => Execute((userService, context) =>
         {
@@ -74,7 +72,8 @@ namespace SoundSphere.Tests.Integration.Services
             Id = ValidUserGuid,
             Name = user.Name,
             Email = user.Email,
-            Password = user.Password,
+            PasswordHash = user.PasswordHash,
+            PasswordSalt = user.PasswordSalt,
             Mobile = user.Mobile,
             Address = user.Address,
             Birthday = user.Birthday,

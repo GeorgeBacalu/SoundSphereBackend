@@ -1,5 +1,6 @@
 ﻿using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
+using SoundSphere.Database.Dtos.Request.Auth;
 
 namespace SoundSphere.Core.Services.Interfaces
 {

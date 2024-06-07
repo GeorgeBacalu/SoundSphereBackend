@@ -4,7 +4,7 @@ using Moq;
 using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static SoundSphere.Database.Constants;
 using static SoundSphere.Tests.Mocks.UserMock;
@@ -39,15 +39,6 @@ namespace SoundSphere.Tests.Unit.Controllers
             OkObjectResult? result = _userController.GetById(ValidUserGuid) as OkObjectResult;
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(Status200OK);
-            result?.Value.Should().Be(_userDto1);
-        }
-
-        [Fact] public void Add_Test()
-        {
-            _userServiceMock.Setup(mock => mock.Add(_userDto1)).Returns(_userDto1);
-            CreatedAtActionResult? result = _userController.Add(_userDto1) as CreatedAtActionResult;
-            result?.Should().NotBeNull();
-            result?.StatusCode.Should().Be(Status201Created);
             result?.Value.Should().Be(_userDto1);
         }
 

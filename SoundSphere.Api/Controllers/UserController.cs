@@ -1,16 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
+using SoundSphere.Database.Dtos.Request.Auth;
 using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public class UserController : ControllerBase
+    [Authorize]
+    public class UserController : BaseController
     {
         private readonly IUserService _userService;
 
@@ -29,16 +31,25 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_userService.GetById(id));
 
-        /// <summary>Add user</summary>
-        /// <remarks>Add new user</remarks>
-        /// <param name="userDto">User to add</param>
+        /// <summary>Register new user</summary>
+        /// <remarks>Create new user and return the created user</remarks>
+        /// <param name="payload">User registration details</param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost] public IActionResult Add(UserDto userDto)
+        [AllowAnonymous]
+        [HttpPost("register")] public IActionResult Register(RegisterRequest payload)
         {
-            UserDto createdUserDto = _userService.Add(userDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdUserDto.Id }, createdUserDto);
+            UserDto? registeredUserDto = _userService.Register(payload);
+            return CreatedAtAction(nameof(GetById), new { id = registeredUserDto?.Id }, registeredUserDto);
         }
+
+        /// <summary>Login user</summary>
+        /// <remarks>Authenticate user and return JWT token</remarks>
+        /// <param name="payload">User login details</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
+        [HttpPost("login")] public IActionResult Login(LoginRequest payload) => Ok(new { token = _userService.Login(payload) });
 
         /// <summary>Update user by ID</summary>
         /// <remarks>Update user with given ID</remarks>

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
 using static SoundSphere.Tests.Mocks.UserMock;
@@ -26,10 +26,10 @@ namespace SoundSphere.Tests.Mocks
         public static IList<FeedbackDto> GetMockedPaginatedFeedbackDtos() => GetMockedPaginatedFeedbacks().Select(ToDto).ToList();
 
         public static FeedbackPaginationRequest GetMockedFeedbacksPaginationRequest() => new FeedbackPaginationRequest(
-            SortCriteria: new Dictionary<FeedbackSortCriterion, SortOrder> { { FeedbackSortCriterion.ByCreateDate, SortOrder.Ascending }, { FeedbackSortCriterion.ByMessage, SortOrder.Ascending }, { FeedbackSortCriterion.ByUserName, SortOrder.Ascending } },
+            SortCriteria: new Dictionary<FeedbackSortCriterion, SortOrder> { { FeedbackSortCriterion.ByMessage, SortOrder.Ascending }, { FeedbackSortCriterion.ByUserName, SortOrder.Ascending } },
             SearchCriteria: new List<FeedbackSearchCriterion> { FeedbackSearchCriterion.ByCreateDateRange, FeedbackSearchCriterion.ByMessage, FeedbackSearchCriterion.ByUserName },
-            Message: "A",
             DateRange: new DateTimeRange(new DateTime(1950, 1, 1), new DateTime(2024, 5, 31)),
+            Message: "A",
             UserName: "A");
 
         public static Feedback GetMockedFeedback1() => new Feedback

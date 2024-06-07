@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
 using SoundSphere.Database.Dtos.Request.Models;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Tests.Mocks
@@ -28,7 +28,7 @@ namespace SoundSphere.Tests.Mocks
         public static AlbumPaginationRequest GetMockedAlbumsPaginationRequest() => new AlbumPaginationRequest(
             SortCriteria: new Dictionary<AlbumSortCriterion, SortOrder> { { AlbumSortCriterion.ByTitle, SortOrder.Ascending }, { AlbumSortCriterion.ByReleaseDate, SortOrder.Ascending } },
             SearchCriteria: new List<AlbumSearchCriterion> { AlbumSearchCriterion.ByTitle, AlbumSearchCriterion.ByReleaseDateRange },
-            Title: "A",
+            Title: "B",
             DateRange: new DateRange(new DateOnly(1950, 1, 1), new DateOnly(2024, 5, 31)));
 
         public static Album GetMockedAlbum1() => new Album

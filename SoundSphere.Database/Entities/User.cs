@@ -35,6 +35,7 @@ namespace SoundSphere.Database.Entities
             Name.Equals(user.Name) &&
             Email.Equals(user.Email) &&
             PasswordHash.Equals(user.PasswordHash) &&
+            PasswordSalt.Equals(user.PasswordSalt) &&
             Mobile.Equals(user.Mobile) &&
             Address.Equals(user.Address) &&
             Birthday.Equals(user.Birthday) &&

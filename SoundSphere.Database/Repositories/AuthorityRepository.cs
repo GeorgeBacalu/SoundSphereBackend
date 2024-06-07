@@ -12,7 +12,9 @@ namespace SoundSphere.Database.Repositories
 
         public AuthorityRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Authority> GetAll() => _context.Authorities.ToList();
+        public IList<Authority> GetAll() => _context.Authorities
+            .OrderBy(authority => authority.CreatedAt)
+            .ToList();
 
         public Authority GetById(Guid id) => _context.Authorities
             .FirstOrDefault(authority => authority.Id == id)
@@ -20,14 +22,10 @@ namespace SoundSphere.Database.Repositories
 
         public IList<Authority> GetByRole(Role role) => role.Type switch
         {
-            RoleType.Listener => _context.Authorities
-                .Where(authority => authority.Type == AuthorityType.Read)
-                .ToList(),
-            RoleType.Moderator => _context.Authorities
-                .Where(authority => authority.Type != AuthorityType.Delete)
-                .ToList(),
+            RoleType.Listener => _context.Authorities.Where(authority => authority.Type == AuthorityType.Read).ToList(),
+            RoleType.Moderator => _context.Authorities.Where(authority => authority.Type != AuthorityType.Delete).ToList(),
             RoleType.Administrator => _context.Authorities.ToList(),
-            _ => throw new ResourceNotFoundException(string.Format(RoleTypeNotFound, role.Type))
+            _ => throw new ResourceNotFoundException(string.Format(RoleTypeNotFound, role.Type.ToString()))
         };
 
         public Authority Add(Authority authority)

@@ -4,7 +4,7 @@ using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using static SoundSphere.Database.Constants;
@@ -19,6 +19,7 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<IUserRepository> _userRepositoryMock = new();
         private readonly Mock<IRoleRepository> _roleRepositoryMock = new();
         private readonly Mock<IAuthorityRepository> _authorityRepositoryMock = new();
+        private readonly Mock<ISecurityService> _sercurityServiceMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly IUserService _userService;
 
@@ -32,7 +33,7 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly IList<UserDto> _paginatedUserDtos = GetMockedPaginatedUserDtos();
         private readonly UserPaginationRequest _paginationRequest = GetMockedUsersPaginationRequest();
         private readonly Role _role1 = GetMockedRole1();
-        private readonly IList<Authority> _authorities1 = GetMockedAuthorities1();
+        private readonly IList<Authority> _authorities1 = GetMockedAuthoritiesAdmin();
 
         public UserServiceTest()
         {
@@ -40,7 +41,7 @@ namespace SoundSphere.Tests.Unit.Services
             _mapperMock.Setup(mock => mock.Map<UserDto>(_user2)).Returns(_userDto2);
             _mapperMock.Setup(mock => mock.Map<User>(_userDto1)).Returns(_user1);
             _mapperMock.Setup(mock => mock.Map<User>(_userDto2)).Returns(_user2);
-            _userService = new UserService(_userRepositoryMock.Object, _roleRepositoryMock.Object, _authorityRepositoryMock.Object, _mapperMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _roleRepositoryMock.Object, _authorityRepositoryMock.Object, _sercurityServiceMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void GetAll_Test()
@@ -53,14 +54,6 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _userRepositoryMock.Setup(mock => mock.GetById(ValidUserGuid)).Returns(_user1);
             _userService.GetById(ValidUserGuid).Should().Be(_userDto1);
-        }
-
-        [Fact] public void Add_Test()
-        {
-            _userDto1.AuthoritiesIds.ToList().ForEach(id => _authorityRepositoryMock.Setup(mock => mock.GetById(id)).Returns(_authorities1.First(authority => authority.Id == id)));
-            _roleRepositoryMock.Setup(mock => mock.GetById(ValidRoleGuid)).Returns(_role1);
-            _userRepositoryMock.Setup(mock => mock.Add(_user1)).Returns(_user1);
-            _userService.Add(_userDto1).Should().Be(_userDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -86,7 +79,8 @@ namespace SoundSphere.Tests.Unit.Services
             Id = ValidUserGuid,
             Name = user.Name,
             Email = user.Email,
-            Password = user.Password,
+            PasswordHash = user.PasswordHash,
+            PasswordSalt = user.PasswordSalt,
             Mobile = user.Mobile,
             Address = user.Address,
             Birthday = user.Birthday,
