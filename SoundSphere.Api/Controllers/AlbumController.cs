@@ -21,14 +21,22 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active albums paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with albums pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("get")] public IActionResult GetAll(AlbumPaginationRequest payload) => Ok(_albumService.GetAll(payload));
+        [HttpPost("get")] public IActionResult GetAll(AlbumPaginationRequest payload) 
+        {
+            IList<AlbumDto> result = _albumService.GetAll(payload);
+            return Ok(new { userId = GetUserId(), albums = result });
+        }
 
         /// <summary>Get active album by ID</summary>
         /// <remarks>Return active album with given ID</remarks>
         /// <param name="id">Album fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_albumService.GetById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id) 
+        {
+            AlbumDto result = _albumService.GetById(id);
+            return Ok(new { userId = GetUserId(), album = result });
+        }
 
         /// <summary>Add album</summary>
         /// <remarks>Add new album</remarks>
@@ -50,7 +58,11 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "Moderator,Admin")]
-        [HttpPut("{id}")] public IActionResult UpdateById(AlbumDto albumDto, Guid id) => Ok(_albumService.UpdateById(albumDto, id));
+        [HttpPut("{id}")] public IActionResult UpdateById(AlbumDto albumDto, Guid id)
+        {
+            AlbumDto result = _albumService.UpdateById(albumDto, id);
+            return Ok(new { userId = GetUserId(), updatedAlbum = result });
+        }
 
         /// <summary>Delete album by ID</summary>
         /// <remarks>Soft delete album with given ID</remarks>
@@ -58,6 +70,10 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id) => Ok(_albumService.DeleteById(id));
+        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
+        {
+            AlbumDto result = _albumService.DeleteById(id);
+            return Ok(new { userId = GetUserId(), deletedAlbum = result });
+        }
     }
 }

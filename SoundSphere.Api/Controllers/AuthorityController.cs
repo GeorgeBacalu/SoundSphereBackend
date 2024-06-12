@@ -17,14 +17,22 @@ namespace SoundSphere.Api.Controllers
         /// <summary>Get all authorities</summary>
         /// <remarks>Return list with all authorities</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_authorityService.GetAll());
+        [HttpGet] public IActionResult GetAll()
+        {
+            IList<AuthorityDto> result = _authorityService.GetAll();
+            return Ok(result);
+        }
 
         /// <summary>Get authority by ID</summary>
         /// <remarks>Return authority with given ID</remarks>
         /// <param name="id">Authority fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_authorityService.GetById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id)
+        {
+            AuthorityDto result = _authorityService.GetById(id);
+            return Ok(result);
+        }
 
         /// <summary>Add authority</summary>
         /// <remarks>Add new authority</remarks>

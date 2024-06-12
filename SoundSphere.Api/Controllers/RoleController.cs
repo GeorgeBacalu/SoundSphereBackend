@@ -17,14 +17,22 @@ namespace SoundSphere.Api.Controllers
         /// <summary>Get all roles</summary>
         /// <remarks>Return list with all roles</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_roleService.GetAll());
+        [HttpGet] public IActionResult GetAll()
+        {
+            IList<RoleDto> result = _roleService.GetAll();
+            return Ok(result);
+        }
 
         /// <summary>Get role by ID</summary>
         /// <remarks>Return role with given ID</remarks>
         /// <param name="id">Role fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_roleService.GetById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id)
+        {
+            RoleDto result = _roleService.GetById(id);
+            return Ok(result);
+        }
 
         /// <summary>Add role</summary>
         /// <remarks>Add new role</remarks>

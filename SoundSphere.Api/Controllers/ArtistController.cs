@@ -21,14 +21,22 @@ namespace SoundSphere.Api.Controllers
         ///<remarks>Return list with active artists paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with artists pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("get")] public IActionResult GetAll(ArtistPaginationRequest payload) => Ok(_artistService.GetAll(payload));
+        [HttpPost("get")] public IActionResult GetAll(ArtistPaginationRequest payload)
+        {
+            IList<ArtistDto> result = _artistService.GetAll(payload);
+            return Ok(new { userId = GetUserId(), artists = result });
+        }
 
         /// <summary>Get active artist by ID</summary>
         /// <remarks>Return active artist with given ID</remarks>
         /// <param name="id">Artist fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_artistService.GetById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id)
+        {
+            ArtistDto result = _artistService.GetById(id);
+            return Ok(new { userId = GetUserId(), artist = result });
+        }
 
         /// <summary>Add artist</summary>
         /// <remarks>Add new artist</remarks>
@@ -50,7 +58,11 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "Moderator,Admin")]
-        [HttpPut("{id}")] public IActionResult UpdateById(ArtistDto artistDto, Guid id) => Ok(_artistService.UpdateById(artistDto, id));
+        [HttpPut("{id}")] public IActionResult UpdateById(ArtistDto artistDto, Guid id)
+        {
+            ArtistDto result = _artistService.UpdateById(artistDto, id);
+            return Ok(new { userId = GetUserId(), updatedArtist = result });
+        }
 
         /// <summary>Delete artist by ID</summary>
         /// <remarks>Soft delete artist with given ID</remarks>
@@ -58,6 +70,10 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id) => Ok(_artistService.DeleteById(id));
+        [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
+        {
+            ArtistDto result = _artistService.DeleteById(id);
+            return Ok(new { userId = GetUserId(), deletedArtist = result });
+        }
     }
 }
