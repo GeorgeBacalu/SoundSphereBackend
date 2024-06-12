@@ -13,5 +13,5 @@
         public override int GetHashCode() => HashCode.Combine(Id, Type, CreatedAt);
     }
 
-    public enum RoleType { Administrator, Moderator, Listener }
+    public enum RoleType { InvalidRoleType, Administrator = 10, Moderator = 20, Listener = 30 }
 }

@@ -7,10 +7,9 @@ namespace SoundSphere.Database.Dtos.Request.Pagination
         IDictionary<AlbumSortCriterion, SortOrder>? SortCriteria,
         IList<AlbumSearchCriterion>? SearchCriteria,
         string? Title,
-        DateRange? DateRange
-        ) : PaginationRequest;
+        DateRange? DateRange) : PaginationRequest;
 
-    public enum AlbumSortCriterion { ByTitle = 10, ByReleaseDate = 20 }
+    public enum AlbumSortCriterion { InvalidSortCriterion, ByTitle = 10, ByReleaseDate = 20 }
 
-    public enum AlbumSearchCriterion { ByTitle = 10, ByReleaseDateRange = 20 }
+    public enum AlbumSearchCriterion { InvalidSearchCriterion, ByTitle = 10, ByReleaseDateRange = 20 }
 }

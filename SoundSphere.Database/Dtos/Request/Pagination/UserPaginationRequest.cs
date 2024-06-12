@@ -10,10 +10,9 @@ namespace SoundSphere.Database.Dtos.Request.Pagination
         string? Name,
         string? Email,
         DateRange? DateRange,
-        RoleType RoleType
-        ) : PaginationRequest;
+        RoleType? RoleType) : PaginationRequest;
 
-    public enum UserSortCriterion { ByName = 10, ByEmail = 20 }
+    public enum UserSortCriterion { InvalidSortCriterion, ByName = 10, ByEmail = 20 }
 
-    public enum UserSearchCriterion { ByName = 10, ByEmail = 20, ByBirthdayRange = 30, ByRole = 40 }
+    public enum UserSearchCriterion { InvalidSearchCriterion, ByName = 10, ByEmail = 20, ByBirthdayRange = 30, ByRole = 40 }
 }

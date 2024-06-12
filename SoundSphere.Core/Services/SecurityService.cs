@@ -33,7 +33,8 @@ namespace SoundSphere.Core.Services
                 SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256) // the token will be signed with this hashing algorithm
             };
             SecurityToken? securityToken = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(securityToken);
+            string? token = tokenHandler.WriteToken(securityToken);
+            return token;
         }
 
         public bool ValidateToken(string tokenString)

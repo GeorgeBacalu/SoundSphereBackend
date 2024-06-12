@@ -17,5 +17,5 @@ namespace SoundSphere.Database.Entities
         public override int GetHashCode() => HashCode.Combine(Id, Type, Users, CreatedAt);
     }
 
-    public enum AuthorityType { Create, Read, Update, Delete }
+    public enum AuthorityType { InvalidAuthorityType, Create = 10, Read = 20, Update = 30, Delete = 40 }
 }

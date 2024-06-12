@@ -6,9 +6,17 @@ namespace SoundSphere.Core.Mappings
 {
     public static class AlbumMappingExtensions
     {
-        public static IList<AlbumDto> ToDtos(this IList<Album> albums, IMapper mapper) => albums.Select(album => album.ToDto(mapper)).ToList();
+        public static IList<AlbumDto> ToDtos(this IList<Album> albums, IMapper mapper)
+        {
+            IList<AlbumDto> albumDtos = albums.Select(album => album.ToDto(mapper)).ToList();
+            return albumDtos;
+        }
 
-        public static IList<Album> ToEntities(this IList<AlbumDto> albumDtos, IMapper mapper) => albumDtos.Select(album => album.ToEntity(mapper)).ToList();
+        public static IList<Album> ToEntities(this IList<AlbumDto> albumDtos, IMapper mapper)
+        {
+            IList<Album> albums = albumDtos.Select(albumDto => albumDto.ToEntity(mapper)).ToList();
+            return albums;
+        }
 
         public static AlbumDto ToDto(this Album album, IMapper mapper)
         {

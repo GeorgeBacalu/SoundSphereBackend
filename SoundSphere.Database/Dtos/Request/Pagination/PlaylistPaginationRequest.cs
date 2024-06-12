@@ -9,10 +9,9 @@ namespace SoundSphere.Database.Dtos.Request.Pagination
         DateTimeRange? DateRange,
         string? Title,
         string? UserName,
-        string SongTitle
-        ) : PaginationRequest;
+        string? SongTitle) : PaginationRequest;
 
-    public enum PlaylistSortCriterion { ByCreateDate = 10, ByTitle = 20 }
+    public enum PlaylistSortCriterion { InvalidSortCriterion, ByCreateDate = 10, ByTitle = 20 }
 
-    public enum PlaylistSearchCriterion { ByUserName = 10, ByTitle = 20, ByCreateDateRange = 30, BySongTitle = 40 }
+    public enum PlaylistSearchCriterion { InvalidSearchCriterion, ByUserName = 10, ByTitle = 20, ByCreateDateRange = 30, BySongTitle = 40 }
 }

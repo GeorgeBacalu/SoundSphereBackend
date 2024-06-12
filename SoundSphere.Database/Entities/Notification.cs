@@ -25,5 +25,5 @@
         public override int GetHashCode() => HashCode.Combine(Id, User, Type, Message, IsRead, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 
-    public enum NotificationType { Music, Social, Account, System }
+    public enum NotificationType { InvalidNotificationType, Music = 10, Social = 20, Account = 30, System = 40 }
 }

@@ -7,11 +7,23 @@ namespace SoundSphere.Core.Mappings
 {
     public static class FeedbackMappingExtensions
     {
-        public static IList<FeedbackDto> ToDtos(this IList<Feedback> feedbacks, IMapper mapper) => feedbacks.Select(feedback => feedback.ToDto(mapper)).ToList();
+        public static IList<FeedbackDto> ToDtos(this IList<Feedback> feedbacks, IMapper mapper)
+        {
+            IList<FeedbackDto> feedbackDtos = feedbacks.Select(feedback => feedback.ToDto(mapper)).ToList();
+            return feedbackDtos;
+        }
 
-        public static IList<Feedback> ToEntities(this IList<FeedbackDto> feedbackDtos, IUserRepository userRepository, IMapper mapper) => feedbackDtos.Select(feedbackDto => feedbackDto.ToEntity(userRepository, mapper)).ToList();
+        public static IList<Feedback> ToEntities(this IList<FeedbackDto> feedbackDtos, IUserRepository userRepository, IMapper mapper)
+        {
+            IList<Feedback> feedbacks = feedbackDtos.Select(feedbackDto => feedbackDto.ToEntity(userRepository, mapper)).ToList();
+            return feedbacks;
+        }
 
-        public static FeedbackDto ToDto(this Feedback feedback, IMapper mapper) => mapper.Map<FeedbackDto>(feedback);
+        public static FeedbackDto ToDto(this Feedback feedback, IMapper mapper)
+        {
+            FeedbackDto feedbackDto = mapper.Map<FeedbackDto>(feedback);
+            return feedbackDto;
+        }
 
         public static Feedback ToEntity(this FeedbackDto feedbackDto, IUserRepository userRepository, IMapper mapper)
         {

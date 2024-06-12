@@ -15,27 +15,37 @@ namespace SoundSphere.Database.Repositories
 
         public SongRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Song> GetAll(SongPaginationRequest payload) => _context.Songs
-            .Include(song => song.Album)
-            .Include(song => song.Artists)
-            .Include(song => song.SimilarSongs)
-            .Where(song => song.DeletedAt == null)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
+        public IList<Song> GetAll(SongPaginationRequest payload)
+        {
+            IList<Song> songs = _context.Songs
+                .Include(song => song.Album)
+                .Include(song => song.Artists)
+                .Include(song => song.SimilarSongs)
+                .Where(song => song.DeletedAt == null)
+                .Filter(payload)
+                .Sort(payload)
+                .Paginate(payload)
+                .ToList();
+            return songs;
+        }
 
-        public Song GetById(Guid id) => _context.Songs
-            .Include(song => song.Album)
-            .Include(song => song.Artists)
-            .Include(song => song.SimilarSongs)
-            .Where(song => song.DeletedAt == null)
-            .FirstOrDefault(song => song.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(SongNotFound, id));
+        public Song GetById(Guid id)
+        {
+            Song? song = _context.Songs
+                .Include(song => song.Album)
+                .Include(song => song.Artists)
+                .Include(song => song.SimilarSongs)
+                .Where(song => song.DeletedAt == null)
+                .FirstOrDefault(song => song.Id == id);
+            if (song == null)
+                throw new ResourceNotFoundException(string.Format(SongNotFound, id));
+            return song;
+        }
 
         public Song Add(Song song)
         {
-            if (song.Id == Guid.Empty) song.Id = Guid.NewGuid();
+            if (song.Id == Guid.Empty)
+                song.Id = Guid.NewGuid();
             song.CreatedAt = DateTime.Now;
             _context.Songs.Add(song);
             _context.SaveChanges();
@@ -69,7 +79,7 @@ namespace SoundSphere.Database.Repositories
 
         public void LinkSongToAlbum(Song song)
         {
-            Album existingAlbum = _context.Albums.Find(song.Album.Id);
+            Album? existingAlbum = _context.Albums.Find(song.Album.Id);
             if (existingAlbum != null)
             {
                 _context.Entry(existingAlbum).State = EntityState.Unchanged;
@@ -80,7 +90,7 @@ namespace SoundSphere.Database.Repositories
         public void LinkSongToArtists(Song song) => song.Artists = song.Artists
             .Select(artist => _context.Artists.Find(artist.Id))
             .Where(artist => artist != null)
-            .Select(artist => { _context.Entry(artist).State = EntityState.Unchanged; return artist; })
+            .Select(artist => { _context.Entry(artist!).State = EntityState.Unchanged; return artist!; })
             .ToList();
 
         public void AddSongLink(Song song) => song.SimilarSongs = song.SimilarSongs

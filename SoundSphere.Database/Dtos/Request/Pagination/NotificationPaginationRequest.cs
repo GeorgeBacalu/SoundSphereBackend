@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using SoundSphere.Database.Dtos.Request.Models;
+using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Database.Dtos.Request.Pagination
 {
@@ -9,10 +10,10 @@ namespace SoundSphere.Database.Dtos.Request.Pagination
         DateTimeRange? DateRange,
         string? Message,
         string? UserName,
-        bool? IsRead
-        ) : PaginationRequest;
+        bool? IsRead,
+        NotificationType? Type) : PaginationRequest;
 
-    public enum NotificationSortCriterion { ByCreateDate = 10, ByMessage = 20, ByUserName = 30 }
+    public enum NotificationSortCriterion { InvalidSortCriterion, ByCreateDate = 10, ByMessage = 20, ByUserName = 30 }
 
-    public enum NotificationSearchCriterion { ByCreateDateRange = 10, ByMessage = 20, ByUserName = 30, ByIsRead = 40 }
+    public enum NotificationSearchCriterion { InvalidSearchCriterion, ByCreateDateRange = 10, ByMessage = 20, ByUserName = 30, ByIsRead = 40, ByType = 50 }
 }

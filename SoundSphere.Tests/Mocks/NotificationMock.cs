@@ -27,11 +27,12 @@ namespace SoundSphere.Tests.Mocks
 
         public static NotificationPaginationRequest GetMockedNotificationsPaginationRequest() => new NotificationPaginationRequest(
             SortCriteria: new Dictionary<NotificationSortCriterion, SortOrder> { { NotificationSortCriterion.ByCreateDate, SortOrder.Ascending }, { NotificationSortCriterion.ByMessage, SortOrder.Ascending }, { NotificationSortCriterion.ByUserName, SortOrder.Ascending } },
-            SearchCriteria: new List<NotificationSearchCriterion> { NotificationSearchCriterion.ByCreateDateRange, NotificationSearchCriterion.ByMessage, NotificationSearchCriterion.ByUserName, NotificationSearchCriterion.ByIsRead },
+            SearchCriteria: new List<NotificationSearchCriterion> { NotificationSearchCriterion.ByCreateDateRange, NotificationSearchCriterion.ByMessage, NotificationSearchCriterion.ByUserName, NotificationSearchCriterion.ByIsRead, NotificationSearchCriterion.ByType },
             Message: "A",
             DateRange: new DateTimeRange(new DateTime(1950, 1, 1), new DateTime(2024, 5, 31)),
             UserName: "A",
-            IsRead: false);
+            IsRead: false,
+            Type: NotificationType.Music);
 
         public static Notification GetMockedNotification1() => new Notification
         {

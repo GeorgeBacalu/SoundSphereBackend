@@ -12,25 +12,39 @@ namespace SoundSphere.Database.Repositories
 
         public AuthorityRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Authority> GetAll() => _context.Authorities
-            .OrderBy(authority => authority.CreatedAt)
-            .ToList();
-
-        public Authority GetById(Guid id) => _context.Authorities
-            .FirstOrDefault(authority => authority.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(AuthorityNotFound, id));
-
-        public IList<Authority> GetByRole(Role role) => role.Type switch
+        public IList<Authority> GetAll()
         {
-            RoleType.Listener => _context.Authorities.Where(authority => authority.Type == AuthorityType.Read).ToList(),
-            RoleType.Moderator => _context.Authorities.Where(authority => authority.Type != AuthorityType.Delete).ToList(),
-            RoleType.Administrator => _context.Authorities.ToList(),
-            _ => throw new ResourceNotFoundException(string.Format(RoleTypeNotFound, role.Type.ToString()))
-        };
+            IList<Authority> authorities = _context.Authorities
+                .OrderBy(authority => authority.CreatedAt)
+                .ToList();
+            return authorities;
+        }
+
+        public Authority GetById(Guid id)
+        {
+            Authority? authority = _context.Authorities.FirstOrDefault(authority => authority.Id == id);
+            if (authority == null)
+                throw new ResourceNotFoundException(string.Format(AuthorityNotFound, id));
+            return authority;
+        }
+
+        public IList<Authority> GetByRole(Role role)
+        {
+            IList<Authority> authorities = role.Type switch
+            {
+                RoleType.Listener => _context.Authorities.Where(authority => authority.Type == AuthorityType.Read).ToList(),
+                RoleType.Moderator => _context.Authorities.Where(authority => authority.Type != AuthorityType.Delete).ToList(),
+                RoleType.Administrator => _context.Authorities.ToList(),
+                _ => throw new ResourceNotFoundException(string.Format(RoleTypeNotFound, role.Type.ToString()))
+            };
+            return authorities;
+        }
 
         public Authority Add(Authority authority)
         {
-            if (authority.Id == Guid.Empty) authority.Id = Guid.NewGuid();
+            if (authority.Id == Guid.Empty)
+                authority.Id = Guid.NewGuid();
+            authority.CreatedAt = DateTime.Now;
             _context.Authorities.Add(authority);
             _context.SaveChanges();
             return authority;

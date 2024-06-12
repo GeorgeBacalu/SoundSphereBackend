@@ -12,10 +12,9 @@ namespace SoundSphere.Database.Dtos.Request.Pagination
         DateRange? DateRange,
         DurationRange? DurationRange,
         string? AlbumTitle,
-        string ArtistName
-        ) : PaginationRequest;
+        string? ArtistName) : PaginationRequest;
 
-    public enum SongSortCriterion { ByTitle = 10, ByReleaseDate = 20 }
+    public enum SongSortCriterion { InvalidSortCriterion, ByTitle = 10, ByReleaseDate = 20 }
 
-    public enum SongSearchCriterion { ByTitle = 10, ByGenre = 20, ByReleaseDateRange = 30, ByDurationSecondsRange = 40, ByAlbumTitle = 50, ByArtistName = 60 }
+    public enum SongSearchCriterion { InvalidSearchCriterion, ByTitle = 10, ByGenre = 20, ByReleaseDateRange = 30, ByDurationSecondsRange = 40, ByAlbumTitle = 50, ByArtistName = 60 }
 }

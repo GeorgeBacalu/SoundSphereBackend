@@ -2,6 +2,7 @@
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
+using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 
 namespace SoundSphere.Core.Services
@@ -13,10 +14,23 @@ namespace SoundSphere.Core.Services
 
         public RoleService(IRoleRepository roleRepository, IMapper mapper) => (_roleRepository, _mapper) = (roleRepository, mapper);
 
-        public IList<RoleDto> GetAll() => _roleRepository.GetAll().ToDtos(_mapper);
+        public IList<RoleDto> GetAll()
+        {
+            IList<RoleDto> roleDtos = _roleRepository.GetAll().ToDtos(_mapper);
+            return roleDtos;
+        }
 
-        public RoleDto GetById(Guid id) => _roleRepository.GetById(id).ToDto(_mapper);
+        public RoleDto GetById(Guid id)
+        {
+            RoleDto roleDto = _roleRepository.GetById(id).ToDto(_mapper);
+            return roleDto;
+        }
 
-        public RoleDto Add(RoleDto roleDto) => _roleRepository.Add(roleDto.ToEntity(_mapper)).ToDto(_mapper);
+        public RoleDto Add(RoleDto roleDto)
+        {
+            Role roleToCreate = roleDto.ToEntity(_mapper);
+            RoleDto createdRoleDto = _roleRepository.Add(roleToCreate).ToDto(_mapper);
+            return createdRoleDto;
+        }
     }
 }
