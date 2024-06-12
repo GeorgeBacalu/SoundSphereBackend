@@ -6,26 +6,45 @@ namespace SoundSphere.Database.Extensions
 {
     public static class NotificationQueryExtensions
     {
-        public static IQueryable<Notification> Filter(this IQueryable<Notification> query, NotificationPaginationRequest payload) =>
-            payload.SearchCriteria == null || !payload.SearchCriteria.Any() ? query :
-            payload.SearchCriteria.Aggregate(query, (current, searchCriterion) => searchCriterion switch
-            {
-                NotificationSearchCriterion.ByCreateDateRange => current.Where(notification => notification.CreatedAt >= payload.DateRange.StartDate && notification.CreatedAt <= payload.DateRange.EndDate),
-                NotificationSearchCriterion.ByMessage => current.Where(notification => notification.Message.Contains(payload.Message)),
-                NotificationSearchCriterion.ByUserName => current.Where(notification => notification.User.Name.Contains(payload.UserName)),
-                NotificationSearchCriterion.ByIsRead => current.Where(notification => notification.IsRead == payload.IsRead),
-                _ => current
-            });
+        public static IQueryable<Notification> Filter(this IQueryable<Notification> query, NotificationPaginationRequest payload)
+        {
+            if (payload.SearchCriteria == null || !payload.SearchCriteria.Any())
+                return query;
+            foreach (var searchCrtierion in payload.SearchCriteria)
+                query = searchCrtierion switch
+                {
+                    NotificationSearchCriterion.ByCreateDateRange => query.Where(notification => notification.CreatedAt >= payload.DateRange.StartDate && notification.CreatedAt <= payload.DateRange.EndDate),
+                    NotificationSearchCriterion.ByMessage => query.Where(notification => notification.Message.Contains(payload.Message)),
+                    NotificationSearchCriterion.ByUserName => query.Where(notification => notification.User.Name.Contains(payload.UserName)),
+                    NotificationSearchCriterion.ByIsRead => query.Where(notification => notification.IsRead == payload.IsRead),
+                    NotificationSearchCriterion.ByType => query.Where(notification => notification.Type == payload.Type),
+                    _ => query
+                };
+            return query;
+        }
 
-        public static IQueryable<Notification> Sort(this IQueryable<Notification> query, NotificationPaginationRequest payload) =>
-            payload.SortCriteria == null || !payload.SortCriteria.Any() ? query.OrderBy(notification => notification.CreatedAt) :
-            payload.SortCriteria.Aggregate(query, (current, sortCriterion) => sortCriterion.Key switch
+        public static IQueryable<Notification> Sort(this IQueryable<Notification> query, NotificationPaginationRequest payload)
+        {
+            if (payload.SortCriteria == null || !payload.SortCriteria.Any())
+                return query.OrderBy(notification => notification.CreatedAt);
+            var firstCriterion = payload.SortCriteria.First();
+            var orderedQuery = firstCriterion.Key switch
             {
-                NotificationSortCriterion.ByCreateDate => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(notification => notification.CreatedAt) : current.OrderByDescending(notification => notification.CreatedAt),
-                NotificationSortCriterion.ByMessage => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(notification => notification.Message) : current.OrderByDescending(notification => notification.Message),
-                NotificationSortCriterion.ByUserName => sortCriterion.Value == SortOrder.Ascending ? current.OrderBy(notification => notification.User.Name) : current.OrderByDescending(notification => notification.User.Name),
-                _ => current.OrderBy(notification => notification.CreatedAt)
-            });
+                NotificationSortCriterion.ByCreateDate => firstCriterion.Value == SortOrder.Ascending ? query.OrderBy(notification => notification.CreatedAt) : query.OrderByDescending(notification => notification.CreatedAt),
+                NotificationSortCriterion.ByMessage => firstCriterion.Value == SortOrder.Ascending ? query.OrderBy(notification => notification.Message) : query.OrderByDescending(notification => notification.Message),
+                NotificationSortCriterion.ByUserName => firstCriterion.Value == SortOrder.Ascending ? query.OrderBy(notification => notification.User.Name) : query.OrderByDescending(notification => notification.User.Name),
+                _ => query.OrderBy(notification => notification.CreatedAt)
+            };
+            foreach (var sortCriterion in payload.SortCriteria.Skip(1))
+                orderedQuery = sortCriterion.Key switch
+                {
+                    NotificationSortCriterion.ByCreateDate => sortCriterion.Value == SortOrder.Ascending ? orderedQuery.ThenBy(notification => notification.CreatedAt) : orderedQuery.ThenByDescending(notification => notification.CreatedAt),
+                    NotificationSortCriterion.ByMessage => sortCriterion.Value == SortOrder.Ascending ? orderedQuery.ThenBy(notification => notification.Message) : orderedQuery.ThenByDescending(notification => notification.Message),
+                    NotificationSortCriterion.ByUserName => sortCriterion.Value == SortOrder.Ascending ? orderedQuery.ThenBy(notification => notification.User.Name) : orderedQuery.ThenByDescending(notification => notification.User.Name),
+                    _ => orderedQuery
+                };
+            return orderedQuery;
+        }
 
         public static IQueryable<Notification> Paginate(this IQueryable<Notification> query, NotificationPaginationRequest payload) => query.Skip(payload.Page * payload.Size).Take(payload.Size);
     }
