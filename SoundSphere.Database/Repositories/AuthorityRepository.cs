@@ -34,7 +34,7 @@ namespace SoundSphere.Database.Repositories
             {
                 RoleType.Listener => _context.Authorities.Where(authority => authority.Type == AuthorityType.Read).ToList(),
                 RoleType.Moderator => _context.Authorities.Where(authority => authority.Type != AuthorityType.Delete).ToList(),
-                RoleType.Administrator => _context.Authorities.ToList(),
+                RoleType.Admin => _context.Authorities.ToList(),
                 _ => throw new ResourceNotFoundException(string.Format(RoleTypeNotFound, role.Type.ToString()))
             };
             return authorities;
