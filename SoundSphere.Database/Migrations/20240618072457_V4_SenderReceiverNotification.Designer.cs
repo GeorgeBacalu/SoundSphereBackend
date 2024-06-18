@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoundSphere.Database.Context;
 
@@ -11,9 +12,11 @@ using SoundSphere.Database.Context;
 namespace SoundSphere.Api.Migrations
 {
     [DbContext(typeof(SoundSphereDbContext))]
-    partial class SoundSphereDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240618072457_V4_SenderReceiverNotification")]
+    partial class V4_SenderReceiverNotification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

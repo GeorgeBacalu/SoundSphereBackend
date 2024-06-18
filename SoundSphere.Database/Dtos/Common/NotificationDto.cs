@@ -8,8 +8,11 @@ namespace SoundSphere.Database.Dtos.Common
         [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "UserId is required")]
-        public Guid UserId { get; set; }
+        [Required(ErrorMessage = "Sender Id is required")]
+        public Guid SenderId { get; set; }
+
+        [Required(ErrorMessage = "Receiver Id is required")]
+        public Guid ReceiverId { get; set; }
 
         [Required(ErrorMessage = "Type is required")]
         public NotificationType Type { get; set; }
@@ -22,7 +25,8 @@ namespace SoundSphere.Database.Dtos.Common
 
         public override bool Equals(object? obj) => obj is NotificationDto notificationDto &&
             Id.Equals(notificationDto.Id) &&
-            UserId.Equals(notificationDto.UserId) &&
+            SenderId.Equals(notificationDto.SenderId) &&
+            ReceiverId.Equals(notificationDto.ReceiverId) &&
             Type == notificationDto.Type &&
             Message.Equals(notificationDto.Message) &&
             IsRead == notificationDto.IsRead &&
@@ -30,6 +34,6 @@ namespace SoundSphere.Database.Dtos.Common
             UpdatedAt.Equals(notificationDto.UpdatedAt) &&
             DeletedAt.Equals(notificationDto.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, UserId, Type, Message, IsRead, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
+        public override int GetHashCode() => HashCode.Combine(Id, SenderId, ReceiverId, Type, Message, IsRead, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 }

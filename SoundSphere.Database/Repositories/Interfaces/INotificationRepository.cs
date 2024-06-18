@@ -5,7 +5,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface INotificationRepository
     {
-        IList<Notification> GetAll(NotificationPaginationRequest payload);
+        IList<Notification> GetAll(NotificationPaginationRequest payload, Guid userId);
 
         Notification GetById(Guid id);
 
@@ -15,6 +15,8 @@ namespace SoundSphere.Database.Repositories.Interfaces
 
         Notification DeleteById(Guid id);
 
-        void LinkNotificationToUser(Notification notification);
+        void LinkNotificationToSender(Notification notification);
+
+        void LinkNotificationToReceiver(Notification notification);
     }
 }

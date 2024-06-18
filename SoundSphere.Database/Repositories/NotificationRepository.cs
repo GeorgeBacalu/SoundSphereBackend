@@ -15,11 +15,12 @@ namespace SoundSphere.Database.Repositories
 
         public NotificationRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Notification> GetAll(NotificationPaginationRequest payload)
+        public IList<Notification> GetAll(NotificationPaginationRequest payload, Guid userId)
         {
             IList<Notification> notifications = _context.Notifications
-                .Include(notification => notification.User)
-                .Where(notification => notification.DeletedAt == null)
+                .Include(notification => notification.Sender)
+                .Include(notification => notification.Receiver)
+                .Where(notification => notification.DeletedAt == null && notification.Receiver.Id.Equals(userId))
                 .Filter(payload)
                 .Sort(payload)
                 .Paginate(payload)
@@ -30,7 +31,8 @@ namespace SoundSphere.Database.Repositories
         public Notification GetById(Guid id)
         {
             Notification? notification = _context.Notifications
-                .Include(notification => notification.User)
+                .Include(notification => notification.Sender)
+                .Include(notification => notification.Receiver)
                 .Where(notification => notification.DeletedAt == null)
                 .FirstOrDefault(notification => notification.Id == id);
             if (notification == null)
@@ -69,13 +71,23 @@ namespace SoundSphere.Database.Repositories
             return notificationToDelete;
         }
 
-        public void LinkNotificationToUser(Notification notification)
+        public void LinkNotificationToSender(Notification notification)
         {
-            User? existingUser = _context.Users.Find(notification.User.Id);
-            if (existingUser != null)
+            User? existingSender = _context.Users.Find(notification.Sender.Id);
+            if (existingSender != null)
             {
-                _context.Entry(existingUser).State = EntityState.Unchanged;
-                notification.User = existingUser;
+                _context.Entry(existingSender).State = EntityState.Unchanged;
+                notification.Sender = existingSender;
+            }
+        }
+
+        public void LinkNotificationToReceiver(Notification notification)
+        {
+            User? existingReceiver = _context.Users.Find(notification.Receiver.Id);
+            if (existingReceiver != null)
+            {
+                _context.Entry(existingReceiver).State = EntityState.Unchanged;
+                notification.Receiver = existingReceiver;
             }
         }
     }

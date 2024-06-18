@@ -15,7 +15,7 @@ namespace SoundSphere.Database.Extensions
                 {
                     NotificationSearchCriterion.ByCreateDateRange => query.Where(notification => notification.CreatedAt >= payload.DateRange.StartDate && notification.CreatedAt <= payload.DateRange.EndDate),
                     NotificationSearchCriterion.ByMessage => query.Where(notification => notification.Message.Contains(payload.Message)),
-                    NotificationSearchCriterion.ByUserName => query.Where(notification => notification.User.Name.Contains(payload.UserName)),
+                    NotificationSearchCriterion.BySenderName => query.Where(notification => notification.Sender.Name.Contains(payload.SenderName)),
                     NotificationSearchCriterion.ByIsRead => query.Where(notification => notification.IsRead == payload.IsRead),
                     NotificationSearchCriterion.ByType => query.Where(notification => notification.Type == payload.Type),
                     _ => query
@@ -32,7 +32,7 @@ namespace SoundSphere.Database.Extensions
             {
                 NotificationSortCriterion.ByCreateDate => firstCriterion.Value == SortOrder.Ascending ? query.OrderBy(notification => notification.CreatedAt) : query.OrderByDescending(notification => notification.CreatedAt),
                 NotificationSortCriterion.ByMessage => firstCriterion.Value == SortOrder.Ascending ? query.OrderBy(notification => notification.Message) : query.OrderByDescending(notification => notification.Message),
-                NotificationSortCriterion.ByUserName => firstCriterion.Value == SortOrder.Ascending ? query.OrderBy(notification => notification.User.Name) : query.OrderByDescending(notification => notification.User.Name),
+                NotificationSortCriterion.BySenderName => firstCriterion.Value == SortOrder.Ascending ? query.OrderBy(notification => notification.Sender.Name) : query.OrderByDescending(notification => notification.Sender.Name),
                 _ => query.OrderBy(notification => notification.CreatedAt)
             };
             foreach (var sortCriterion in payload.SortCriteria.Skip(1))
@@ -40,7 +40,7 @@ namespace SoundSphere.Database.Extensions
                 {
                     NotificationSortCriterion.ByCreateDate => sortCriterion.Value == SortOrder.Ascending ? orderedQuery.ThenBy(notification => notification.CreatedAt) : orderedQuery.ThenByDescending(notification => notification.CreatedAt),
                     NotificationSortCriterion.ByMessage => sortCriterion.Value == SortOrder.Ascending ? orderedQuery.ThenBy(notification => notification.Message) : orderedQuery.ThenByDescending(notification => notification.Message),
-                    NotificationSortCriterion.ByUserName => sortCriterion.Value == SortOrder.Ascending ? orderedQuery.ThenBy(notification => notification.User.Name) : orderedQuery.ThenByDescending(notification => notification.User.Name),
+                    NotificationSortCriterion.BySenderName => sortCriterion.Value == SortOrder.Ascending ? orderedQuery.ThenBy(notification => notification.Sender.Name) : orderedQuery.ThenByDescending(notification => notification.Sender.Name),
                     _ => orderedQuery
                 };
             return orderedQuery;
