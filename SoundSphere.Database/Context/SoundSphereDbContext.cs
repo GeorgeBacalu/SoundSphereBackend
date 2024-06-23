@@ -31,6 +31,7 @@ namespace SoundSphere.Database.Context
             {
                 entity.HasIndex(user => user.Name).IsUnique();
                 entity.HasIndex(user => user.Email).IsUnique();
+                entity.Property(user => user.Theme).HasConversion(new EnumToStringConverter<Theme>());
             });
             modelBuilder.Entity<Role>(entity =>
             {

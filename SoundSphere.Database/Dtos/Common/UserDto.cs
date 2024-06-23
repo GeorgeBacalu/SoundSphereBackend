@@ -42,6 +42,10 @@ namespace SoundSphere.Database.Dtos.Common
         [Url(ErrorMessage = "Invalid URL format")]
         public string Avatar { get; set; } = null!;
 
+        public bool EmailNotifications { get; set; }
+
+        public Theme Theme { get; set; } = Theme.SystemDefault;
+
         [Required(ErrorMessage = "RoleId is required")]
         public Guid RoleId { get; set; }
 
@@ -56,12 +60,14 @@ namespace SoundSphere.Database.Dtos.Common
             Address.Equals(userDto.Address) &&
             Birthday.Equals(userDto.Birthday) &&
             Avatar.Equals(userDto.Avatar) &&
+            EmailNotifications.Equals(userDto.EmailNotifications) &&
+            Theme.Equals(userDto.Theme) &&
             RoleId.Equals(userDto.RoleId) &&
             AuthoritiesIds.SequenceEqual(userDto.AuthoritiesIds) &&
             CreatedAt.Equals(userDto.CreatedAt) &&
             UpdatedAt.Equals(userDto.UpdatedAt) &&
             DeletedAt.Equals(userDto.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, Mobile, Address, Birthday, HashCode.Combine(Avatar, RoleId, AuthoritiesIds, CreatedAt, UpdatedAt, DeletedAt));
+        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, Mobile, Address, Birthday, HashCode.Combine(Avatar, EmailNotifications, Theme, RoleId, AuthoritiesIds, CreatedAt, UpdatedAt, DeletedAt));
     }
 }
