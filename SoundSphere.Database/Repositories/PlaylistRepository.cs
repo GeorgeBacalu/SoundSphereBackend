@@ -15,15 +15,13 @@ namespace SoundSphere.Database.Repositories
 
         public PlaylistRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Playlist> GetAll(PlaylistPaginationRequest payload)
+        public IList<Playlist> GetAll(PlaylistPaginationRequest? payload, Guid userId)
         {
             IList<Playlist> playlists = _context.Playlists
                 .Include(playlist => playlist.Songs)
                 .Include(playlist => playlist.User)
-                .Where(playlist => playlist.DeletedAt == null)
-                .Filter(payload)
-                .Sort(payload)
-                .Paginate(payload)
+                .Where(playlist => playlist.DeletedAt == null && playlist.User.Id.Equals(userId))
+                .ApplyPagination(payload)
                 .ToList();
             return playlists;
         }
@@ -31,9 +29,10 @@ namespace SoundSphere.Database.Repositories
         public Playlist GetById(Guid id)
         {
             Playlist? playlist = _context.Playlists
+                .Include(playlist => playlist.Songs)
                 .Include(playlist => playlist.User)
                 .Where(playlist => playlist.DeletedAt == null)
-                .FirstOrDefault(playlist => playlist.Id == id);
+                .FirstOrDefault(playlist => playlist.Id.Equals(id));
             if (playlist == null)
                 throw new ResourceNotFoundException(string.Format(PlaylistNotFound, id));
             return playlist;
@@ -53,6 +52,7 @@ namespace SoundSphere.Database.Repositories
         {
             Playlist playlistToUpdate = GetById(id);
             playlistToUpdate.Title = playlist.Title;
+            playlistToUpdate.Songs = playlist.Songs;
             if (_context.Entry(playlistToUpdate).State == EntityState.Modified)
                 playlistToUpdate.UpdatedAt = DateTime.Now;
             _context.SaveChanges();

@@ -15,14 +15,12 @@ namespace SoundSphere.Database.Repositories
 
         public FeedbackRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Feedback> GetAll(FeedbackPaginationRequest payload)
+        public IList<Feedback> GetAll(FeedbackPaginationRequest? payload)
         {
             IList<Feedback> feedbacks = _context.Feedbacks
                 .Include(feedback => feedback.User)
                 .Where(feedback => feedback.DeletedAt == null)
-                .Filter(payload)
-                .Sort(payload)
-                .Paginate(payload)
+                .ApplyPagination(payload)
                 .ToList();
             return feedbacks;
         }
@@ -32,7 +30,7 @@ namespace SoundSphere.Database.Repositories
             Feedback? feedback = _context.Feedbacks
                 .Include(feedback => feedback.User)
                 .Where(feedback => feedback.DeletedAt == null)
-                .FirstOrDefault(feedback => feedback.Id == id);
+                .FirstOrDefault(feedback => feedback.Id.Equals(id));
             if (feedback == null)
                 throw new ResourceNotFoundException(string.Format(FeedbackNotFound, id));
             return feedback;
@@ -65,6 +63,15 @@ namespace SoundSphere.Database.Repositories
             feedbackToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
             return feedbackToDelete;
+        }
+
+        public int CountByDateRangeAndType(DateTime? startDate, DateTime? endDate, FeedbackType? type)
+        {
+            int nrFeedbacks = _context.Feedbacks.Count(feedback =>
+                (startDate == null || feedback.CreatedAt >= startDate) &&
+                (endDate == null || feedback.CreatedAt <= endDate) &&
+                (type == null || feedback.Type == type));
+            return nrFeedbacks;
         }
 
         public void LinkFeedbackToUser(Feedback feedback)

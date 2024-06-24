@@ -15,16 +15,14 @@ namespace SoundSphere.Database.Repositories
 
         public SongRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Song> GetAll(SongPaginationRequest payload)
+        public IList<Song> GetAll(SongPaginationRequest? payload)
         {
             IList<Song> songs = _context.Songs
                 .Include(song => song.Album)
                 .Include(song => song.Artists)
                 .Include(song => song.SimilarSongs)
                 .Where(song => song.DeletedAt == null)
-                .Filter(payload)
-                .Sort(payload)
-                .Paginate(payload)
+                .ApplyPagination(payload)
                 .ToList();
             return songs;
         }
@@ -36,7 +34,7 @@ namespace SoundSphere.Database.Repositories
                 .Include(song => song.Artists)
                 .Include(song => song.SimilarSongs)
                 .Where(song => song.DeletedAt == null)
-                .FirstOrDefault(song => song.Id == id);
+                .FirstOrDefault(song => song.Id.Equals(id));
             if (song == null)
                 throw new ResourceNotFoundException(string.Format(SongNotFound, id));
             return song;
@@ -75,6 +73,15 @@ namespace SoundSphere.Database.Repositories
             songToDelete.DeletedAt = DateTime.Now;
             _context.SaveChanges();
             return songToDelete;
+        }
+
+        public int CountByDateRangeAndGenre(DateTime? startDate, DateTime? endDate, GenreType? genre)
+        {
+            int nrSongs = _context.Songs.Count(song =>
+                (startDate == null || song.CreatedAt >= startDate) &&
+                (endDate == null || song.CreatedAt <= endDate) &&
+                (genre == null || song.Genre == genre));
+            return nrSongs;
         }
 
         public void LinkSongToAlbum(Song song)

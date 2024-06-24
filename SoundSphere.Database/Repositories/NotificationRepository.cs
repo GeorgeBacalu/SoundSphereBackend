@@ -15,15 +15,13 @@ namespace SoundSphere.Database.Repositories
 
         public NotificationRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Notification> GetAll(NotificationPaginationRequest payload, Guid userId)
+        public IList<Notification> GetAll(NotificationPaginationRequest? payload, Guid userId)
         {
             IList<Notification> notifications = _context.Notifications
                 .Include(notification => notification.Sender)
                 .Include(notification => notification.Receiver)
-                .Where(notification => notification.DeletedAt == null && notification.Receiver.Id.Equals(userId))
-                .Filter(payload)
-                .Sort(payload)
-                .Paginate(payload)
+                .Where(notification => notification.DeletedAt == null && notification.ReceiverId.Equals(userId))
+                .ApplyPagination(payload)
                 .ToList();
             return notifications;
         }
@@ -34,7 +32,7 @@ namespace SoundSphere.Database.Repositories
                 .Include(notification => notification.Sender)
                 .Include(notification => notification.Receiver)
                 .Where(notification => notification.DeletedAt == null)
-                .FirstOrDefault(notification => notification.Id == id);
+                .FirstOrDefault(notification => notification.Id.Equals(id));
             if (notification == null)
                 throw new ResourceNotFoundException(string.Format(NotificationNotFound, id));
             return notification;
@@ -73,7 +71,7 @@ namespace SoundSphere.Database.Repositories
 
         public void LinkNotificationToSender(Notification notification)
         {
-            User? existingSender = _context.Users.Find(notification.Sender.Id);
+            User? existingSender = _context.Users.Find(notification.SenderId);
             if (existingSender != null)
             {
                 _context.Entry(existingSender).State = EntityState.Unchanged;
@@ -83,7 +81,7 @@ namespace SoundSphere.Database.Repositories
 
         public void LinkNotificationToReceiver(Notification notification)
         {
-            User? existingReceiver = _context.Users.Find(notification.Receiver.Id);
+            User? existingReceiver = _context.Users.Find(notification.ReceiverId);
             if (existingReceiver != null)
             {
                 _context.Entry(existingReceiver).State = EntityState.Unchanged;

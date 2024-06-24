@@ -46,5 +46,7 @@ namespace SoundSphere.Database.Extensions
         }
 
         public static IQueryable<Feedback> Paginate(this IQueryable<Feedback> query, FeedbackPaginationRequest payload) => query.Skip(payload.Page * payload.Size).Take(payload.Size);
+
+        public static IQueryable<Feedback> ApplyPagination(this IQueryable<Feedback> query, FeedbackPaginationRequest? payload) => payload == null ? query : query.Filter(payload).Sort(payload).Paginate(payload);
     }
 }

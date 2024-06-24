@@ -15,14 +15,12 @@ namespace SoundSphere.Database.Repositories
 
         public ArtistRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Artist> GetAll(ArtistPaginationRequest payload)
+        public IList<Artist> GetAll(ArtistPaginationRequest? payload)
         {
             IList<Artist> artists = _context.Artists
                 .Include(artist => artist.SimilarArtists)
                 .Where(artist => artist.DeletedAt == null)
-                .Filter(payload)
-                .Sort(payload)
-                .Paginate(payload)
+                .ApplyPagination(payload)
                 .ToList();
             return artists;
         }
@@ -32,7 +30,7 @@ namespace SoundSphere.Database.Repositories
             Artist? artist = _context.Artists
                 .Include(artist => artist.SimilarArtists)
                 .Where(artist => artist.DeletedAt == null)
-                .FirstOrDefault(artist => artist.Id == id);
+                .FirstOrDefault(artist => artist.Id.Equals(id));
             if (artist == null)
                 throw new ResourceNotFoundException(string.Format(ArtistNotFound, id));
             return artist;

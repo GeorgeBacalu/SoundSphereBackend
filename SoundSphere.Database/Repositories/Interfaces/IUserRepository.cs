@@ -5,7 +5,7 @@ namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        IList<User> GetAll(UserPaginationRequest payload);
+        IList<User> GetAll(UserPaginationRequest? payload);
 
         User GetById(Guid id);
 

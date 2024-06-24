@@ -22,7 +22,7 @@ namespace SoundSphere.Database.Repositories
 
         public Authority GetById(Guid id)
         {
-            Authority? authority = _context.Authorities.FirstOrDefault(authority => authority.Id == id);
+            Authority? authority = _context.Authorities.FirstOrDefault(authority => authority.Id.Equals(id));
             if (authority == null)
                 throw new ResourceNotFoundException(string.Format(AuthorityNotFound, id));
             return authority;

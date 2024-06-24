@@ -15,15 +15,13 @@ namespace SoundSphere.Database.Repositories
 
         public UserRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<User> GetAll(UserPaginationRequest payload)
+        public IList<User> GetAll(UserPaginationRequest? payload)
         {
             IList<User> users = _context.Users
                 .Include(user => user.Role)
                 .Include(user => user.Authorities)
                 .Where(user => user.DeletedAt == null)
-                .Filter(payload)
-                .Sort(payload)
-                .Paginate(payload)
+                .ApplyPagination(payload)
                 .ToList();
             return users;
         }
@@ -34,7 +32,7 @@ namespace SoundSphere.Database.Repositories
                 .Include(user => user.Role)
                 .Include(user => user.Authorities)
                 .Where(user => user.DeletedAt == null)
-                .FirstOrDefault(user => user.Id == id);
+                .FirstOrDefault(user => user.Id.Equals(id));
             if (user == null)
                 throw new ResourceNotFoundException(string.Format(UserNotFound, id));
             return user;
@@ -71,6 +69,8 @@ namespace SoundSphere.Database.Repositories
             userToUpdate.Address = user.Address;
             userToUpdate.Birthday = user.Birthday;
             userToUpdate.Avatar = user.Avatar;
+            userToUpdate.EmailNotifications = user.EmailNotifications;
+            userToUpdate.Theme = user.Theme;
             userToUpdate.Role = user.Role;
             if (_context.Entry(userToUpdate).State == EntityState.Modified)
                 userToUpdate.UpdatedAt = DateTime.Now;
