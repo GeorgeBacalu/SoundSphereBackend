@@ -19,8 +19,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet] public IActionResult GetAll()
         {
-            IList<AuthorityDto> result = _authorityService.GetAll();
-            return Ok(result);
+            IList<AuthorityDto> authorityDtos = _authorityService.GetAll();
+            return Ok(authorityDtos);
         }
 
         /// <summary>Get authority by ID</summary>
@@ -30,8 +30,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id)
         {
-            AuthorityDto result = _authorityService.GetById(id);
-            return Ok(result);
+            AuthorityDto authority = _authorityService.GetById(id);
+            return Ok(authority);
         }
 
         /// <summary>Add authority</summary>
@@ -42,7 +42,7 @@ namespace SoundSphere.Api.Controllers
         [HttpPost] public IActionResult Add(AuthorityDto authorityDto)
         {
             AuthorityDto createdAuthorityDto = _authorityService.Add(authorityDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdAuthorityDto.Id }, createdAuthorityDto);
+            return CreatedAtAction(nameof(GetById), new { createdAuthorityDto.Id }, createdAuthorityDto);
         }
     }
 }

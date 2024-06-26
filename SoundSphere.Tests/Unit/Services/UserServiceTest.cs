@@ -11,6 +11,8 @@ using static SoundSphere.Database.Constants;
 using static SoundSphere.Tests.Mocks.UserMock;
 using static SoundSphere.Tests.Mocks.RoleMock;
 using static SoundSphere.Tests.Mocks.AuthorityMock;
+using Microsoft.EntityFrameworkCore;
+using SoundSphere.Database.Context;
 
 namespace SoundSphere.Tests.Unit.Services
 {
@@ -20,6 +22,8 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<IRoleRepository> _roleRepositoryMock = new();
         private readonly Mock<IAuthorityRepository> _authorityRepositoryMock = new();
         private readonly Mock<ISecurityService> _sercurityServiceMock = new();
+        private readonly Mock<DbSet<Album>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly IUserService _userService;
 
@@ -41,7 +45,7 @@ namespace SoundSphere.Tests.Unit.Services
             _mapperMock.Setup(mock => mock.Map<UserDto>(_user2)).Returns(_userDto2);
             _mapperMock.Setup(mock => mock.Map<User>(_userDto1)).Returns(_user1);
             _mapperMock.Setup(mock => mock.Map<User>(_userDto2)).Returns(_user2);
-            _userService = new UserService(_userRepositoryMock.Object, _roleRepositoryMock.Object, _authorityRepositoryMock.Object, _sercurityServiceMock.Object, _mapperMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _roleRepositoryMock.Object, _authorityRepositoryMock.Object, _sercurityServiceMock.Object, _dbContextMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void GetAll_Test()

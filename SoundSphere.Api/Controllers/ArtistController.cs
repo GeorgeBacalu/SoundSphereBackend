@@ -21,10 +21,10 @@ namespace SoundSphere.Api.Controllers
         ///<remarks>Return list with active artists paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with artists pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("get")] public IActionResult GetAll(ArtistPaginationRequest payload)
+        [HttpPost("get")] public IActionResult GetAll(ArtistPaginationRequest? payload)
         {
-            IList<ArtistDto> result = _artistService.GetAll(payload);
-            return Ok(new { userId = GetUserId(), artists = result });
+            IList<ArtistDto> artistDtos = _artistService.GetAll(payload);
+            return Ok(new { userId = GetUserId(), artistDtos });
         }
 
         /// <summary>Get active artist by ID</summary>
@@ -34,8 +34,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id)
         {
-            ArtistDto result = _artistService.GetById(id);
-            return Ok(new { userId = GetUserId(), artist = result });
+            ArtistDto artistDto = _artistService.GetById(id);
+            return Ok(new { userId = GetUserId(), artistDto });
         }
 
         /// <summary>Add artist</summary>
@@ -43,11 +43,12 @@ namespace SoundSphere.Api.Controllers
         /// <param name="artistDto">Artist to add</param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(Roles = "Moderator,Admin")]
         [HttpPost] public IActionResult Add(ArtistDto artistDto)
         {
             ArtistDto createdArtistDto = _artistService.Add(artistDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdArtistDto.Id }, createdArtistDto);
+            return CreatedAtAction(nameof(GetById), new { createdArtistDto.Id }, createdArtistDto);
         }
 
         /// <summary>Update artist by ID</summary>
@@ -56,24 +57,57 @@ namespace SoundSphere.Api.Controllers
         /// <param name="id">Artist updating ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "Moderator,Admin")]
         [HttpPut("{id}")] public IActionResult UpdateById(ArtistDto artistDto, Guid id)
         {
-            ArtistDto result = _artistService.UpdateById(artistDto, id);
-            return Ok(new { userId = GetUserId(), updatedArtist = result });
+            ArtistDto updatedArtistDto = _artistService.UpdateById(artistDto, id);
+            return Ok(new { userId = GetUserId(), updatedArtistDto });
         }
 
         /// <summary>Delete artist by ID</summary>
         /// <remarks>Soft delete artist with given ID</remarks>
         /// <param name="id">Artist deleting ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
         {
-            ArtistDto result = _artistService.DeleteById(id);
-            return Ok(new { userId = GetUserId(), deletedArtist = result });
+            ArtistDto deletedArtistDto = _artistService.DeleteById(id);
+            return Ok(new { userId = GetUserId(), deletedArtistDto });
+        }
+
+        /// <summary>Get artist recommendations</summary>
+        /// <remarks>Return list with randomly selected artists as recommendations</remarks>
+        /// <param name="nrRecommendations">Number of recommendations</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("recommendations")] public IActionResult GetRecommendations(int nrRecommendations)
+        {
+            IList<ArtistDto> recommendationDtos = _artistService.GetRecommendations(nrRecommendations);
+            return Ok(new { userId = GetUserId(), recommendationDtos });
+        }
+
+        /// <summary>(Un)follow artist by ID</summary>
+        /// <remarks>Follow artist with given ID if they are not followed, otherwise unfollow them</remarks>
+        /// <param name="id">Artist ID to (un)follow</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut("{id}/follow")] public IActionResult ToggleFollow(Guid id)
+        {
+            _artistService.ToggleFollow(id, GetUserId());
+            return Ok(new { userId = GetUserId(), message = "Artist (un)followed successfully" });
+        }
+
+        /// <summary>Get number of followers for artist by ID</summary>
+        /// <remarks>Return number of followers for artist with given ID</remarks>
+        /// <param name="id">Artist ID to count followers for</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("{id}/followers")] public IActionResult CountFollowers(Guid id)
+        {
+            int nrFollowers = _artistService.CountFollowers(id);
+            return Ok(new { userId = GetUserId(), nrFollowers });
         }
     }
 }

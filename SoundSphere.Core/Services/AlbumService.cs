@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services.Interfaces;
+using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
@@ -11,11 +13,12 @@ namespace SoundSphere.Core.Services
     public class AlbumService : IAlbumService
     {
         private readonly IAlbumRepository _albumRepository;
+        private readonly SoundSphereDbContext _context;
         private readonly IMapper _mapper;
 
-        public AlbumService(IAlbumRepository albumRepository, IMapper mapper) => (_albumRepository, _mapper) = (albumRepository, mapper);
+        public AlbumService(IAlbumRepository albumRepository, SoundSphereDbContext context, IMapper mapper) => (_albumRepository, _context, _mapper) = (albumRepository, context, mapper);
 
-        public IList<AlbumDto> GetAll(AlbumPaginationRequest payload)
+        public IList<AlbumDto> GetAll(AlbumPaginationRequest? payload)
         {
             IList<AlbumDto> albumsDtos = _albumRepository.GetAll(payload).ToDtos(_mapper);
             return albumsDtos;
@@ -46,6 +49,18 @@ namespace SoundSphere.Core.Services
         {
             AlbumDto deletedAlbumDto = _albumRepository.DeleteById(id).ToDto(_mapper);
             return deletedAlbumDto;
+        }
+
+        public IList<AlbumDto> GetRecommendations(int nrRecommendations)
+        {
+            IList<AlbumDto> recommendationDtos = _context.Albums
+                .Include(album => album.SimilarAlbums)
+                .Where(album => album.DeletedAt == null)
+                .OrderBy(album => Guid.NewGuid())
+                .Take(Math.Max(0, nrRecommendations))
+                .ToList()
+                .ToDtos(_mapper);
+           return recommendationDtos;
         }
     }
 }

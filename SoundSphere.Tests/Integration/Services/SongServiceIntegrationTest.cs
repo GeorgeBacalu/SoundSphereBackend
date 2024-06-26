@@ -31,7 +31,7 @@ namespace SoundSphere.Tests.Integration.Services
         private void Execute(Action<SongService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
-            var songService = new SongService(new SongRepository(context), new AlbumRepository(context), new ArtistRepository(context), _mapper);
+            var songService = new SongService(new SongRepository(context), new AlbumRepository(context), new ArtistRepository(context), context, _mapper);
             using var transaction = context.Database.BeginTransaction();
             context.AddRange(_songs);
             context.SaveChanges();

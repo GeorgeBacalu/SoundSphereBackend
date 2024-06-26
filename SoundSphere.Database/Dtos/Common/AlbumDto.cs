@@ -29,7 +29,7 @@ namespace SoundSphere.Database.Dtos.Common
             Title.Equals(albumDto.Title) &&
             ImageUrl.Equals(albumDto.ImageUrl) &&
             ReleaseDate.Equals(albumDto.ReleaseDate) &&
-            SimilarAlbumsIds.SequenceEqual(albumDto.SimilarAlbumsIds) &&
+            (SimilarAlbumsIds?.SequenceEqual(albumDto.SimilarAlbumsIds ?? new List<Guid>()) ?? albumDto.SimilarAlbumsIds == null) &&
             CreatedAt.Equals(albumDto.CreatedAt) &&
             UpdatedAt.Equals(albumDto.UpdatedAt) &&
             DeletedAt.Equals(albumDto.DeletedAt);

@@ -7,6 +7,8 @@ using SoundSphere.Database.Dtos.Request.Auth;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using SoundSphere.Infrastructure.Exceptions;
+using static SoundSphere.Database.Constants;
+using SoundSphere.Database.Context;
 
 namespace SoundSphere.Core.Services
 {
@@ -16,12 +18,13 @@ namespace SoundSphere.Core.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IAuthorityRepository _authorityRepository;
         private readonly ISecurityService _securityService;
+        private readonly SoundSphereDbContext _context;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, ISecurityService securityService, IMapper mapper) => 
-            (_userRepository, _roleRepository, _authorityRepository, _securityService, _mapper) = (userRepository, roleRepository, authorityRepository, securityService, mapper);
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IAuthorityRepository authorityRepository, ISecurityService securityService, SoundSphereDbContext context, IMapper mapper) => 
+            (_userRepository, _roleRepository, _authorityRepository, _securityService, _context, _mapper) = (userRepository, roleRepository, authorityRepository, securityService, context, mapper);
 
-        public IList<UserDto> GetAll(UserPaginationRequest payload)
+        public IList<UserDto> GetAll(UserPaginationRequest? payload)
         {
             IList<UserDto> userDtos = _userRepository.GetAll(payload).ToDtos(_mapper);
             return userDtos;
@@ -63,7 +66,7 @@ namespace SoundSphere.Core.Services
             User user = _userRepository.GetByEmail(payload.Email);
             string hashedPassword = _securityService.HashPassword(payload.Password, Convert.FromBase64String(user.PasswordSalt));
             string? token = _securityService.GetToken(user, user.Role.Type.ToString());
-            return hashedPassword == user.PasswordHash ? token : throw new InvalidRequestException("Invalid password");
+            return hashedPassword == user.PasswordHash ? token : throw new InvalidRequestException(InvalidPassword);
         }
 
         public UserDto UpdateById(UserDto userDto, Guid id)
@@ -78,6 +81,31 @@ namespace SoundSphere.Core.Services
         {
             UserDto deletedUserDto = _userRepository.DeleteById(id).ToDto(_mapper);
             return deletedUserDto;
+        }
+
+        public void ChangePassword(ChangePasswordRequest payload, Guid userId)
+        {
+            if (payload == null) return;
+            User user = _userRepository.GetById(userId);
+            string hashedOldPassword = _securityService.HashPassword(payload.OldPassword, Convert.FromBase64String(user.PasswordSalt));
+            if (!user.PasswordHash.Equals(hashedOldPassword)) 
+                throw new InvalidRequestException(InvalidOldPassword);
+            if (!payload.NewPassword.Equals(payload.ConfirmPassword))
+                throw new InvalidRequestException(PasswordMismatch);
+            byte[] salt = _securityService.GenerateSalt();
+            user.PasswordHash = _securityService.HashPassword(payload.NewPassword, salt);
+            user.PasswordSalt = Convert.ToBase64String(salt);
+            _userRepository.UpdateById(user, userId);
+        }
+
+        public UserDto? UpdatePreferences(UserPreferencesDto payload, Guid userId)
+        {
+            if (payload == null) return null;
+            User user = _userRepository.GetById(userId);
+            user.EmailNotifications = payload.EmailNotifications;
+            user.Theme = payload.Theme;
+            UserDto updatedUserDto = _userRepository.UpdateById(user, userId).ToDto(_mapper);
+            return updatedUserDto;
         }
     }
 }

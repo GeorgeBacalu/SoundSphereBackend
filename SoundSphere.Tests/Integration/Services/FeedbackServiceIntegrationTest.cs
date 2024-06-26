@@ -46,7 +46,7 @@ namespace SoundSphere.Tests.Integration.Services
         [Fact] public void Add_Test() => Execute((feedbackService, context) =>
         {
             FeedbackDto newFeedbackDto = GetMockedFeedbackDto37();
-            FeedbackDto result = feedbackService.Add(newFeedbackDto);
+            FeedbackDto result = feedbackService.Add(newFeedbackDto, ValidUserGuid);
             context.Feedbacks.Find(newFeedbackDto.Id).Should().BeEquivalentTo(newFeedbackDto, options => options.Excluding(feedback => feedback.CreatedAt));
             result.Should().Be(newFeedbackDto);
         });
@@ -62,14 +62,14 @@ namespace SoundSphere.Tests.Integration.Services
                 CreatedAt = _feedback1.CreatedAt
             };
             FeedbackDto updatedFeedbackDto = updatedFeedback.ToDto(_mapper);
-            FeedbackDto result = feedbackService.UpdateById(_feedbackDto2, ValidFeedbackGuid);
+            FeedbackDto result = feedbackService.UpdateById(_feedbackDto2, ValidFeedbackGuid, ValidUserGuid);
             context.Feedbacks.Find(ValidFeedbackGuid).Should().Be(updatedFeedback);
             result.Should().Be(updatedFeedbackDto);
         });
 
         [Fact] public void DeleteById_Test() => Execute((feedbackService, context) =>
         {
-            feedbackService.DeleteById(ValidFeedbackGuid);
+            feedbackService.DeleteById(ValidFeedbackGuid, ValidUserGuid);
             IList<Feedback> newFeedbacks = new List<Feedback>(_feedbacks);
             newFeedbacks.Remove(_feedback1);
             context.Feedbacks.Should().BeEquivalentTo(newFeedbacks);

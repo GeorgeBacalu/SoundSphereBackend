@@ -14,14 +14,14 @@ namespace SoundSphere.Database.Entities
         
         [JsonIgnore] public IList<Song>? Songs { get; set; }
         
-        public IList<ArtistLink> SimilarArtists { get; set; } = null!;
+        public IList<ArtistLink> SimilarArtists { get; set; } = new List<ArtistLink>();
 
         public override bool Equals(object? obj) => obj is Artist artist &&
             Id.Equals(artist.Id) &&
             Name.Equals(artist.Name) &&
             ImageUrl.Equals(artist.ImageUrl) &&
-            Bio.Equals(artist.Bio) &&
-            SimilarArtists.SequenceEqual(artist.SimilarArtists) &&
+            (Bio?.Equals(artist.Bio ?? "") ?? artist.Bio == null) &&
+            (SimilarArtists?.SequenceEqual(artist.SimilarArtists ?? new List<ArtistLink>()) ?? artist.SimilarArtists == null) &&
             CreatedAt.Equals(artist.CreatedAt) &&
             UpdatedAt.Equals(artist.UpdatedAt) &&
             DeletedAt.Equals(artist.DeletedAt);

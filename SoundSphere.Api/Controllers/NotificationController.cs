@@ -21,10 +21,10 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active notifications paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with notifications pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("get")] public IActionResult GetAll(NotificationPaginationRequest payload)
+        [HttpPost("get")] public IActionResult GetAll(NotificationPaginationRequest? payload)
         {
-            IList<NotificationDto> result = _notificationService.GetAll(payload);
-            return Ok(new { userId = GetUserId(), notifications = result });
+            IList<NotificationDto> notificationDtos = _notificationService.GetAll(payload, GetUserId());
+            return Ok(new { userId = GetUserId(), notificationDtos });
         }
 
         /// <summary>Get active notification by ID</summary>
@@ -34,20 +34,21 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id)
         {
-            NotificationDto result = _notificationService.GetById(id);
-            return Ok(new { userId = GetUserId(), notification = result });
+            NotificationDto notificationDto = _notificationService.GetById(id);
+            return Ok(new { userId = GetUserId(), notificationDto });
         }
 
-        /// <summary>Add notification</summary>
-        /// <remarks>Add new notification</remarks>
-        /// <param name="notificationDto">Notification to add</param>
+        /// <summary>Send notification</summary>
+        /// <remarks>Send notification to another user</remarks>
+        /// <param name="notificationDto">Notification to send</param>
+        /// <param name="receiverId">The user to receive the notification</param>
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = "Moderator,Admin")]
-        [HttpPost] public IActionResult Add(NotificationDto notificationDto)
+        [HttpPost("{receiverId}")] public IActionResult Send(NotificationDto notificationDto, Guid receiverId)
         {
-            NotificationDto createdNotificationDto = _notificationService.Add(notificationDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdNotificationDto.Id }, createdNotificationDto);
+            Guid senderId = GetUserId();
+            NotificationDto createdNotificationDto = _notificationService.Send(notificationDto, senderId, receiverId);
+            return CreatedAtAction(nameof(GetById), new { createdNotificationDto.Id }, createdNotificationDto);
         }
 
         /// <summary>Update notification by ID</summary>
@@ -60,8 +61,8 @@ namespace SoundSphere.Api.Controllers
         [Authorize(Roles = "Moderator,Admin")]
         [HttpPut("{id}")] public IActionResult UpdateById(NotificationDto notificationDto, Guid id)
         {
-            NotificationDto result = _notificationService.UpdateById(notificationDto, id);
-            return Ok(new { userId = GetUserId(), updatedNotification = result });
+            NotificationDto updatedNotificationDto = _notificationService.UpdateById(notificationDto, id);
+            return Ok(new { userId = GetUserId(), updatedNotificationDto });
         }
 
         /// <summary>Delete notification by ID</summary>
@@ -72,8 +73,37 @@ namespace SoundSphere.Api.Controllers
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
         {
-            NotificationDto result = _notificationService.DeleteById(id);
-            return Ok(new { userId = GetUserId(), deletedNotification = result });
+            NotificationDto deletedNotificationDto = _notificationService.DeleteById(id);
+            return Ok(new { userId = GetUserId(), deletedNotificationDto });
+        }
+
+        /// <summary>Counts unread notifications</summary>
+        /// <remarks>Return number of unread notifications for the logged in user</remarks>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("unread")] public IActionResult CountUnread()
+        {
+            int nrUnread = _notificationService.CountUnread(GetUserId());
+            return Ok(new { userId = GetUserId(), nrUnread });
+        }
+
+        /// <summary>Mark notification as read</summary>
+        /// <remarks>Mark notification with given ID as read</remarks>
+        /// <param name="id">Notification ID to mark as read</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [HttpPut("read")] public IActionResult MarkAsRead(Guid id)
+        {
+            _notificationService.MarkAsRead(id, GetUserId());
+            return Ok(new { userId = GetUserId(), message = "Notification was read" });
+        }
+
+        /// <summary>Mark all notifications as read</summary>
+        /// <remarks>Mark all notifications as read for the logged in user</remarks>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPut("read-all")] public IActionResult MarkAllAsRead()
+        {
+            _notificationService.MarkAllAsRead(GetUserId());
+            return Ok(new { userId = GetUserId(), message = "All notifications were read" });
         }
     }
 }

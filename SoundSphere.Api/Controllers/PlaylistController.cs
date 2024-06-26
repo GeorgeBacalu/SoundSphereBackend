@@ -21,10 +21,10 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active playlists paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with playlists pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("get")] public IActionResult GetAll(PlaylistPaginationRequest payload)
+        [HttpPost("get")] public IActionResult GetAll(PlaylistPaginationRequest? payload)
         {
-            IList<PlaylistDto> result = _playlistService.GetAll(payload);
-            return Ok(new { userId = GetUserId(), playlists = result });
+            IList<PlaylistDto> playlistDtos = _playlistService.GetAll(payload, GetUserId());
+            return Ok(new { userId = GetUserId(), playlistDtos });
         }
 
         /// <summary>Get active playlist by ID</summary>
@@ -34,8 +34,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id)
         {
-            PlaylistDto result = _playlistService.GetById(id);
-            return Ok(new { userId = GetUserId(), playlist = result });
+            PlaylistDto playlistDto = _playlistService.GetById(id, GetUserId());
+            return Ok(new { userId = GetUserId(), playlistDto });
         }
 
         /// <summary>Add playlist</summary>
@@ -45,8 +45,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost] public IActionResult Add(PlaylistDto playlistDto)
         {
-            PlaylistDto createdPlaylistDto = _playlistService.Add(playlistDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdPlaylistDto.Id }, createdPlaylistDto);
+            PlaylistDto createdPlaylistDto = _playlistService.Add(playlistDto, GetUserId());
+            return CreatedAtAction(nameof(GetById), new { createdPlaylistDto.Id }, createdPlaylistDto);
         }
 
         /// <summary>Update playlist by ID</summary>
@@ -58,8 +58,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut("{id}")] public IActionResult UpdateById(PlaylistDto playlistDto, Guid id)
         {
-            PlaylistDto result = _playlistService.UpdateById(playlistDto, id);
-            return Ok(new { userId = GetUserId(), updatedPlaylist = result });
+            PlaylistDto updatedPlaylistDto = _playlistService.UpdateById(playlistDto, id, GetUserId());
+            return Ok(new { userId = GetUserId(), updatedPlaylistDto });
         }
 
         /// <summary>Delete playlist by ID</summary>
@@ -69,8 +69,34 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
         {
-            PlaylistDto result = _playlistService.DeleteById(id);
-            return Ok(new { userId = GetUserId(), deletedPlaylist = result });
+            PlaylistDto deletedPlaylistDto = _playlistService.DeleteById(id, GetUserId());
+            return Ok(new { userId = GetUserId(), deletedPlaylistDto });
+        }
+
+        /// <summary>Add song to playlist</summary>
+        /// <remarks>Add song to playlist with given IDs</remarks>
+        /// <param name="playlistId">ID of the playlist to add the song to</param>
+        /// <param name="songId">ID of the song to add to the playlist</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [HttpPost("{playlistId}/song/{songId}")] public IActionResult AddSong(Guid playlistId, Guid songId)
+        {
+            PlaylistDto updatedPlaylistDto = _playlistService.AddSong(playlistId, songId, GetUserId());
+            return Ok(new { userId = GetUserId(), updatedPlaylistDto });
+        }
+
+        /// <summary>Remove song from playlist</summary>
+        /// <remarks>Remove song from playlist with given IDs</remarks>
+        /// <param name="playlistId">ID of the playlist to remove the song from</param>
+        /// <param name="songId">ID of the song to remove from the playlist</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [HttpDelete("{playlistId}/song/{songId}")] public IActionResult RemoveSong(Guid playlistId, Guid songId)
+        {
+            PlaylistDto updatedPlaylistDto = _playlistService.RemoveSong(playlistId, songId, GetUserId());
+            return Ok(new { userId = GetUserId(), updatedPlaylistDto });
         }
     }
 }

@@ -37,7 +37,7 @@ namespace SoundSphere.Tests.Integration.Services
         private void Execute(Action<UserService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
-            var userService = new UserService(new UserRepository(context), new RoleRepository(context), new AuthorityRepository(context), new SecurityService(config), _mapper);
+            var userService = new UserService(new UserRepository(context), new RoleRepository(context), new AuthorityRepository(context), new SecurityService(config), context, _mapper);
             using var transaction = context.Database.BeginTransaction();
             context.AddRange(_users);
             context.SaveChanges();

@@ -6,7 +6,7 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IUserService
     {
-        IList<UserDto> GetAll(UserPaginationRequest payload);
+        IList<UserDto> GetAll(UserPaginationRequest? payload);
 
         UserDto GetById(Guid id);
 
@@ -17,5 +17,9 @@ namespace SoundSphere.Core.Services.Interfaces
         UserDto UpdateById(UserDto userDto, Guid id);
 
         UserDto DeleteById(Guid id);
+
+        void ChangePassword(ChangePasswordRequest payLoad, Guid userId);
+
+        UserDto? UpdatePreferences(UserPreferencesDto payload, Guid userId);
     }
 }

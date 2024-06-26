@@ -39,14 +39,14 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((playlistService, context) => playlistService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylistDtos));
+        [Fact] public void GetAll_Test() => Execute((playlistService, context) => playlistService.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedPlaylistDtos));
         
-        [Fact] public void GetById_Test() => Execute((playlistService, context) => playlistService.GetById(ValidPlaylistGuid).Should().Be(_playlistDto1));
+        [Fact] public void GetById_Test() => Execute((playlistService, context) => playlistService.GetById(ValidPlaylistGuid, ValidUserGuid).Should().Be(_playlistDto1));
 
         [Fact] public void Add_Test() => Execute((playlistService, context) =>
         {
             PlaylistDto newPlaylistDto = GetMockedPlaylistDto24();
-            PlaylistDto result = playlistService.Add(newPlaylistDto);
+            PlaylistDto result = playlistService.Add(newPlaylistDto, ValidUserGuid);
             context.Playlists.Find(newPlaylistDto.Id).Should().BeEquivalentTo(newPlaylistDto, options => options.Excluding(playlist => playlist.CreatedAt));
             result.Should().Be(newPlaylistDto);
         });
@@ -62,7 +62,7 @@ namespace SoundSphere.Tests.Integration.Services
                 CreatedAt = _playlist1.CreatedAt
             };
             PlaylistDto updatedPlaylistDto = updatedPlaylist.ToDto(_mapper);
-            PlaylistDto result = playlistService.UpdateById(_playlistDto2, ValidPlaylistGuid);
+            PlaylistDto result = playlistService.UpdateById(_playlistDto2, ValidPlaylistGuid, ValidUserGuid2);
             context.Playlists.Find(ValidPlaylistGuid).Should().Be(updatedPlaylist);
             result.Should().Be(updatedPlaylistDto);
         });
@@ -78,7 +78,7 @@ namespace SoundSphere.Tests.Integration.Services
                 CreatedAt = _playlist1.CreatedAt
             };
             PlaylistDto deletedPlaylistDto = deletePlaylist.ToDto(_mapper);
-            PlaylistDto result = playlistService.DeleteById(ValidPlaylistGuid);
+            PlaylistDto result = playlistService.DeleteById(ValidPlaylistGuid, ValidUserGuid);
             context.Playlists.Find(ValidPlaylistGuid).Should().Be(deletedPlaylistDto);
             result.Should().Be(deletedPlaylistDto);
         });

@@ -26,8 +26,8 @@ namespace SoundSphere.Database.Dtos.Common
             Id.Equals(artistDto.Id) &&
             Name.Equals(artistDto.Name) &&
             ImageUrl.Equals(artistDto.ImageUrl) &&
-            Bio.Equals(artistDto.Bio) &&
-            SimilarArtistsIds.SequenceEqual(artistDto.SimilarArtistsIds) &&
+            (Bio?.Equals(artistDto.Bio ?? "") ?? artistDto.Bio == null) &&
+            (SimilarArtistsIds?.SequenceEqual(artistDto.SimilarArtistsIds ?? new List<Guid>()) ?? artistDto.SimilarArtistsIds == null) &&
             CreatedAt.Equals(artistDto.CreatedAt) &&
             UpdatedAt.Equals(artistDto.UpdatedAt) &&
             DeletedAt.Equals(artistDto.DeletedAt);

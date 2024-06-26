@@ -52,7 +52,8 @@ namespace SoundSphere.Tests.Integration.Controllers
 
         public void Dispose() { _factory.Dispose(); _httpClient.Dispose(); }
 
-        [Fact] public async Task GetAll_Test() => await Execute(async () =>
+        [Fact]
+        public async Task GetAll_Test() => await Execute(async () =>
         {
             var response = await _httpClient.PostAsync($"{ApiNotification}/get", new StringContent(SerializeObject(_paginationRequest)));
             response.Should().NotBeNull();
@@ -61,7 +62,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             responseBody.Should().BeEquivalentTo(_paginatedNotificationDtos);
         });
 
-        [Fact] public async Task GetById_ValidId_Test() => await Execute(async () =>
+        [Fact]
+        public async Task GetById_ValidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync($"{ApiNotification}/{ValidNotificationGuid}");
             response.Should().NotBeNull();
@@ -70,7 +72,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             responseBody.Should().Be(_notificationDto1);
         });
 
-        [Fact] public async Task GetById_InvalidId_Test() => await Execute(async () =>
+        [Fact]
+        public async Task GetById_InvalidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.GetAsync($"{ApiNotification}/{InvalidGuid}");
             response.Should().NotBeNull();
@@ -79,7 +82,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(NotificationNotFound, InvalidGuid) });
         });
 
-        [Fact] public async Task Add_Test() => await Execute(async () =>
+        [Fact]
+        public async Task Add_Test() => await Execute(async () =>
         {
             NotificationDto newNotificationDto = GetMockedNotificationDto37();
             var saveResponse = await _httpClient.PostAsync(ApiNotification, new StringContent(SerializeObject(newNotificationDto)));
@@ -95,12 +99,14 @@ namespace SoundSphere.Tests.Integration.Controllers
             getAllResponseBody.Should().Contain(newNotificationDto);
         });
 
-        [Fact] public async Task UpdateById_ValidId_Test() => await Execute(async () =>
+        [Fact]
+        public async Task UpdateById_ValidId_Test() => await Execute(async () =>
         {
             Notification updatedNotification = new Notification
             {
                 Id = ValidNotificationGuid,
-                User = _notification1.User,
+                Sender = _notification1.Sender,
+                Receiver = _notification1.Receiver,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
                 IsRead = _notification2.IsRead,
@@ -120,7 +126,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             getResponseBody.Should().BeEquivalentTo(updatedNotificationDto);
         });
 
-        [Fact] public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
+        [Fact]
+        public async Task UpdateById_InvalidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.PutAsync($"{ApiNotification}/{InvalidGuid}", new StringContent(SerializeObject(_notificationDto2)));
             response.Should().NotBeNull();
@@ -129,7 +136,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             responseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(NotificationNotFound, InvalidGuid) });
         });
 
-        [Fact] public async Task DeleteById_ValidId_Test() => await Execute(async () =>
+        [Fact]
+        public async Task DeleteById_ValidId_Test() => await Execute(async () =>
         {
             var deleteResponse = await _httpClient.DeleteAsync($"{ApiNotification}/{ValidNotificationGuid}");
             deleteResponse.Should().NotBeNull();
@@ -142,7 +150,8 @@ namespace SoundSphere.Tests.Integration.Controllers
             getResponseBody.Should().Be(new ProblemDetails { Title = "Resource not found", Status = Status404NotFound, Detail = string.Format(NotificationNotFound, ValidNotificationGuid) });
         });
 
-        [Fact] public async Task DeleteById_InvalidId_Test() => await Execute(async () =>
+        [Fact]
+        public async Task DeleteById_InvalidId_Test() => await Execute(async () =>
         {
             var response = await _httpClient.DeleteAsync($"{ApiNotification}/{InvalidGuid}");
             response.Should().NotBeNull();
@@ -154,7 +163,8 @@ namespace SoundSphere.Tests.Integration.Controllers
         private NotificationDto ToDto(Notification notification) => new NotificationDto
         {
             Id = notification.Id,
-            UserId = notification.User.Id,
+            SenderId = notification.Sender.Id,
+            ReceiverId = notification.Receiver.Id,
             Type = notification.Type,
             Message = notification.Message,
             IsRead = notification.IsRead,

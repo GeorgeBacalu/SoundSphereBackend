@@ -8,7 +8,7 @@ namespace SoundSphere.Database.Dtos.Common
         [Required(ErrorMessage = "Id is required")]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "UserId is required")]
+        [Required(ErrorMessage = "User Id is required")]
         public Guid UserId { get; set; }
 
         [Required(ErrorMessage = "Type is required")]

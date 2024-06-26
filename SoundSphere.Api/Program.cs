@@ -96,7 +96,7 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-            ExecuteSql(app.Services, Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.sql"));
+            // ExecuteSql(app.Services, Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Scripts", $"{Assembly.GetExecutingAssembly().GetName().Name}.sql"));
         }
         app.UseHttpsRedirection();
         app.UseMiddleware<LoggingMiddleware>();

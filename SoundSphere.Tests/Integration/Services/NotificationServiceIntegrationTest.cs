@@ -31,7 +31,7 @@ namespace SoundSphere.Tests.Integration.Services
         private void Execute(Action<NotificationService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
-            var notificationService = new NotificationService(new NotificationRepository(context), new UserRepository(context), _mapper);
+            var notificationService = new NotificationService(new NotificationRepository(context), new UserRepository(context), context, _mapper);
             using var transaction = context.Database.BeginTransaction();
             context.AddRange(_notifications);
             context.SaveChanges();
@@ -39,14 +39,14 @@ namespace SoundSphere.Tests.Integration.Services
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((notificationService, context) => notificationService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos));
+        [Fact] public void GetAll_Test() => Execute((notificationService, context) => notificationService.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedNotificationDtos));
         
         [Fact] public void GetById_Test() => Execute((notificationService, context) => notificationService.GetById(ValidNotificationGuid).Should().Be(_notificationDto1));
 
         [Fact] public void Add_Test() => Execute((notificationService, context) =>
         {
             NotificationDto newNotificationDto = GetMockedNotificationDto37();
-            NotificationDto result = notificationService.Add(newNotificationDto);
+            NotificationDto result = notificationService.Send(newNotificationDto, ValidUserGuid, ValidUserGuid2);
             context.Notifications.Find(newNotificationDto.Id).Should().BeEquivalentTo(newNotificationDto, options => options.Excluding(notification => notification.CreatedAt));
             result.Should().Be(newNotificationDto);
         });
@@ -56,7 +56,8 @@ namespace SoundSphere.Tests.Integration.Services
             Notification updatedNotification = new Notification
             {
                 Id = ValidNotificationGuid,
-                User = _notification1.User,
+                Sender = _notification1.Sender,
+                Receiver = _notification1.Receiver,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
                 IsRead = _notification2.IsRead,

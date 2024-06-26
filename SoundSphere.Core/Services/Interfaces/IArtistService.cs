@@ -5,7 +5,7 @@ namespace SoundSphere.Core.Services.Interfaces
 {
     public interface IArtistService
     {
-        IList<ArtistDto> GetAll(ArtistPaginationRequest payload);
+        IList<ArtistDto> GetAll(ArtistPaginationRequest? payload);
 
         ArtistDto GetById(Guid id);
 
@@ -14,5 +14,11 @@ namespace SoundSphere.Core.Services.Interfaces
         ArtistDto UpdateById(ArtistDto artistDto, Guid id);
 
         ArtistDto DeleteById(Guid id);
+
+        IList<ArtistDto> GetRecommendations(int nrRecommendations);
+
+        void ToggleFollow(Guid artistId, Guid userId);
+
+        int CountFollowers(Guid id);
     }
 }

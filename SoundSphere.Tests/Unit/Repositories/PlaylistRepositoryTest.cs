@@ -35,7 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _playlistRepository = new PlaylistRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _playlistRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists);
+        [Fact] public void GetAll_Test() => _playlistRepository.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedPlaylists);
 
         [Fact] public void GetById_ValidId_Test() => _playlistRepository.GetById(ValidPlaylistGuid).Should().Be(_playlist1);
 

@@ -11,6 +11,8 @@ using static SoundSphere.Database.Constants;
 using static SoundSphere.Tests.Mocks.SongMock;
 using static SoundSphere.Tests.Mocks.AlbumMock;
 using static SoundSphere.Tests.Mocks.ArtistMock;
+using Microsoft.EntityFrameworkCore;
+using SoundSphere.Database.Context;
 
 namespace SoundSphere.Tests.Unit.Services
 {
@@ -19,6 +21,8 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Mock<ISongRepository> _songRepositoryMock = new();
         private readonly Mock<IAlbumRepository> _albumRepositoryMock = new();
         private readonly Mock<IArtistRepository> _artistRepositoryMock = new();
+        private readonly Mock<DbSet<Album>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly ISongService _songService;
 
@@ -40,7 +44,7 @@ namespace SoundSphere.Tests.Unit.Services
             _mapperMock.Setup(mock => mock.Map<SongDto>(_song2)).Returns(_songDto2);
             _mapperMock.Setup(mock => mock.Map<Song>(_songDto1)).Returns(_song1);
             _mapperMock.Setup(mock => mock.Map<Song>(_songDto2)).Returns(_song2);
-            _songService = new SongService(_songRepositoryMock.Object, _albumRepositoryMock.Object, _artistRepositoryMock.Object, _mapperMock.Object);
+            _songService = new SongService(_songRepositoryMock.Object, _albumRepositoryMock.Object, _artistRepositoryMock.Object, _dbContextMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void GetAll_Test()

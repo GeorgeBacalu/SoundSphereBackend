@@ -31,7 +31,7 @@ namespace SoundSphere.Tests.Integration.Services
         private void Execute(Action<AlbumService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
-            var albumService = new AlbumService(new AlbumRepository(context), _mapper);
+            var albumService = new AlbumService(new AlbumRepository(context), context, _mapper);
             using var transaction = context.Database.BeginTransaction();
             context.AddRange(_albums);
             context.SaveChanges();

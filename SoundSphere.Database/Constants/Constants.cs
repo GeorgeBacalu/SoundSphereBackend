@@ -14,8 +14,27 @@
         public static readonly string SongNotFound = "Song with id {0} not found";
         public static readonly string UserNotFound = "User with id {0} not found";
 
-        public static readonly string UserEmailNotFound = "User with email {0} not found";
         public static readonly string RoleTypeNotFound = "Role type {0} not found";
+
+        public static readonly string UpdateFeedbackDenied = "Update denied for non-owned feedback";
+        public static readonly string DeleteFeedbackDenied = "Delete denied for non-owned feedback";
+
+        public static readonly string ReadNotificationDenied = "Mark notification as read denied";
+        public static readonly string SendNotificationToSelfDenied = "Sending notifications to oneself is not allowed";
+
+        public static readonly string AccessPlaylistDenied = "Access to non-owned playlist denied";
+        public static readonly string UpdatePlaylistDenied = "Update denied for non-owned playlist";
+        public static readonly string DeletePlaylistDenied = "Delete denied for non-owned playlist";
+
+        public static readonly string AddSongToPlaylistDenied = "Adding song to non-owned playlist denied";
+        public static readonly string RemoveSongFromPlaylistDenied = "Removing song from non-owned playlist denied";
+        public static readonly string SongAlreadyInPlaylist = "Song with id {0} is already in playlist with id {1}";
+        public static readonly string SongNotInPlaylist = "Song with id {0} is not in playlist with id {1}";
+
+        public static readonly string UserEmailNotFound = "User with email {0} not found";
+        public static readonly string InvalidPassword = "Invalid password";
+        public static readonly string InvalidOldPassword = "Invalid old password";
+        public static readonly string PasswordMismatch = "New password and confirmed password don't match";
 
         public static readonly Guid ValidAlbumGuid = Guid.Parse("6ee76a77-2be4-42e3-8417-e60d282cffcb");
         public static readonly Guid ValidArtistGuid = Guid.Parse("4e75ecdd-aafe-4c35-836b-1b83fc7b8f88");
@@ -26,6 +45,7 @@
         public static readonly Guid ValidRoleGuid = Guid.Parse("deaf35ba-fe71-4c21-8a3c-d8e5b32a06fe");
         public static readonly Guid ValidSongGuid = Guid.Parse("64f534f8-f2d4-4402-95a3-54de48b678a8");
         public static readonly Guid ValidUserGuid = Guid.Parse("0a9e546f-38b4-4dbf-a482-24a82169890e");
+        public static readonly Guid ValidUserGuid2 = Guid.Parse("7eb88892-549b-4cae-90be-c52088354643");
         public static readonly Guid InvalidGuid = Guid.Empty;
 
         public static readonly string ApiAlbum = "/api/Album";

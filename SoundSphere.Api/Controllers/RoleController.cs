@@ -19,8 +19,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet] public IActionResult GetAll()
         {
-            IList<RoleDto> result = _roleService.GetAll();
-            return Ok(result);
+            IList<RoleDto> roleDtos = _roleService.GetAll();
+            return Ok(roleDtos);
         }
 
         /// <summary>Get role by ID</summary>
@@ -30,8 +30,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id)
         {
-            RoleDto result = _roleService.GetById(id);
-            return Ok(result);
+            RoleDto roleDto = _roleService.GetById(id);
+            return Ok(roleDto);
         }
 
         /// <summary>Add role</summary>
@@ -42,7 +42,7 @@ namespace SoundSphere.Api.Controllers
         [HttpPost] public IActionResult Add(RoleDto roleDto)
         {
             RoleDto createdRoleDto = _roleService.Add(roleDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdRoleDto.Id }, createdRoleDto);
+            return CreatedAtAction(nameof(GetById), new { createdRoleDto.Id }, createdRoleDto);
         }
     }
 }

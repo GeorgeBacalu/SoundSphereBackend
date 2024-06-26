@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
 using SoundSphere.Database.Dtos.Request.Pagination;
+using SoundSphere.Database.Dtos.Response;
 using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
@@ -21,10 +22,10 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active songs paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with songs pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("get")] public IActionResult GetAll(SongPaginationRequest payload)
+        [HttpPost("get")] public IActionResult GetAll(SongPaginationRequest? payload)
         {
-            IList<SongDto> result = _songService.GetAll(payload);
-            return Ok(new { userId = GetUserId(), songs = result });
+            IList<SongDto> songDtos = _songService.GetAll(payload);
+            return Ok(new { userId = GetUserId(), songDtos });
         }
 
         /// <summary>Get active song by ID</summary>
@@ -34,8 +35,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id)
         {
-            SongDto result = _songService.GetById(id);
-            return Ok(new { userId = GetUserId(), song = result });
+            SongDto songDto = _songService.GetById(id);
+            return Ok(new { userId = GetUserId(), songDto });
         }
 
         /// <summary>Add song</summary>
@@ -47,7 +48,7 @@ namespace SoundSphere.Api.Controllers
         [HttpPost] public IActionResult Add(SongDto songDto)
         {
             SongDto createdSongDto = _songService.Add(songDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdSongDto.Id }, createdSongDto);
+            return CreatedAtAction(nameof(GetById), new { createdSongDto.Id }, createdSongDto);
         }
 
         /// <summary>Update song by ID</summary>
@@ -60,8 +61,8 @@ namespace SoundSphere.Api.Controllers
         [Authorize(Roles = "Moderator,Admin")]
         [HttpPut("{id}")] public IActionResult UpdateById(SongDto songDto, Guid id)
         {
-            SongDto result = _songService.UpdateById(songDto, id);
-            return Ok(new { userId = GetUserId(), updatedSong = result });
+            SongDto updatedSongDto = _songService.UpdateById(songDto, id);
+            return Ok(new { userId = GetUserId(), updatedSongDto });
         }
 
         /// <summary>Delete song by ID</summary>
@@ -72,8 +73,51 @@ namespace SoundSphere.Api.Controllers
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
         {
-            SongDto result = _songService.DeleteById(id);
-            return Ok(new { userId = GetUserId(), deletedSong = result });
+            SongDto deletedSongDto = _songService.DeleteById(id);
+            return Ok(new { userId = GetUserId(), deletedSongDto });
+        }
+
+        /// <summary>Get song recommendations</summary>
+        /// <remarks>Return list with randomly selected songs as recommendations</remarks>
+        /// <param name="nrRecommendations">Number of recommendations</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("recommendations")] public IActionResult GetRecommendations(int nrRecommendations)
+        {
+            IList<SongDto> recommendationDtos = _songService.GetRecommendations(nrRecommendations);
+            return Ok(new { userId = GetUserId(), recommendationDtos });
+        }
+
+        /// <summary>Get song statistics</summary>
+        /// <remarks>Return statistics about songs for the given date range</remarks>
+        /// <param name="startDate">Start date for interval</param>
+        /// <param name="endDate">End date for interval</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("statistics")] public IActionResult GetStatistics(DateTime? startDate, DateTime? endDate)
+        {
+            SongStatisticsDto statistics = _songService.GetStatistics(startDate, endDate);
+            return Ok(new { userId = GetUserId(), statistics });
+        }
+
+        /// <summary>Play song by ID</summary>
+        /// <remarks>Play song with given ID thus increasing the play count of that song for the user with the given ID</remarks>
+        /// <param name="id">Song playing ID</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("{id}/play")] public IActionResult Play(Guid id)
+        {
+            _songService.Play(id, GetUserId());
+            return Ok(new { userId = GetUserId(), message = "Song played successfully" });
+        }
+
+        /// <summary>Get song play count</summary>
+        /// <remarks>Count how many times the song with the given ID was played by the user with the given ID</remarks>
+        /// <param name="id">ID of the song to get the play count for, for the logged in user</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("{id}/plays")] public IActionResult GetPlayCount(Guid id)
+        {
+            int playCount = _songService.GetPlayCount(id, GetUserId());
+            return Ok(new { userId = GetUserId(), playCount });
         }
     }
 }

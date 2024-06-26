@@ -45,14 +45,14 @@ namespace SoundSphere.Tests.Unit.Services
 
         [Fact] public void GetAll_Test()
         {
-            _playlistRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedPlaylists);
-            _playlistService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylistDtos);
+            _playlistRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest, ValidUserGuid)).Returns(_paginatedPlaylists);
+            _playlistService.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedPlaylistDtos);
         }
 
         [Fact] public void GetById_Test()
         {
             _playlistRepositoryMock.Setup(mock => mock.GetById(ValidPlaylistGuid)).Returns(_playlist1);
-            _playlistService.GetById(ValidPlaylistGuid).Should().Be(_playlistDto1);
+            _playlistService.GetById(ValidPlaylistGuid, ValidUserGuid).Should().Be(_playlistDto1);
         }
 
         [Fact] public void Add_Test()
@@ -60,7 +60,7 @@ namespace SoundSphere.Tests.Unit.Services
             _playlistDto1.SongsIds.ToList().ForEach(id => _songRepositoryMock.Setup(mock => mock.GetById(id)).Returns(_songs1.First(song => song.Id == id)));
             _userRepositoryMock.Setup(mock => mock.GetById(ValidUserGuid)).Returns(_user1);
             _playlistRepositoryMock.Setup(mock => mock.Add(_playlist1)).Returns(_playlist1);
-            _playlistService.Add(_playlistDto1).Should().Be(_playlistDto1);
+            _playlistService.Add(_playlistDto1, ValidUserGuid).Should().Be(_playlistDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -76,7 +76,7 @@ namespace SoundSphere.Tests.Unit.Services
             PlaylistDto updatedPlaylistDto = ToDto(updatedPlaylist);
             _mapperMock.Setup(mock => mock.Map<PlaylistDto>(updatedPlaylist)).Returns(updatedPlaylistDto);
             _playlistRepositoryMock.Setup(mock => mock.UpdateById(_playlist2, ValidPlaylistGuid)).Returns(updatedPlaylist);
-            _playlistService.UpdateById(_playlistDto2, ValidPlaylistGuid).Should().Be(updatedPlaylistDto);
+            _playlistService.UpdateById(_playlistDto2, ValidPlaylistGuid, ValidUserGuid).Should().Be(updatedPlaylistDto);
         }
 
         [Fact] public void DeleteById_Test()
@@ -92,7 +92,7 @@ namespace SoundSphere.Tests.Unit.Services
             PlaylistDto deletedPlaylistDto = ToDto(deletedPlaylist);
             _mapperMock.Setup(mock => mock.Map<PlaylistDto>(deletedPlaylist)).Returns(deletedPlaylistDto);
             _playlistRepositoryMock.Setup(mock => mock.DeleteById(ValidPlaylistGuid)).Returns(deletedPlaylist);
-            _playlistService.DeleteById(ValidPlaylistGuid).Should().Be(deletedPlaylistDto);
+            _playlistService.DeleteById(ValidPlaylistGuid, ValidUserGuid).Should().Be(deletedPlaylistDto);
         }
 
         private PlaylistDto ToDto(Playlist playlist) => new PlaylistDto

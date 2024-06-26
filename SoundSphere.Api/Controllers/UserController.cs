@@ -22,10 +22,10 @@ namespace SoundSphere.Api.Controllers
         /// <remarks>Return list with active users paginated, sorted and filtered</remarks>
         /// <param name="payload">Request body with users pagination rules</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("get")] public IActionResult GetAll(UserPaginationRequest payload)
+        [HttpPost("get")] public IActionResult GetAll(UserPaginationRequest? payload)
         {
-            IList<UserDto> result = _userService.GetAll(payload);
-            return Ok(new { userId = GetUserId(), users = result });
+            IList<UserDto> userDtos = _userService.GetAll(payload);
+            return Ok(new { userId = GetUserId(), userDtos });
         }
 
         /// <summary>Get active user by ID</summary>
@@ -35,8 +35,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")] public IActionResult GetById(Guid id)
         {
-            UserDto result = _userService.GetById(id);
-            return Ok(new { userId = GetUserId(), user = result });
+            UserDto userDto = _userService.GetById(id);
+            return Ok(new { userId = GetUserId(), userDto });
         }
 
         /// <summary>Register new user</summary>
@@ -48,7 +48,7 @@ namespace SoundSphere.Api.Controllers
         [HttpPost("register")] public IActionResult Register(RegisterRequest payload)
         {
             UserDto? registeredUserDto = _userService.Register(payload);
-            return CreatedAtAction(nameof(GetById), new { id = registeredUserDto?.Id }, registeredUserDto);
+            return CreatedAtAction(nameof(GetById), new { registeredUserDto?.Id }, registeredUserDto);
         }
 
         /// <summary>Login user</summary>
@@ -59,8 +59,8 @@ namespace SoundSphere.Api.Controllers
         [AllowAnonymous]
         [HttpPost("login")] public IActionResult Login(LoginRequest payload)
         {
-            string? result = _userService.Login(payload);
-            return Ok(new { token = result });
+            string? token = _userService.Login(payload);
+            return Ok(new { token });
         }
 
         /// <summary>Update user by ID</summary>
@@ -72,8 +72,8 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut("{id}")] public IActionResult UpdateById(UserDto userDto, Guid id)
         {
-            UserDto result = _userService.UpdateById(userDto, id);
-            return Ok(new { userId = GetUserId(), updatedUser = result });
+            UserDto updatedUserDto = _userService.UpdateById(userDto, id);
+            return Ok(new { userId = GetUserId(), updatedUserDto });
         }
 
         /// <summary>Delete user by ID</summary>
@@ -83,8 +83,26 @@ namespace SoundSphere.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id}")] public IActionResult DeleteById(Guid id)
         {
-            UserDto result = _userService.DeleteById(id);
-            return Ok(new { userId = GetUserId(), deletedUser = result });
+            UserDto deletedUserDto = _userService.DeleteById(id);
+            return Ok(new { userId = GetUserId(), deletedUserDto });
+        }
+
+        /// <summary>Change user password</summary>
+        /// <remarks>Change user password process that require the old password, new password and confirmation for it</remarks>
+        /// <param name="payload">Request body with changing password info</param>
+        [HttpPut("change-password")] public IActionResult ChangePassword(ChangePasswordRequest payload)
+        {
+            _userService.ChangePassword(payload, GetUserId());
+            return Ok(new { userId = GetUserId(), message = "Password changed successfully" });
+        }
+
+        /// <summary>Update user preferences</summary>
+        /// <remarks>Update user preferences like email notifications and theme</remarks>
+        /// <param name="payload">Request body with new user preferences</param>
+        [HttpPut("preferences")] public IActionResult UpdatePreferences(UserPreferencesDto payload)
+        {
+            UserDto? updatedUserDto = _userService.UpdatePreferences(payload, GetUserId());
+            return Ok(new { userId = GetUserId(), updatedUserDto });
         }
     }
 }
