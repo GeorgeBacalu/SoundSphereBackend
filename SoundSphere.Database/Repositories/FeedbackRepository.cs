@@ -67,10 +67,12 @@ namespace SoundSphere.Database.Repositories
 
         public int CountByDateRangeAndType(DateTime? startDate, DateTime? endDate, FeedbackType? type)
         {
-            int nrFeedbacks = _context.Feedbacks.Count(feedback =>
-                (startDate == null || feedback.CreatedAt >= startDate) &&
-                (endDate == null || feedback.CreatedAt <= endDate) &&
-                (type == null || feedback.Type == type));
+            int nrFeedbacks = _context.Feedbacks
+                .Where(feedback => feedback.DeletedAt == null)
+                .Count(feedback =>
+                    (startDate == null || feedback.CreatedAt >= startDate) &&
+                    (endDate == null || feedback.CreatedAt <= endDate) &&
+                    (type == null || feedback.Type == type));
             return nrFeedbacks;
         }
 

@@ -18,8 +18,8 @@ namespace SoundSphere.Core.Services.Interfaces
 
         UserDto DeleteById(Guid id);
 
-        void ChangePassword(ChangePasswordRequest payLoad, Guid userId);
-
         UserDto? UpdatePreferences(UserPreferencesDto payload, Guid userId);
+
+        void ChangePassword(ChangePasswordRequest payLoad, Guid userId);
     }
 }

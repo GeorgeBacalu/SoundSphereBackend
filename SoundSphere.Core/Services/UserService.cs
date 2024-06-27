@@ -56,6 +56,8 @@ namespace SoundSphere.Core.Services
             user.Authorities = _authorityRepository.GetByRole(user.Role);
             _userRepository.LinkUserToRole(user);
             _userRepository.LinkUserToAuthorities(user);
+            _userRepository.AddUserSong(user);
+            _userRepository.AddUserArtist(user);
             UserDto createdUserDto = _userRepository.Add(user).ToDto(_mapper);
             return createdUserDto;
         }
@@ -83,6 +85,16 @@ namespace SoundSphere.Core.Services
             return deletedUserDto;
         }
 
+        public UserDto? UpdatePreferences(UserPreferencesDto payload, Guid userId)
+        {
+            if (payload == null) return null;
+            User user = _userRepository.GetById(userId);
+            user.EmailNotifications = payload.EmailNotifications;
+            user.Theme = payload.Theme;
+            UserDto updatedUserDto = _userRepository.UpdateById(user, userId).ToDto(_mapper);
+            return updatedUserDto;
+        }
+
         public void ChangePassword(ChangePasswordRequest payload, Guid userId)
         {
             if (payload == null) return;
@@ -96,16 +108,6 @@ namespace SoundSphere.Core.Services
             user.PasswordHash = _securityService.HashPassword(payload.NewPassword, salt);
             user.PasswordSalt = Convert.ToBase64String(salt);
             _userRepository.UpdateById(user, userId);
-        }
-
-        public UserDto? UpdatePreferences(UserPreferencesDto payload, Guid userId)
-        {
-            if (payload == null) return null;
-            User user = _userRepository.GetById(userId);
-            user.EmailNotifications = payload.EmailNotifications;
-            user.Theme = payload.Theme;
-            UserDto updatedUserDto = _userRepository.UpdateById(user, userId).ToDto(_mapper);
-            return updatedUserDto;
         }
     }
 }

@@ -76,10 +76,7 @@ namespace SoundSphere.Core.Services
                 throw new InvalidRequestException(string.Format(SongAlreadyInPlaylist, songId, playlistId));
             Song song = _songRepository.GetById(songId);
             playlist.Songs.Add(song);
-            if (_context.Entry(playlist).State == EntityState.Modified)
-                playlist.UpdatedAt = DateTime.Now;
-            _context.SaveChanges();
-            PlaylistDto updatedPlaylistDto = playlist.ToDto(_mapper);
+            PlaylistDto updatedPlaylistDto = _playlistRepository.UpdateById(playlist, playlistId).ToDto(_mapper);
             return updatedPlaylistDto;
         }
 
@@ -92,10 +89,7 @@ namespace SoundSphere.Core.Services
                 throw new InvalidRequestException(string.Format(SongNotInPlaylist, songId, playlistId));
             Song song = _songRepository.GetById(songId);
             playlist.Songs.Remove(song);
-            if (_context.Entry(playlist).State == EntityState.Modified)
-                playlist.UpdatedAt = DateTime.Now;
-            _context.SaveChanges();
-            PlaylistDto updatedPlaylistDto = playlist.ToDto(_mapper);
+            PlaylistDto updatedPlaylistDto = _playlistRepository.UpdateById(playlist, playlistId).ToDto(_mapper);
             return updatedPlaylistDto;
         }
     }

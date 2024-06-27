@@ -63,6 +63,8 @@ namespace SoundSphere.Core.Services
         public IList<SongDto> GetRecommendations(int nrRecommendations)
         {
             IList<SongDto> recommendationDtos = _context.Songs
+                .Include(song => song.Album)
+                .Include(song => song.Artists)
                 .Include(song => song.SimilarSongs)
                 .Where(song => song.DeletedAt == null)
                 .OrderBy(song => Guid.NewGuid())

@@ -59,7 +59,7 @@ namespace SoundSphere.Core.Services
             IList<ArtistDto> recommendationDtos = _context.Artists
                 .Include(artist => artist.SimilarArtists)
                 .Where(artist => artist.DeletedAt == null)
-                .OrderBy(artist => Guid.NewGuid())
+                .OrderByDescending(artist => _context.UserArtists.Count(userArtist => userArtist.ArtistId.Equals(artist.Id) && userArtist.IsFollowing))
                 .Take(Math.Max(0, nrRecommendations))
                 .ToList()
                 .ToDtos(_mapper);

@@ -87,6 +87,16 @@ namespace SoundSphere.Api.Controllers
             return Ok(new { userId = GetUserId(), deletedUserDto });
         }
 
+        /// <summary>Update user preferences</summary>
+        /// <remarks>Update user preferences like email notifications and theme</remarks>
+        /// <param name="payload">Request body with new user preferences</param>
+        [HttpPut("preferences")]
+        public IActionResult UpdatePreferences(UserPreferencesDto payload)
+        {
+            UserDto? updatedUserDto = _userService.UpdatePreferences(payload, GetUserId());
+            return Ok(new { userId = GetUserId(), updatedUserDto });
+        }
+
         /// <summary>Change user password</summary>
         /// <remarks>Change user password process that require the old password, new password and confirmation for it</remarks>
         /// <param name="payload">Request body with changing password info</param>
@@ -94,15 +104,6 @@ namespace SoundSphere.Api.Controllers
         {
             _userService.ChangePassword(payload, GetUserId());
             return Ok(new { userId = GetUserId(), message = "Password changed successfully" });
-        }
-
-        /// <summary>Update user preferences</summary>
-        /// <remarks>Update user preferences like email notifications and theme</remarks>
-        /// <param name="payload">Request body with new user preferences</param>
-        [HttpPut("preferences")] public IActionResult UpdatePreferences(UserPreferencesDto payload)
-        {
-            UserDto? updatedUserDto = _userService.UpdatePreferences(payload, GetUserId());
-            return Ok(new { userId = GetUserId(), updatedUserDto });
         }
     }
 }

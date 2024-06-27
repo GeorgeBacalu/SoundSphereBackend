@@ -6,14 +6,14 @@
 
 CREATE TABLE [dbo].[Roles](
     [Id] [uniqueidentifier] NOT NULL,
-    [Type] [nvarchar](450) NOT NULL,
+    [Type] [nvarchar](450) NOT NULL UNIQUE,
 	[CreatedAt] [datetime2](7) NULL,
     CONSTRAINT [PK_Roles] PRIMARY KEY ([Id])
 ) ON [PRIMARY];
 
 CREATE TABLE [dbo].[Authorities](
     [Id] [uniqueidentifier] NOT NULL,
-    [Type] [nvarchar](450) NOT NULL,
+    [Type] [nvarchar](450) NOT NULL UNIQUE,
 	[CreatedAt] [datetime2](7) NULL,
     CONSTRAINT [PK_Authorities] PRIMARY KEY ([Id])
 ) ON [PRIMARY];
