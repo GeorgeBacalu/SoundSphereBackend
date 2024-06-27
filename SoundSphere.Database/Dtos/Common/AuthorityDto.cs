@@ -11,8 +11,10 @@ namespace SoundSphere.Database.Dtos.Common
         [Required(ErrorMessage = "Type is required")]
         public AuthorityType Type { get; set; }
 
-        public override bool Equals(object? obj) => obj is AuthorityDto authorityDto && Id.Equals(authorityDto.Id) && Type == authorityDto.Type;
+        public DateTime CreatedAt { get; set; }
 
-        public override int GetHashCode() => HashCode.Combine(Id, Type);
+        public override bool Equals(object? obj) => obj is AuthorityDto authorityDto && Id.Equals(authorityDto.Id) && Type == authorityDto.Type && CreatedAt == authorityDto.CreatedAt;
+
+        public override int GetHashCode() => HashCode.Combine(Id, Type, CreatedAt);
     }
 }

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -35,7 +35,7 @@ namespace SoundSphere.Tests.Unit.Repositories
             _notificationRepository = new NotificationRepository(_dbContextMock.Object);
         }
 
-        [Fact] public void GetAll_Test() => _notificationRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotifications);
+        [Fact] public void GetAll_Test() => _notificationRepository.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedNotifications);
 
         [Fact] public void GetById_ValidId_Test() => _notificationRepository.GetById(ValidNotificationGuid).Should().Be(_notification1);
 
@@ -56,7 +56,8 @@ namespace SoundSphere.Tests.Unit.Repositories
             Notification updatedNotification = new Notification
             {
                 Id = ValidNotificationGuid,
-                User = _notification1.User,
+                Sender = _notification1.Sender,
+                Receiver = _notification1.Receiver,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
                 IsRead = _notification2.IsRead,

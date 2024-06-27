@@ -13,7 +13,7 @@ namespace SoundSphere.Tests.Integration.Repositories
         private readonly DbFixture _fixture;
 
         private readonly Authority _authority1 = GetMockedAuthority1();
-        private readonly IList<Authority> _authorities = GetMockedAuthorities();
+        private readonly IList<Authority> _authorities = GetMockedAuthoritiesAdmin();
 
         public AuthorityRepositoryIntegrationTest(DbFixture fixture) => _fixture = fixture;
 

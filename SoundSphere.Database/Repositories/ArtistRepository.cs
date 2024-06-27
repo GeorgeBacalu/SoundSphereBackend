@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -15,23 +15,31 @@ namespace SoundSphere.Database.Repositories
 
         public ArtistRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Artist> GetAll(ArtistPaginationRequest payload) => _context.Artists
-            .Include(artist => artist.SimilarArtists)
-            .Where(artist => artist.DeletedAt == null)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
+        public IList<Artist> GetAll(ArtistPaginationRequest? payload)
+        {
+            IList<Artist> artists = _context.Artists
+                .Include(artist => artist.SimilarArtists)
+                .Where(artist => artist.DeletedAt == null)
+                .ApplyPagination(payload)
+                .ToList();
+            return artists;
+        }
 
-        public Artist GetById(Guid id) => _context.Artists
-            .Include(artist => artist.SimilarArtists)
-            .Where(artist => artist.DeletedAt == null)
-            .FirstOrDefault(artist => artist.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(ArtistNotFound, id));
+        public Artist GetById(Guid id)
+        {
+            Artist? artist = _context.Artists
+                .Include(artist => artist.SimilarArtists)
+                .Where(artist => artist.DeletedAt == null)
+                .FirstOrDefault(artist => artist.Id.Equals(id));
+            if (artist == null)
+                throw new ResourceNotFoundException(string.Format(ArtistNotFound, id));
+            return artist;
+        }
 
         public Artist Add(Artist artist)
         {
-            if (artist.Id == Guid.Empty) artist.Id = Guid.NewGuid();
+            if (artist.Id == Guid.Empty)
+                artist.Id = Guid.NewGuid();
             artist.CreatedAt = DateTime.Now;
             _context.Artists.Add(artist);
             _context.SaveChanges();

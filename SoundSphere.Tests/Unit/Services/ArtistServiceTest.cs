@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
+using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using static SoundSphere.Database.Constants;
@@ -15,6 +17,8 @@ namespace SoundSphere.Tests.Unit.Services
     public class ArtistServiceTest
     {
         private readonly Mock<IArtistRepository> _artistRepositoryMock = new();
+        private readonly Mock<DbSet<Artist>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly IArtistService _artistService;
 
@@ -30,11 +34,17 @@ namespace SoundSphere.Tests.Unit.Services
 
         public ArtistServiceTest()
         {
+            IQueryable<Artist> queryableArtists = _artists.AsQueryable();
+            _dbSetMock.As<IQueryable<Artist>>().Setup(mock => mock.Provider).Returns(queryableArtists.Provider);
+            _dbSetMock.As<IQueryable<Artist>>().Setup(mock => mock.Expression).Returns(queryableArtists.Expression);
+            _dbSetMock.As<IQueryable<Artist>>().Setup(mock => mock.ElementType).Returns(queryableArtists.ElementType);
+            _dbSetMock.As<IQueryable<Artist>>().Setup(mock => mock.GetEnumerator()).Returns(queryableArtists.GetEnumerator());
+            _dbContextMock.Setup(mock => mock.Artists).Returns(_dbSetMock.Object);
             _mapperMock.Setup(mock => mock.Map<ArtistDto>(_artist1)).Returns(_artistDto1);
             _mapperMock.Setup(mock => mock.Map<ArtistDto>(_artist2)).Returns(_artistDto2);
             _mapperMock.Setup(mock => mock.Map<Artist>(_artistDto1)).Returns(_artist1);
             _mapperMock.Setup(mock => mock.Map<Artist>(_artistDto2)).Returns(_artist2);
-            _artistService = new ArtistService(_artistRepositoryMock.Object, _mapperMock.Object);
+            _artistService = new ArtistService(_artistRepositoryMock.Object, _dbContextMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void GetAll_Test()

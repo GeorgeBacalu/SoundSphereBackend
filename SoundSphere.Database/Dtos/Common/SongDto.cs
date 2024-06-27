@@ -13,7 +13,7 @@ namespace SoundSphere.Database.Dtos.Common
         [StringLength(75, ErrorMessage = "Title can't be longer than 75 characters")]
         public string Title { get; set; } = null!;
 
-        [Required(ErrorMessage = "ImageUrl is required")]
+        [Required(ErrorMessage = "Image URL is required")]
         [Url(ErrorMessage = "Invalid URL format")]
         public string ImageUrl { get; set; } = null!;
 
@@ -27,7 +27,7 @@ namespace SoundSphere.Database.Dtos.Common
         [Range(1, 300, ErrorMessage = "Song can't be longer than 5 minutes")]
         public int DurationSeconds { get; set; } = 0;
 
-        [Required(ErrorMessage = "AlbumId is required")]
+        [Required(ErrorMessage = "Album Id is required")]
         public Guid AlbumId { get; set; }
 
         [MaxLength(15, ErrorMessage = "There can't be more than 15 artists")]
@@ -44,8 +44,8 @@ namespace SoundSphere.Database.Dtos.Common
             ReleaseDate.Equals(songDto.ReleaseDate) &&
             DurationSeconds == songDto.DurationSeconds &&
             AlbumId.Equals(songDto.AlbumId) &&
-            ArtistsIds.SequenceEqual(songDto.ArtistsIds) &&
-            SimilarSongsIds.SequenceEqual(songDto.SimilarSongsIds) &&
+            (ArtistsIds?.SequenceEqual(songDto.ArtistsIds) ?? songDto.ArtistsIds == null) &&
+            (SimilarSongsIds?.SequenceEqual(songDto.SimilarSongsIds ?? new List<Guid>()) ?? songDto.SimilarSongsIds == null) &&
             CreatedAt.Equals(songDto.CreatedAt) &&
             UpdatedAt.Equals(songDto.UpdatedAt) &&
             DeletedAt.Equals(songDto.DeletedAt);

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -15,23 +15,31 @@ namespace SoundSphere.Database.Repositories
 
         public FeedbackRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Feedback> GetAll(FeedbackPaginationRequest payload) => _context.Feedbacks
-            .Include(feedback => feedback.User)
-            .Where(feedback => feedback.DeletedAt == null)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
+        public IList<Feedback> GetAll(FeedbackPaginationRequest? payload)
+        {
+            IList<Feedback> feedbacks = _context.Feedbacks
+                .Include(feedback => feedback.User)
+                .Where(feedback => feedback.DeletedAt == null)
+                .ApplyPagination(payload)
+                .ToList();
+            return feedbacks;
+        }
 
-        public Feedback GetById(Guid id) => _context.Feedbacks
-            .Include(feedback => feedback.User)
-            .Where(feedback => feedback.DeletedAt == null)
-            .FirstOrDefault(feedback => feedback.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(FeedbackNotFound, id));
+        public Feedback GetById(Guid id)
+        {
+            Feedback? feedback = _context.Feedbacks
+                .Include(feedback => feedback.User)
+                .Where(feedback => feedback.DeletedAt == null)
+                .FirstOrDefault(feedback => feedback.Id.Equals(id));
+            if (feedback == null)
+                throw new ResourceNotFoundException(string.Format(FeedbackNotFound, id));
+            return feedback;
+        }
 
         public Feedback Add(Feedback feedback)
         {
-            if (feedback.Id == Guid.Empty) feedback.Id = Guid.NewGuid();
+            if (feedback.Id == Guid.Empty)
+                feedback.Id = Guid.NewGuid();
             feedback.CreatedAt = DateTime.Now;
             _context.Feedbacks.Add(feedback);
             _context.SaveChanges();
@@ -57,9 +65,20 @@ namespace SoundSphere.Database.Repositories
             return feedbackToDelete;
         }
 
+        public int CountByDateRangeAndType(DateTime? startDate, DateTime? endDate, FeedbackType? type)
+        {
+            int nrFeedbacks = _context.Feedbacks
+                .Where(feedback => feedback.DeletedAt == null)
+                .Count(feedback =>
+                    (startDate == null || feedback.CreatedAt >= startDate) &&
+                    (endDate == null || feedback.CreatedAt <= endDate) &&
+                    (type == null || feedback.Type == type));
+            return nrFeedbacks;
+        }
+
         public void LinkFeedbackToUser(Feedback feedback)
         {
-            User existingUser = _context.Users.Find(feedback.User.Id);
+            User? existingUser = _context.Users.Find(feedback.User.Id);
             if (existingUser != null)
             {
                 _context.Entry(existingUser).State = EntityState.Unchanged;

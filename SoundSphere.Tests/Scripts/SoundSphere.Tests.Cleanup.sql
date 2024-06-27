@@ -1,0 +1,17 @@
+DELETE FROM [dbo].[PlaylistSong];
+DELETE FROM [dbo].[Playlists];
+DELETE FROM [dbo].[Notifications];
+DELETE FROM [dbo].[Feedbacks];
+DELETE FROM [dbo].[UserSongs];
+DELETE FROM [dbo].[UserArtists];
+DELETE FROM [dbo].[AuthorityUser];
+DELETE FROM [dbo].[Users];
+DELETE FROM [dbo].[ArtistSong];
+DELETE FROM [dbo].[SongLinks];
+DELETE FROM [dbo].[Songs];
+DELETE FROM [dbo].[ArtistLinks];
+DELETE FROM [dbo].[Artists];
+DELETE FROM [dbo].[AlbumLinks];
+DELETE FROM [dbo].[Albums];
+DELETE FROM [dbo].[Authorities];
+DELETE FROM [dbo].[Roles];

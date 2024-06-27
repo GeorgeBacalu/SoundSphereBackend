@@ -11,8 +11,10 @@ namespace SoundSphere.Database.Dtos.Common
         [Required(ErrorMessage = "Type is required")]
         public RoleType Type { get; set; }
 
-        public override bool Equals(object? obj) => obj is RoleDto roleDto && Id.Equals(roleDto.Id) && Type == roleDto.Type;
+        public DateTime CreatedAt { get; set; }
 
-        public override int GetHashCode() => HashCode.Combine(Id, Type);
+        public override bool Equals(object? obj) => obj is RoleDto roleDto && Id.Equals(roleDto.Id) && Type == roleDto.Type && CreatedAt == roleDto.CreatedAt;
+
+        public override int GetHashCode() => HashCode.Combine(Id, Type, CreatedAt);
     }
 }

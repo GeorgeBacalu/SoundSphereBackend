@@ -5,11 +5,10 @@ using System.Net.Mime;
 
 namespace SoundSphere.Api.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public class AuthorityController : ControllerBase
+    public class AuthorityController : BaseController
     {
         private readonly IAuthorityService _authorityService;
 
@@ -18,14 +17,22 @@ namespace SoundSphere.Api.Controllers
         /// <summary>Get all authorities</summary>
         /// <remarks>Return list with all authorities</remarks>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet] public IActionResult GetAll() => Ok(_authorityService.GetAll());
+        [HttpGet] public IActionResult GetAll()
+        {
+            IList<AuthorityDto> authorityDtos = _authorityService.GetAll();
+            return Ok(authorityDtos);
+        }
 
         /// <summary>Get authority by ID</summary>
         /// <remarks>Return authority with given ID</remarks>
         /// <param name="id">Authority fetching ID</param>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{id}")] public IActionResult GetById(Guid id) => Ok(_authorityService.GetById(id));
+        [HttpGet("{id}")] public IActionResult GetById(Guid id)
+        {
+            AuthorityDto authority = _authorityService.GetById(id);
+            return Ok(authority);
+        }
 
         /// <summary>Add authority</summary>
         /// <remarks>Add new authority</remarks>
@@ -35,7 +42,7 @@ namespace SoundSphere.Api.Controllers
         [HttpPost] public IActionResult Add(AuthorityDto authorityDto)
         {
             AuthorityDto createdAuthorityDto = _authorityService.Add(authorityDto);
-            return CreatedAtAction(nameof(GetById), new { id = createdAuthorityDto.Id }, createdAuthorityDto);
+            return CreatedAtAction(nameof(GetById), new { createdAuthorityDto.Id }, createdAuthorityDto);
         }
     }
 }

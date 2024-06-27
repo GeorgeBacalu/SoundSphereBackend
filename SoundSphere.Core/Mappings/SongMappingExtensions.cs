@@ -7,10 +7,17 @@ namespace SoundSphere.Core.Mappings
 {
     public static class SongMappingExtensions
     {
-        public static IList<SongDto> ToDtos(this IList<Song> songs, IMapper mapper) => songs.Select(song => song.ToDto(mapper)).ToList();
+        public static IList<SongDto> ToDtos(this IList<Song> songs, IMapper mapper)
+        {
+            IList<SongDto> songDtos = songs.Select(song => song.ToDto(mapper)).ToList();
+            return songDtos;
+        }
 
-        public static IList<Song> ToEntities(this IList<SongDto> songDtos, IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper) =>
-            songDtos.Select(songDto => songDto.ToEntity(albumRepository, artistRepository, mapper)).ToList();
+        public static IList<Song> ToEntities(this IList<SongDto> songDtos, IAlbumRepository albumRepository, IArtistRepository artistRepository, IMapper mapper)
+        {
+            IList<Song> songs = songDtos.Select(songDto => songDto.ToEntity(albumRepository, artistRepository, mapper)).ToList();
+            return songs;
+        }
 
         public static SongDto ToDto(this Song song, IMapper mapper)
         {

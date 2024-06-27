@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
@@ -32,28 +32,32 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((notificationRepository, context) => notificationRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotifications));
-        
+        [Fact] public void GetAll_Test() => Execute((notificationRepository, context) => notificationRepository.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedNotifications));
+
         [Fact] public void GetById_ValidId_Test() => Execute((notificationRepository, context) => notificationRepository.GetById(ValidNotificationGuid).Should().Be(_notification1));
 
-        [Fact] public void GetById_InvalidId_Test() => Execute((notificationRepository, context) => notificationRepository
+        [Fact]
+        public void GetById_InvalidId_Test() => Execute((notificationRepository, context) => notificationRepository
             .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(NotificationNotFound, InvalidGuid)));
 
-        [Fact] public void Add_Test() => Execute((notificationRepository, context) =>
+        [Fact]
+        public void Add_Test() => Execute((notificationRepository, context) =>
         {
             Notification newNotification = GetMockedNotification37();
             notificationRepository.Add(newNotification);
             context.Notifications.Find(newNotification.Id).Should().BeEquivalentTo(newNotification, options => options.Excluding(notification => notification.CreatedAt));
         });
 
-        [Fact] public void UodateById_ValidId_Test() => Execute((notificationRepository, context) =>
+        [Fact]
+        public void UodateById_ValidId_Test() => Execute((notificationRepository, context) =>
         {
             Notification updatedNotification = new Notification
             {
                 Id = ValidNotificationGuid,
-                User = _notification1.User,
+                Sender = _notification1.Sender,
+                Receiver = _notification1.Receiver,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
                 IsRead = _notification2.IsRead,
@@ -63,12 +67,14 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Notifications.Find(ValidNotificationGuid).Should().Be(updatedNotification);
         });
 
-        [Fact] public void UpdateById_InvalidId_Test() => Execute((notificationRepository, cotext) => notificationRepository
+        [Fact]
+        public void UpdateById_InvalidId_Test() => Execute((notificationRepository, cotext) => notificationRepository
             .Invoking(repository => repository.UpdateById(_notification2, InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(NotificationNotFound, InvalidGuid)));
 
-        [Fact] public void DeleteById_ValidId_Test() => Execute((notificationRepository, context) =>
+        [Fact]
+        public void DeleteById_ValidId_Test() => Execute((notificationRepository, context) =>
         {
             notificationRepository.DeleteById(ValidNotificationGuid);
             IList<Notification> newNotifications = new List<Notification>(_notifications);
@@ -76,7 +82,8 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Notifications.Should().BeEquivalentTo(newNotifications);
         });
 
-        [Fact] public void DeleteById_InvalidId_Test() => Execute((notificationReposiotry, context) => notificationReposiotry
+        [Fact]
+        public void DeleteById_InvalidId_Test() => Execute((notificationReposiotry, context) => notificationReposiotry
             .Invoking(repository => repository.DeleteById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(NotificationNotFound, InvalidGuid)));

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
+using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using static SoundSphere.Database.Constants;
@@ -15,6 +17,8 @@ namespace SoundSphere.Tests.Unit.Services
     public class AlbumServiceTest
     {
         private readonly Mock<IAlbumRepository> _albumRepositoryMock = new();
+        private readonly Mock<DbSet<Album>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly IAlbumService _albumService;
 
@@ -30,11 +34,17 @@ namespace SoundSphere.Tests.Unit.Services
 
         public AlbumServiceTest()
         {
+            IQueryable<Album> queryableAlbums = _albums.AsQueryable();
+            _dbSetMock.As<IQueryable<Album>>().Setup(mock => mock.Provider).Returns(queryableAlbums.Provider);
+            _dbSetMock.As<IQueryable<Album>>().Setup(mock => mock.Expression).Returns(queryableAlbums.Expression);
+            _dbSetMock.As<IQueryable<Album>>().Setup(mock => mock.ElementType).Returns(queryableAlbums.ElementType);
+            _dbSetMock.As<IQueryable<Album>>().Setup(mock => mock.GetEnumerator()).Returns(queryableAlbums.GetEnumerator());
+            _dbContextMock.Setup(mock => mock.Albums).Returns(_dbSetMock.Object);
             _mapperMock.Setup(mock => mock.Map<AlbumDto>(_album1)).Returns(_albumDto1);
             _mapperMock.Setup(mock => mock.Map<AlbumDto>(_album2)).Returns(_albumDto2);
             _mapperMock.Setup(mock => mock.Map<Album>(_albumDto1)).Returns(_album1);
             _mapperMock.Setup(mock => mock.Map<Album>(_albumDto2)).Returns(_album2);
-            _albumService = new AlbumService(_albumRepositoryMock.Object, _mapperMock.Object);
+            _albumService = new AlbumService(_albumRepositoryMock.Object, _dbContextMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void GetAll_Test()

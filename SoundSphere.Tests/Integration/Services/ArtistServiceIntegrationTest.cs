@@ -4,7 +4,7 @@ using SoundSphere.Core.Mappings;
 using SoundSphere.Core.Services;
 using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using static SoundSphere.Database.Constants;
@@ -31,7 +31,7 @@ namespace SoundSphere.Tests.Integration.Services
         private void Execute(Action<ArtistService, SoundSphereDbContext> action)
         {
             using var context = _fixture.CreateContext();
-            var artistService = new ArtistService(new ArtistRepository(context), _mapper);
+            var artistService = new ArtistService(new ArtistRepository(context), context, _mapper);
             using var transaction = context.Database.BeginTransaction();
             context.AddRange(_artists);
             context.SaveChanges();

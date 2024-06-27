@@ -1,13 +1,15 @@
-﻿using SoundSphere.Database.Dtos.Request;
+﻿using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 
 namespace SoundSphere.Database.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        IList<User> GetAll(UserPaginationRequest payload);
+        IList<User> GetAll(UserPaginationRequest? payload);
 
         User GetById(Guid id);
+
+        User GetByEmail(string email);
 
         User Add(User user);
 

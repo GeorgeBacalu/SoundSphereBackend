@@ -8,6 +8,8 @@ namespace SoundSphere.Database.Repositories.Interfaces
 
         Authority GetById(Guid id);
 
+        IList<Authority> GetByRole(Role role);
+
         Authority Add(Authority authority);
     }
 }

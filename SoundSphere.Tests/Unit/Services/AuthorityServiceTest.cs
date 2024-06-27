@@ -21,12 +21,12 @@ namespace SoundSphere.Tests.Unit.Services
         private readonly Authority _authority2 = GetMockedAuthority2();
         private readonly Authority _authority3 = GetMockedAuthority3();
         private readonly Authority _authority4 = GetMockedAuthority4();
-        private readonly IList<Authority> _authorities = GetMockedAuthorities();
+        private readonly IList<Authority> _authorities = GetMockedAuthoritiesAdmin();
         private readonly AuthorityDto _authorityDto1 = GetMockedAuthorityDto1();
         private readonly AuthorityDto _authorityDto2 = GetMockedAuthorityDto2();
         private readonly AuthorityDto _authorityDto3 = GetMockedAuthorityDto3();
         private readonly AuthorityDto _authorityDto4 = GetMockedAuthorityDto4();
-        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtos();
+        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtosAdmin();
 
         public AuthorityServiceTest()
         {

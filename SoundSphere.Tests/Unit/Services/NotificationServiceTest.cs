@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
+using SoundSphere.Database.Context;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using static SoundSphere.Database.Constants;
@@ -17,6 +19,8 @@ namespace SoundSphere.Tests.Unit.Services
     {
         private readonly Mock<INotificationRepository> _notificationRepositoryMock = new();
         private readonly Mock<IUserRepository> _userRepositoryMock = new();
+        private readonly Mock<DbSet<Notification>> _dbSetMock = new();
+        private readonly Mock<SoundSphereDbContext> _dbContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly INotificationService _notificationService;
 
@@ -33,17 +37,23 @@ namespace SoundSphere.Tests.Unit.Services
 
         public NotificationServiceTest()
         {
+            IQueryable<Notification> queryableNotifications = _notifications.AsQueryable();
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.Provider).Returns(queryableNotifications.Provider);
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.Expression).Returns(queryableNotifications.Expression);
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.ElementType).Returns(queryableNotifications.ElementType);
+            _dbSetMock.As<IQueryable<Notification>>().Setup(mock => mock.GetEnumerator()).Returns(queryableNotifications.GetEnumerator());
+            _dbContextMock.Setup(mock => mock.Notifications).Returns(_dbSetMock.Object);
             _mapperMock.Setup(mock => mock.Map<NotificationDto>(_notification1)).Returns(_notificationDto1);
             _mapperMock.Setup(mock => mock.Map<NotificationDto>(_notification2)).Returns(_notificationDto2);
             _mapperMock.Setup(mock => mock.Map<Notification>(_notificationDto1)).Returns(_notification1);
             _mapperMock.Setup(mock => mock.Map<Notification>(_notificationDto2)).Returns(_notification2);
-            _notificationService = new NotificationService(_notificationRepositoryMock.Object, _userRepositoryMock.Object, _mapperMock.Object);
+            _notificationService = new NotificationService(_notificationRepositoryMock.Object, _userRepositoryMock.Object, _dbContextMock.Object, _mapperMock.Object);
         }
 
         [Fact] public void GetAll_Test()
         {
-            _notificationRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest)).Returns(_paginatedNotifications);
-            _notificationService.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedNotificationDtos);
+            _notificationRepositoryMock.Setup(mock => mock.GetAll(_paginationRequest, ValidUserGuid)).Returns(_paginatedNotifications);
+            _notificationService.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedNotificationDtos);
         }
 
         [Fact] public void GetById_Test()
@@ -56,7 +66,7 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _userRepositoryMock.Setup(mock => mock.GetById(ValidUserGuid)).Returns(_user1);
             _notificationRepositoryMock.Setup(mock => mock.Add(_notification1)).Returns(_notification1);
-            _notificationService.Add(_notificationDto1).Should().Be(_notificationDto1);
+            _notificationService.Send(_notificationDto1, ValidUserGuid, ValidUserGuid2).Should().Be(_notificationDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -64,7 +74,8 @@ namespace SoundSphere.Tests.Unit.Services
             Notification updatedNotification = new Notification
             {
                 Id = ValidNotificationGuid,
-                User = _notification1.User,
+                Sender = _notification1.Sender,
+                Receiver = _notification1.Receiver,
                 Type = _notification2.Type,
                 Message = _notification2.Message,
                 IsRead = _notification2.IsRead,
@@ -85,7 +96,8 @@ namespace SoundSphere.Tests.Unit.Services
         private NotificationDto ToDto(Notification notification) => new NotificationDto
         {
             Id = notification.Id,
-            UserId = notification.User.Id,
+            SenderId = notification.Sender.Id,
+            ReceiverId = notification.Receiver.Id,
             Type = notification.Type,
             Message = notification.Message,
             IsRead = notification.IsRead,

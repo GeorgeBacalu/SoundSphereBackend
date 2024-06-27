@@ -15,9 +15,9 @@ namespace SoundSphere.Tests.Integration.Services
         private readonly DbFixture _fixture;
         private readonly IMapper _mapper;
 
-        private readonly IList<Authority> _authorities = GetMockedAuthorities();
+        private readonly IList<Authority> _authorities = GetMockedAuthoritiesAdmin();
         private readonly AuthorityDto _authorityDto1 = GetMockedAuthorityDto1();
-        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtos();
+        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtosAdmin();
 
         public AuthorityServiceIntegrationTest(DbFixture fixture) => (_fixture, _mapper) = (fixture, new MapperConfiguration(config => { config.CreateMap<Authority, AuthorityDto>(); config.CreateMap<AuthorityDto, Authority>(); }).CreateMapper());
 

@@ -18,11 +18,11 @@ namespace SoundSphere.Database.Entities
 
         public Album Album { get; set; } = null!;
 
-        public IList<Artist> Artists { get; set; } = null!;
+        public IList<Artist> Artists { get; set; } = new List<Artist>();
 
-        [JsonIgnore] public IList<Playlist>? Playlists { get; set; }
+        [JsonIgnore] public IList<Playlist>? Playlists { get; set; } = new List<Playlist>();
 
-        public IList<SongLink> SimilarSongs { get; set; } = null!;
+        public IList<SongLink> SimilarSongs { get; set; } = new List<SongLink>();
 
         public override bool Equals(object? obj) => obj is Song song &&
             Id.Equals(song.Id) &&
@@ -32,8 +32,8 @@ namespace SoundSphere.Database.Entities
             ReleaseDate.Equals(song.ReleaseDate) &&
             DurationSeconds == song.DurationSeconds &&
             Album.Equals(song.Album) &&
-            Artists.SequenceEqual(song.Artists) &&
-            SimilarSongs.SequenceEqual(song.SimilarSongs) &&
+            (Artists?.SequenceEqual(song.Artists) ?? song.Artists == null) &&
+            (SimilarSongs?.SequenceEqual(song.SimilarSongs ?? new List<SongLink>()) ?? song.SimilarSongs == null) &&
             CreatedAt.Equals(song.CreatedAt) &&
             UpdatedAt.Equals(song.UpdatedAt) &&
             DeletedAt.Equals(song.DeletedAt);
@@ -41,5 +41,5 @@ namespace SoundSphere.Database.Entities
         public override int GetHashCode() => HashCode.Combine(Id, Title, ImageUrl, Genre, ReleaseDate, DurationSeconds, Album, HashCode.Combine(Artists, Playlists, SimilarSongs, CreatedAt, UpdatedAt, DeletedAt));
     }
 
-    public enum GenreType { Pop, Rock, Rnb, HipHop, Dance, Techno, Latino, Hindi, Reggae, Jazz, Classical, Country, Electronic }
+    public enum GenreType { InvalidGenre, Pop = 5, Rock = 10, Rnb = 15, HipHop = 20, Dance = 25, Techno = 30, Latino = 35, Hindi = 40, Reggae = 45, Jazz = 50, Classical = 55, Country = 60, Electronic = 65 }
 }

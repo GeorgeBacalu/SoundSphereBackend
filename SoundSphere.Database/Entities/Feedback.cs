@@ -22,5 +22,5 @@
         public override int GetHashCode() => HashCode.Combine(Id, User, Type, Message, HashCode.Combine(CreatedAt, UpdatedAt, DeletedAt));
     }
 
-    public enum FeedbackType { Issue, Optimization, Improvement }
+    public enum FeedbackType { InvalidFeedbackType, Issue = 10, Optimization = 20, Improvement = 30 }
 }

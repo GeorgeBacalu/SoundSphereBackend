@@ -18,19 +18,6 @@ namespace SoundSphere.Database.Dtos.Common
         public string Email { get; set; } = null!;
 
         /**
-         * Password must contain:
-         * - at least one digit
-         * - at least one lowercase letter
-         * - at least one uppercase letter
-         * - at least one special character
-         * - no whitespace
-         * - between 8 and 30 characters
-         */
-        [Required(ErrorMessage = "Password is required")]
-        [RegularExpression(@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+-=()])(\S){8,30}$", ErrorMessage = "Invalid password format")]
-        public string Password { get; set; } = null!;
-
-        /**
          * Mobile must follow the following format:
          * - should start with 00 or +40 or 0
          * - followed by the mobile prefix
@@ -55,6 +42,10 @@ namespace SoundSphere.Database.Dtos.Common
         [Url(ErrorMessage = "Invalid URL format")]
         public string Avatar { get; set; } = null!;
 
+        public bool EmailNotifications { get; set; }
+
+        public Theme Theme { get; set; } = Theme.SystemDefault;
+
         [Required(ErrorMessage = "RoleId is required")]
         public Guid RoleId { get; set; }
 
@@ -65,17 +56,18 @@ namespace SoundSphere.Database.Dtos.Common
             Id.Equals(userDto.Id) &&
             Name.Equals(userDto.Name) &&
             Email.Equals(userDto.Email) &&
-            Password.Equals(userDto.Password) &&
             Mobile.Equals(userDto.Mobile) &&
             Address.Equals(userDto.Address) &&
             Birthday.Equals(userDto.Birthday) &&
             Avatar.Equals(userDto.Avatar) &&
+            EmailNotifications.Equals(userDto.EmailNotifications) &&
+            Theme.Equals(userDto.Theme) &&
             RoleId.Equals(userDto.RoleId) &&
             AuthoritiesIds.SequenceEqual(userDto.AuthoritiesIds) &&
             CreatedAt.Equals(userDto.CreatedAt) &&
             UpdatedAt.Equals(userDto.UpdatedAt) &&
             DeletedAt.Equals(userDto.DeletedAt);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, Password, Mobile, Address, Birthday, HashCode.Combine(Avatar, RoleId, AuthoritiesIds, CreatedAt, UpdatedAt, DeletedAt));
+        public override int GetHashCode() => HashCode.Combine(Id, Name, Email, Mobile, Address, Birthday, HashCode.Combine(Avatar, EmailNotifications, Theme, RoleId, AuthoritiesIds, CreatedAt, UpdatedAt, DeletedAt));
     }
 }

@@ -4,7 +4,7 @@ using Moq;
 using SoundSphere.Core.Services;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories.Interfaces;
 using static SoundSphere.Database.Constants;
@@ -56,7 +56,7 @@ namespace SoundSphere.Tests.Unit.Services
         {
             _userRepositoryMock.Setup(mock => mock.GetById(ValidUserGuid)).Returns(_user1);
             _feedbackRepositoryMock.Setup(mock => mock.Add(_feedback1)).Returns(_feedback1);
-            _feedbackService.Add(_feedbackDto1).Should().Be(_feedbackDto1);
+            _feedbackService.Add(_feedbackDto1, ValidUserGuid).Should().Be(_feedbackDto1);
         }
 
         [Fact] public void UpdateById_Test()
@@ -72,12 +72,12 @@ namespace SoundSphere.Tests.Unit.Services
             FeedbackDto updatedFeedbackDto = ToDto(updatedFeedback);
             _mapperMock.Setup(mock => mock.Map<FeedbackDto>(updatedFeedback)).Returns(updatedFeedbackDto);
             _feedbackRepositoryMock.Setup(mock => mock.UpdateById(_feedback2, ValidFeedbackGuid)).Returns(updatedFeedback);
-            _feedbackService.UpdateById(_feedbackDto2, ValidFeedbackGuid).Should().Be(updatedFeedbackDto);
+            _feedbackService.UpdateById(_feedbackDto2, ValidFeedbackGuid, ValidUserGuid).Should().Be(updatedFeedbackDto);
         }
 
         [Fact] public void DeleteById_Test()
         {
-            _feedbackService.DeleteById(ValidFeedbackGuid);
+            _feedbackService.DeleteById(ValidFeedbackGuid, ValidUserGuid);
             _feedbackRepositoryMock.Verify(mock => mock.DeleteById(ValidFeedbackGuid));
         }
 

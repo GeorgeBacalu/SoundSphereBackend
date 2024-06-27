@@ -18,9 +18,9 @@ namespace SoundSphere.Tests.Integration.Controllers
         private readonly CustomWebAppFactory _factory;
         private readonly HttpClient _httpClient;
 
-        private readonly IList<Authority> _authorities = GetMockedAuthorities();
+        private readonly IList<Authority> _authorities = GetMockedAuthoritiesAdmin();
         private readonly AuthorityDto _authorityDto1 = GetMockedAuthorityDto1();
-        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtos();
+        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtosAdmin();
 
         public AuthorityControllerIntegrationTest()
         {

@@ -16,6 +16,7 @@ namespace SoundSphere.Infrastructure.Middlewares
                 {
                     ResourceNotFoundException ex => new ProblemDetails { Title = "Resource not found", Status = StatusCodes.Status404NotFound, Detail = ex.Message },
                     InvalidRequestException ex => new ProblemDetails { Title = "Invalid Request", Status = StatusCodes.Status400BadRequest, Detail = ex.Message },
+                    ForbiddenAccessException ex => new ProblemDetails { Title = "Forbidden Access", Status = StatusCodes.Status403Forbidden, Detail = ex.Message },
                     _ => new ProblemDetails { Title = "Server Error", Status = StatusCodes.Status500InternalServerError, Detail = exception.Message }
                 };
                 context.Response.ContentType = "application/json";

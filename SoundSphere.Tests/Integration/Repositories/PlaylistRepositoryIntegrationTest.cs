@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Repositories;
 using SoundSphere.Infrastructure.Exceptions;
@@ -32,23 +32,26 @@ namespace SoundSphere.Tests.Integration.Repositories
             transaction.Rollback();
         }
 
-        [Fact] public void GetAll_Test() => Execute((playlistRepository, context) => playlistRepository.GetAll(_paginationRequest).Should().BeEquivalentTo(_paginatedPlaylists));
-        
+        [Fact] public void GetAll_Test() => Execute((playlistRepository, context) => playlistRepository.GetAll(_paginationRequest, ValidUserGuid).Should().BeEquivalentTo(_paginatedPlaylists));
+
         [Fact] public void GetById_ValidId_Test() => Execute((playlistRepository, context) => playlistRepository.GetById(ValidPlaylistGuid).Should().Be(_playlist1));
 
-        [Fact] public void GetById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+        [Fact]
+        public void GetById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
             .Invoking(repository => repository.GetById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(PlaylistNotFound, InvalidGuid)));
 
-        [Fact] public void Add_Test() => Execute((playlistRepository, context) =>
+        [Fact]
+        public void Add_Test() => Execute((playlistRepository, context) =>
         {
             Playlist newPlaylist = GetMockedPlaylist24();
             playlistRepository.Add(newPlaylist);
             context.Playlists.Find(newPlaylist.Id).Should().BeEquivalentTo(newPlaylist, options => options.Excluding(playlist => playlist.CreatedAt));
         });
 
-        [Fact] public void UpdateById_ValidId_Test() => Execute((playlistRepository, context) =>
+        [Fact]
+        public void UpdateById_ValidId_Test() => Execute((playlistRepository, context) =>
         {
             Playlist updatedPlaylist = new Playlist
             {
@@ -62,12 +65,14 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Playlists.Find(ValidPlaylistGuid).Should().Be(updatedPlaylist);
         });
 
-        [Fact] public void UpdateById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+        [Fact]
+        public void UpdateById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
             .Invoking(repository => repository.UpdateById(_playlist2, InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(PlaylistNotFound, InvalidGuid)));
 
-        [Fact] public void DeleteById_ValidId_Test() => Execute((playlistRepository, context) =>
+        [Fact]
+        public void DeleteById_ValidId_Test() => Execute((playlistRepository, context) =>
         {
             Playlist deletedPlaylist = new Playlist
             {
@@ -81,7 +86,8 @@ namespace SoundSphere.Tests.Integration.Repositories
             context.Playlists.Find(ValidPlaylistGuid).Should().Be(deletedPlaylist);
         });
 
-        [Fact] public void DeleteById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
+        [Fact]
+        public void DeleteById_InvalidId_Test() => Execute((playlistRepository, context) => playlistRepository
             .Invoking(repository => repository.DeleteById(InvalidGuid))
             .Should().Throw<ResourceNotFoundException>()
             .WithMessage(string.Format(PlaylistNotFound, InvalidGuid)));

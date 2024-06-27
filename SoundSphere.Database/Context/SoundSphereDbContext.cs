@@ -31,6 +31,7 @@ namespace SoundSphere.Database.Context
             {
                 entity.HasIndex(user => user.Name).IsUnique();
                 entity.HasIndex(user => user.Email).IsUnique();
+                entity.Property(user => user.Theme).HasConversion(new EnumToStringConverter<Theme>());
             });
             modelBuilder.Entity<Role>(entity =>
             {
@@ -43,7 +44,18 @@ namespace SoundSphere.Database.Context
                 entity.Property(authority => authority.Type).HasConversion(new EnumToStringConverter<AuthorityType>());
             });
             modelBuilder.Entity<Feedback>(entity => entity.Property(feedback => feedback.Type).HasConversion(new EnumToStringConverter<FeedbackType>()));
-            modelBuilder.Entity<Notification>(entity => entity.Property(notification => notification.Type).HasConversion(new EnumToStringConverter<NotificationType>()));
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.Property(notification => notification.Type).HasConversion(new EnumToStringConverter<NotificationType>());
+                entity.HasOne(notification => notification.Sender)
+                    .WithMany()
+                    .HasForeignKey(notification => notification.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(notification => notification.Receiver)
+                    .WithMany()
+                    .HasForeignKey(notification => notification.ReceiverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
             modelBuilder.Entity<Song>(entity => entity.Property(song => song.Genre).HasConversion(new EnumToStringConverter<GenreType>()));
             modelBuilder.Entity<SongLink>(entity =>
             {

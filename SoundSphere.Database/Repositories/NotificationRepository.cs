@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -15,23 +15,33 @@ namespace SoundSphere.Database.Repositories
 
         public NotificationRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Notification> GetAll(NotificationPaginationRequest payload) => _context.Notifications
-            .Include(notification => notification.User)
-            .Where(notification => notification.DeletedAt == null)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
+        public IList<Notification> GetAll(NotificationPaginationRequest? payload, Guid userId)
+        {
+            IList<Notification> notifications = _context.Notifications
+                .Include(notification => notification.Sender)
+                .Include(notification => notification.Receiver)
+                .Where(notification => notification.DeletedAt == null && notification.ReceiverId.Equals(userId))
+                .ApplyPagination(payload)
+                .ToList();
+            return notifications;
+        }
 
-        public Notification GetById(Guid id) => _context.Notifications
-            .Include(notification => notification.User)
-            .Where(notification => notification.DeletedAt == null)
-            .FirstOrDefault(notification => notification.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(NotificationNotFound, id));
+        public Notification GetById(Guid id)
+        {
+            Notification? notification = _context.Notifications
+                .Include(notification => notification.Sender)
+                .Include(notification => notification.Receiver)
+                .Where(notification => notification.DeletedAt == null)
+                .FirstOrDefault(notification => notification.Id.Equals(id));
+            if (notification == null)
+                throw new ResourceNotFoundException(string.Format(NotificationNotFound, id));
+            return notification;
+        }
 
         public Notification Add(Notification notification)
         {
-            if (notification.Id == Guid.Empty) notification.Id = Guid.NewGuid();
+            if (notification.Id == Guid.Empty)
+                notification.Id = Guid.NewGuid();
             notification.CreatedAt = DateTime.Now;
             notification.IsRead = false;
             _context.Notifications.Add(notification);
@@ -59,13 +69,23 @@ namespace SoundSphere.Database.Repositories
             return notificationToDelete;
         }
 
-        public void LinkNotificationToUser(Notification notification)
+        public void LinkNotificationToSender(Notification notification)
         {
-            User existingUser = _context.Users.Find(notification.User.Id);
-            if (existingUser != null)
+            User? existingSender = _context.Users.Find(notification.SenderId);
+            if (existingSender != null)
             {
-                _context.Entry(existingUser).State = EntityState.Unchanged;
-                notification.User = existingUser;
+                _context.Entry(existingSender).State = EntityState.Unchanged;
+                notification.Sender = existingSender;
+            }
+        }
+
+        public void LinkNotificationToReceiver(Notification notification)
+        {
+            User? existingReceiver = _context.Users.Find(notification.ReceiverId);
+            if (existingReceiver != null)
+            {
+                _context.Entry(existingReceiver).State = EntityState.Unchanged;
+                notification.Receiver = existingReceiver;
             }
         }
     }

@@ -16,7 +16,7 @@ namespace SoundSphere.Tests.Unit.Controllers
         private readonly AuthorityController _authorityController;
 
         private readonly AuthorityDto _authorityDto1 = GetMockedAuthorityDto1();
-        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtos();
+        private readonly IList<AuthorityDto> _authorityDtos = GetMockedAuthorityDtosAdmin();
 
         public AuthorityControllerTest() => _authorityController = new(_authorityServiceMock.Object);
 

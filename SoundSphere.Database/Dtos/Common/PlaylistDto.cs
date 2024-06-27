@@ -12,7 +12,7 @@ namespace SoundSphere.Database.Dtos.Common
         [StringLength(75, ErrorMessage = "Title can't be longer than 75 characters")]
         public string Title { get; set; } = null!;
 
-        [Required(ErrorMessage = "UserId is required")]
+        [Required(ErrorMessage = "User Id is required")]
         public Guid UserId { get; set; }
 
         [MaxLength(100, ErrorMessage = "There can't be more than 100 songs in a playlist")]

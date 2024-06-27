@@ -10,10 +10,12 @@ namespace SoundSphere.Database.Entities
 
         [JsonIgnore] public IList<User>? Users { get; set; }
 
-        public override bool Equals(object? obj) => obj is Authority authority && Id.Equals(authority.Id) && Type == authority.Type;
+        public DateTime CreatedAt { get; set; }
 
-        public override int GetHashCode() => HashCode.Combine(Id, Type, Users);
+        public override bool Equals(object? obj) => obj is Authority authority && Id.Equals(authority.Id) && Type == authority.Type && CreatedAt == authority.CreatedAt;
+
+        public override int GetHashCode() => HashCode.Combine(Id, Type, Users, CreatedAt);
     }
 
-    public enum AuthorityType { Create, Read, Update, Delete }
+    public enum AuthorityType { InvalidAuthorityType, Create = 10, Read = 20, Update = 30, Delete = 40 }
 }

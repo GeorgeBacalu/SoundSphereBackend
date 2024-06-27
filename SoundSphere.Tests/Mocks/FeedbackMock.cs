@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Dtos.Request.Models;
 using SoundSphere.Database.Entities;
 using static SoundSphere.Tests.Mocks.UserMock;
@@ -12,7 +12,7 @@ namespace SoundSphere.Tests.Mocks
         private FeedbackMock() { }
 
         public static IList<Feedback> GetMockedFeedbacks() => new List<Feedback>
-        { 
+        {
             GetMockedFeedback1(), GetMockedFeedback2(), GetMockedFeedback3(), GetMockedFeedback4(), GetMockedFeedback5(), GetMockedFeedback6(), GetMockedFeedback7(), GetMockedFeedback8(), GetMockedFeedback9(), GetMockedFeedback10(),
             GetMockedFeedback11(), GetMockedFeedback12(), GetMockedFeedback13(), GetMockedFeedback14(), GetMockedFeedback15(), GetMockedFeedback16(), GetMockedFeedback17(), GetMockedFeedback18(), GetMockedFeedback19(), GetMockedFeedback20(),
             GetMockedFeedback21(), GetMockedFeedback22(), GetMockedFeedback23(), GetMockedFeedback24(), GetMockedFeedback25(), GetMockedFeedback26(), GetMockedFeedback27(), GetMockedFeedback28(), GetMockedFeedback29(), GetMockedFeedback30(),
@@ -26,11 +26,12 @@ namespace SoundSphere.Tests.Mocks
         public static IList<FeedbackDto> GetMockedPaginatedFeedbackDtos() => GetMockedPaginatedFeedbacks().Select(ToDto).ToList();
 
         public static FeedbackPaginationRequest GetMockedFeedbacksPaginationRequest() => new FeedbackPaginationRequest(
-            SortCriteria: new Dictionary<FeedbackSortCriterion, SortOrder> { { FeedbackSortCriterion.ByCreateDate, SortOrder.Ascending }, { FeedbackSortCriterion.ByMessage, SortOrder.Ascending }, { FeedbackSortCriterion.ByUserName, SortOrder.Ascending } },
-            SearchCriteria: new List<FeedbackSearchCriterion> { FeedbackSearchCriterion.ByCreateDateRange, FeedbackSearchCriterion.ByMessage, FeedbackSearchCriterion.ByUserName },
-            Message: "A",
+            SortCriteria: new Dictionary<FeedbackSortCriterion, SortOrder> { { FeedbackSortCriterion.ByMessage, SortOrder.Ascending }, { FeedbackSortCriterion.ByUserName, SortOrder.Ascending } },
+            SearchCriteria: new List<FeedbackSearchCriterion> { FeedbackSearchCriterion.ByCreateDateRange, FeedbackSearchCriterion.ByMessage, FeedbackSearchCriterion.ByUserName, FeedbackSearchCriterion.ByType },
             DateRange: new DateTimeRange(new DateTime(1950, 1, 1), new DateTime(2024, 5, 31)),
-            UserName: "A");
+            Message: "A",
+            UserName: "A",
+            Type: FeedbackType.Issue);
 
         public static Feedback GetMockedFeedback1() => new Feedback
         {

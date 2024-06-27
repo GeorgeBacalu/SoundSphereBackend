@@ -7,18 +7,18 @@ namespace SoundSphere.Tests.Mocks
     {
         private AuthorityMock() { }
 
-        public static IList<Authority> GetMockedAuthorities() => GetMockedAuthorities1().Concat(GetMockedAuthorities2()).ToList();
+        public static IList<Authority> GetMockedAuthoritiesAdmin() => new List<Authority> { GetMockedAuthority1(), GetMockedAuthority2(), GetMockedAuthority3(), GetMockedAuthority4() };
 
-        public static IList<AuthorityDto> GetMockedAuthorityDtos() => GetMockedAuthorityDtos1().Concat(GetMockedAuthorityDtos2()).ToList();
+        public static IList<AuthorityDto> GetMockedAuthorityDtosAdmin() => new List<AuthorityDto> { GetMockedAuthorityDto1(), GetMockedAuthorityDto2(), GetMockedAuthorityDto3(), GetMockedAuthorityDto4() };
 
-        public static IList<Authority> GetMockedAuthorities1() => new List<Authority> { GetMockedAuthority1(), GetMockedAuthority2() };
+        public static IList<Authority> GetMockedAuthoritiesModerator() => new List<Authority> { GetMockedAuthority1(), GetMockedAuthority2(), GetMockedAuthority3() };
 
-        public static IList<Authority> GetMockedAuthorities2() => new List<Authority> { GetMockedAuthority3(), GetMockedAuthority4() };
+        public static IList<AuthorityDto> GetMockedAuthorityDtosModerator() => new List<AuthorityDto> { GetMockedAuthorityDto1(), GetMockedAuthorityDto2(), GetMockedAuthorityDto3() };
 
-        public static IList<AuthorityDto> GetMockedAuthorityDtos1() => new List<AuthorityDto> { GetMockedAuthorityDto1(), GetMockedAuthorityDto2() };
+        public static IList<Authority> GetMockedAuthoritiesListener() => new List<Authority> { GetMockedAuthority1() };
 
-        public static IList<AuthorityDto> GetMockedAuthorityDtos2() => new List<AuthorityDto> { GetMockedAuthorityDto3(), GetMockedAuthorityDto4() };
-    
+        public static IList<AuthorityDto> GetMockedAuthorityDtosListener() => new List<AuthorityDto> { GetMockedAuthorityDto1() };
+
         public static Authority GetMockedAuthority1() => new Authority { Id = Guid.Parse("75e924c3-34e7-46ef-b521-7331e36caadd"), Type = AuthorityType.Create };
 
         public static Authority GetMockedAuthority2() => new Authority { Id = Guid.Parse("362b20cf-3636-49ed-9489-d2700339efce"), Type = AuthorityType.Read };

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SoundSphere.Database.Context;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using SoundSphere.Database.Entities;
 using SoundSphere.Database.Extensions;
 using SoundSphere.Database.Repositories.Interfaces;
@@ -15,23 +15,31 @@ namespace SoundSphere.Database.Repositories
 
         public AlbumRepository(SoundSphereDbContext context) => _context = context;
 
-        public IList<Album> GetAll(AlbumPaginationRequest payload) => _context.Albums
-            .Include(album => album.SimilarAlbums)
-            .Where(album => album.DeletedAt == null)
-            .Filter(payload)
-            .Sort(payload)
-            .Paginate(payload)
-            .ToList();
+        public IList<Album> GetAll(AlbumPaginationRequest? payload)
+        {
+            IList<Album> albums = _context.Albums
+                .Include(album => album.SimilarAlbums)
+                .Where(album => album.DeletedAt == null)
+                .ApplyPagination(payload)
+                .ToList();
+            return albums;
+        }
 
-        public Album GetById(Guid id) => _context.Albums
-            .Include(album => album.SimilarAlbums)
-            .Where(album => album.DeletedAt == null)
-            .FirstOrDefault(album => album.Id == id)
-            ?? throw new ResourceNotFoundException(string.Format(AlbumNotFound, id));
+        public Album GetById(Guid id)
+        {
+            Album? album = _context.Albums
+                .Include(album => album.SimilarAlbums)
+                .Where(album => album.DeletedAt == null)
+                .FirstOrDefault(album => album.Id.Equals(id));
+            if (album == null)
+                throw new ResourceNotFoundException(string.Format(AlbumNotFound, id));
+            return album;
+        }
 
         public Album Add(Album album)
         {
-            if (album.Id == Guid.Empty) album.Id = Guid.NewGuid();
+            if (album.Id == Guid.Empty)
+                album.Id = Guid.NewGuid();
             album.CreatedAt = DateTime.Now;
             _context.Albums.Add(album);
             _context.SaveChanges();

@@ -4,7 +4,7 @@ using Moq;
 using SoundSphere.Api.Controllers;
 using SoundSphere.Core.Services.Interfaces;
 using SoundSphere.Database.Dtos.Common;
-using SoundSphere.Database.Dtos.Request;
+using SoundSphere.Database.Dtos.Request.Pagination;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static SoundSphere.Database.Constants;
 using static SoundSphere.Tests.Mocks.FeedbackMock;
@@ -44,7 +44,7 @@ namespace SoundSphere.Tests.Unit.Controllers
 
         [Fact] public void Add_Test()
         {
-            _feedbackServiceMock.Setup(mock => mock.Add(_feedbackDto1)).Returns(_feedbackDto1);
+            _feedbackServiceMock.Setup(mock => mock.Add(_feedbackDto1, ValidUserGuid)).Returns(_feedbackDto1);
             CreatedAtActionResult? result = _feedbackController.Add(_feedbackDto1) as CreatedAtActionResult;
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(Status201Created);
@@ -61,7 +61,7 @@ namespace SoundSphere.Tests.Unit.Controllers
                 Message = _feedbackDto2.Message,
                 CreatedAt = _feedbackDto1.CreatedAt
             };
-            _feedbackServiceMock.Setup(mock => mock.UpdateById(_feedbackDto2, ValidFeedbackGuid)).Returns(updatedFeedbackDto);
+            _feedbackServiceMock.Setup(mock => mock.UpdateById(_feedbackDto2, ValidFeedbackGuid, ValidUserGuid)).Returns(updatedFeedbackDto);
             OkObjectResult? result = _feedbackController.UpdateById(_feedbackDto2, ValidFeedbackGuid) as OkObjectResult;
             result?.Should().NotBeNull();
             result?.StatusCode.Should().Be(Status200OK);
